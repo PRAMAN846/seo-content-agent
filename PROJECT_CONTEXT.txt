@@ -22,7 +22,10 @@ Build an end-to-end SEO content writing workflow that:
 - Proper auth system added (not browser basic auth):
   - register/login/logout/me APIs
   - session cookie auth
-- Persistent SQLite storage added:
+- Persistent storage implemented:
+  - supports Neon/Postgres via DATABASE_URL (preferred in production)
+  - keeps SQLite fallback for local/dev when DATABASE_URL is absent
+  - schema includes users/sessions/runs/run_inputs
   - users
   - sessions
   - runs
@@ -68,7 +71,6 @@ Build an end-to-end SEO content writing workflow that:
 - SSL certificate issued.
 
 8) Next Recommended Upgrades
-- Move SQLite to Postgres (production durability).
 - Add Redis worker queue for heavier usage.
 - Add Google Docs + Sheets export.
 - Add Stripe subscriptions and usage limits.
