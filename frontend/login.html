@@ -3,113 +3,235 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | SEO Content Agent</title>
+    <title>Login | Xpaan Content Agent</title>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap");
+
       :root {
-        --bg: #f5f2ea;
-        --panel: #fffdf8;
-        --ink: #1f2329;
-        --muted: #5f6772;
-        --accent: #0f6d5f;
-        --line: #ddd4c5;
-        --danger: #a22525;
+        --bg: #f5f6f8;
+        --panel: #ffffff;
+        --ink: #101216;
+        --muted: #626974;
+        --brand: #0b0c0f;
+        --line: #e5e8ef;
+        --accent: #1d2939;
+        --accent-2: #14171f;
+        --danger: #b42318;
       }
+
       * { box-sizing: border-box; }
+
       body {
         margin: 0;
         min-height: 100vh;
+        font-family: "Manrope", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(1200px 420px at -10% -20%, #dbe2f2 0%, transparent 45%),
+          radial-gradient(900px 350px at 110% 120%, #e8ebf3 0%, transparent 45%),
+          var(--bg);
         display: grid;
         place-items: center;
-        font-family: "Manrope", "Segoe UI", sans-serif;
-        background: radial-gradient(circle at 15% 10%, #d7efe8 0%, transparent 38%), var(--bg);
-        color: var(--ink);
-        padding: 18px;
-      }
-      .card {
-        width: 100%;
-        max-width: 460px;
-        border: 1px solid var(--line);
-        background: var(--panel);
-        border-radius: 16px;
         padding: 20px;
       }
-      h1 { margin: 0 0 4px; font-size: 1.6rem; }
-      p { margin: 0; color: var(--muted); }
+
+      .frame {
+        width: 100%;
+        max-width: 1040px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 18px 60px rgba(10, 18, 38, 0.08);
+        display: grid;
+        grid-template-columns: 1fr;
+        animation: fadeIn .45s ease;
+      }
+
+      .hero {
+        padding: 30px 28px;
+        background: linear-gradient(180deg, #f8f9fc 0%, #f0f3f9 100%);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .logo {
+        width: 210px;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .hero h1 {
+        margin: 18px 0 8px;
+        font-family: "Sora", sans-serif;
+        font-size: 28px;
+        letter-spacing: -0.6px;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 60ch;
+      }
+
+      .hero-points {
+        margin: 18px 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 9px;
+      }
+
+      .hero-points li {
+        color: #27303d;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .hero-points li::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #0f172a;
+      }
+
+      .auth {
+        padding: 28px;
+      }
+
       .tabs {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        margin-top: 16px;
         border: 1px solid var(--line);
-        border-radius: 10px;
+        border-radius: 12px;
         overflow: hidden;
+        background: #f8f9fb;
       }
+
       .tabs button {
         border: 0;
-        padding: 10px;
+        padding: 11px;
         font-weight: 700;
+        font-size: 14px;
+        background: transparent;
+        color: #4b5565;
         cursor: pointer;
-        background: #f4eee2;
+        transition: background .2s ease, color .2s ease;
       }
+
       .tabs button.active {
-        background: var(--accent);
+        background: var(--brand);
         color: #fff;
       }
+
       label {
         display: block;
-        margin-top: 12px;
-        margin-bottom: 6px;
-        font-weight: 600;
+        margin: 14px 0 6px;
+        font-weight: 700;
+        font-size: 14px;
       }
+
       input {
         width: 100%;
         border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 10px;
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 15px;
+        transition: border-color .2s ease, box-shadow .2s ease;
       }
+
+      input:focus {
+        outline: none;
+        border-color: #9fa8bd;
+        box-shadow: 0 0 0 3px rgba(159, 168, 189, 0.22);
+      }
+
       .submit {
         width: 100%;
         border: 0;
-        background: var(--accent);
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 16px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
         color: #fff;
-        padding: 11px;
-        border-radius: 10px;
-        margin-top: 14px;
-        font-weight: 700;
+        font-weight: 800;
+        font-size: 14px;
         cursor: pointer;
+        transition: transform .16s ease;
       }
+
+      .submit:active { transform: translateY(1px); }
+
       .msg {
-        margin-top: 10px;
-        color: var(--danger);
+        margin-top: 12px;
         min-height: 18px;
-      }
-      .help {
-        margin-top: 10px;
         font-size: 13px;
+        color: var(--danger);
+      }
+
+      .footnote {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      @media (min-width: 930px) {
+        .frame {
+          grid-template-columns: 1.08fr .92fr;
+        }
+
+        .hero {
+          border-bottom: 0;
+          border-right: 1px solid var(--line);
+          padding: 42px;
+        }
+
+        .auth {
+          padding: 42px;
+          align-self: center;
+        }
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
       }
     </style>
   </head>
   <body>
-    <main class="card">
-      <h1>SEO Content Agent</h1>
-      <p>Login or create an account to access your dashboard.</p>
+    <main class="frame">
+      <section class="hero">
+        <img class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
+        <h1>Welcome to your SEO content workspace</h1>
+        <p>Create high-quality long-form content from competitor insights with per-user history and guided progress.</p>
+        <ul class="hero-points">
+          <li>Personal dashboard with saved runs</li>
+          <li>Live generation progress by stage</li>
+          <li>Structured article output ready for publishing</li>
+        </ul>
+      </section>
 
-      <div class="tabs">
-        <button id="tabLogin" class="active" type="button">Login</button>
-        <button id="tabRegister" type="button">Register</button>
-      </div>
+      <section class="auth">
+        <div class="tabs">
+          <button id="tabLogin" class="active" type="button">Login</button>
+          <button id="tabRegister" type="button">Register</button>
+        </div>
 
-      <form id="authForm">
-        <label for="email">Email</label>
-        <input id="email" type="email" required placeholder="you@example.com" />
+        <form id="authForm">
+          <label for="email">Email</label>
+          <input id="email" type="email" required placeholder="you@company.com" />
 
-        <label for="password">Password</label>
-        <input id="password" type="password" required minlength="8" placeholder="At least 8 characters" />
+          <label for="password">Password</label>
+          <input id="password" type="password" required minlength="8" placeholder="At least 8 characters" />
 
-        <button class="submit" id="submitBtn" type="submit">Login</button>
-      </form>
+          <button class="submit" id="submitBtn" type="submit">Login</button>
+        </form>
 
-      <div class="msg" id="message"></div>
-      <p class="help">After login, all generated articles are saved to your account.</p>
+        <div class="msg" id="message"></div>
+        <p class="footnote">Your runs and generated articles are saved to your account history.</p>
+      </section>
     </main>
 
     <script>
@@ -135,14 +257,14 @@
 
       async function checkExistingSession() {
         const res = await fetch("/api/auth/me", { credentials: "same-origin" });
-        if (res.ok) {
-          window.location.href = "/dashboard";
-        }
+        if (res.ok) window.location.href = "/dashboard";
       }
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         msg.textContent = "";
+        submitBtn.disabled = true;
+        submitBtn.textContent = mode === "login" ? "Logging in..." : "Creating account...";
 
         const payload = {
           email: document.getElementById("email").value.trim(),
@@ -150,6 +272,7 @@
         };
 
         const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
+
         const res = await fetch(endpoint, {
           method: "POST",
           credentials: "same-origin",
@@ -160,6 +283,8 @@
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           msg.textContent = data.detail || "Unable to continue. Please try again.";
+          submitBtn.disabled = false;
+          submitBtn.textContent = mode === "login" ? "Login" : "Create Account";
           return;
         }
 

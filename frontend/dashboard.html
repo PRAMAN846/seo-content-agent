@@ -3,189 +3,491 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard | SEO Content Agent</title>
+    <title>Dashboard | Xpaan Content Agent</title>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap");
+
       :root {
-        --bg: #f8f5ef;
-        --card: #fffdf8;
-        --ink: #202023;
-        --muted: #61666f;
-        --accent: #0f6d5f;
-        --line: #dfd7c7;
-        --chip: #eef7f4;
+        --bg: #f5f6f8;
+        --surface: #ffffff;
+        --surface-2: #f9fafc;
+        --ink: #11131a;
+        --muted: #616979;
+        --line: #e5e8ef;
+        --brand: #0a0b0e;
+        --brand-soft: #1a2030;
+        --chip: #eef1f7;
+        --success: #0f766e;
+        --warn: #b54708;
+        --danger: #b42318;
       }
+
       * { box-sizing: border-box; }
+
       body {
         margin: 0;
-        font-family: "Manrope", "Segoe UI", sans-serif;
+        min-height: 100vh;
+        font-family: "Manrope", sans-serif;
         color: var(--ink);
-        background: radial-gradient(circle at top right, #dff3ed, transparent 34%), var(--bg);
+        background:
+          radial-gradient(900px 420px at -10% -10%, #dfe6f7 0%, transparent 50%),
+          radial-gradient(900px 380px at 110% 115%, #e8edf8 0%, transparent 50%),
+          var(--bg);
       }
-      .wrap {
-        max-width: 1180px;
-        margin: 24px auto;
-        padding: 0 16px 24px;
+
+      .orbs::before,
+      .orbs::after {
+        content: "";
+        position: fixed;
+        z-index: 0;
+        pointer-events: none;
+        border-radius: 999px;
+        filter: blur(42px);
+        opacity: .34;
       }
-      .topbar {
+
+      .orbs::before {
+        width: 270px;
+        height: 270px;
+        left: -80px;
+        top: 40px;
+        background: #d4ddf3;
+      }
+
+      .orbs::after {
+        width: 240px;
+        height: 240px;
+        right: -70px;
+        bottom: 80px;
+        background: #dce3f5;
+      }
+
+      .app {
+        position: relative;
+        z-index: 1;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 12px 35px rgba(17, 19, 26, 0.06);
+      }
+
+      .sidebar {
+        padding: 18px;
+        display: grid;
+        gap: 16px;
+        align-content: start;
+      }
+
+      .brand {
+        padding: 8px;
+      }
+
+      .logo {
+        width: 190px;
+        height: auto;
+        max-width: 100%;
+      }
+
+      .eyebrow {
+        margin: 8px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+
+      .who {
+        font-size: 14px;
+        color: #2b3442;
+        line-height: 1.5;
+      }
+
+      .logout {
+        border: 0;
+        background: #10131a;
+        color: #fff;
+        padding: 10px 12px;
+        width: 100%;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .stats {
+        display: grid;
+        gap: 10px;
+      }
+
+      .stat {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 11px 12px;
+        background: var(--surface-2);
+      }
+
+      .stat .k {
+        display: block;
+        font-family: "Sora", sans-serif;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      .stat .l {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      .main {
+        display: grid;
+        gap: 16px;
+      }
+
+      .composer {
+        padding: 18px;
+      }
+
+      .composer-head {
+        margin-bottom: 12px;
+      }
+
+      .composer-head h1 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        font-size: 24px;
+        letter-spacing: -.4px;
+      }
+
+      .composer-head p {
+        margin: 6px 0 0;
+        color: var(--muted);
+      }
+
+      .field-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        display: block;
+        font-weight: 700;
+        font-size: 13px;
+        margin: 0 0 6px;
+      }
+
+      input, textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 11px 12px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color .2s ease, box-shadow .2s ease;
+      }
+
+      textarea {
+        min-height: 92px;
+        resize: vertical;
+      }
+
+      input:focus, textarea:focus {
+        outline: none;
+        border-color: #a8b1c3;
+        box-shadow: 0 0 0 3px rgba(168, 177, 195, 0.2);
+      }
+
+      .run-btn {
+        border: 0;
+        background: linear-gradient(140deg, var(--brand-soft), var(--brand));
+        color: #fff;
+        padding: 12px 14px;
+        border-radius: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform .16s ease;
+      }
+
+      .run-btn:active { transform: translateY(1px); }
+
+      .status-row {
+        margin-top: 14px;
+        border: 1px solid var(--line);
+        background: var(--surface-2);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .status-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 16px;
+        gap: 10px;
       }
-      .title { margin: 0; font-size: 1.5rem; }
-      .muted { color: var(--muted); font-size: 13px; }
-      .btn {
-        border: 1px solid var(--line);
-        background: #fff;
-        border-radius: 10px;
-        padding: 9px 12px;
-        cursor: pointer;
-        font-weight: 600;
+
+      .status {
+        display: inline-block;
+        font-size: 11px;
+        letter-spacing: .07em;
+        font-weight: 800;
+        padding: 5px 10px;
+        border-radius: 100px;
+        text-transform: uppercase;
+        background: var(--chip);
+        color: #2b3547;
       }
-      .grid {
+
+      .status.running { background: #ecf2ff; color: #1d4ed8; }
+      .status.completed { background: #e9f8f3; color: var(--success); }
+      .status.failed { background: #ffefef; color: var(--danger); }
+
+      .stage {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 6px;
+      }
+
+      .progress-track {
+        margin-top: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #e6eaf3;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2b3442, #0e1118);
+        transition: width .25s ease;
+      }
+
+      .run-id {
+        margin-top: 7px;
+        color: #5d6575;
+        font-size: 12px;
+        word-break: break-all;
+      }
+
+      .content-grid {
         display: grid;
         grid-template-columns: 1fr;
         gap: 16px;
       }
-      @media (min-width: 980px) {
-        .grid {
-          grid-template-columns: 1.2fr .8fr;
-        }
-      }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 16px;
+
+      .panel {
         padding: 16px;
       }
-      h2, h3 { margin: 0 0 10px; }
-      label {
-        display: block;
-        margin: 10px 0 6px;
-        font-weight: 700;
+
+      .panel h2 {
+        margin: 0 0 10px;
+        font-family: "Sora", sans-serif;
+        font-size: 17px;
       }
-      input, textarea, button {
-        width: 100%;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 10px;
-        font-size: 14px;
-      }
-      textarea { min-height: 90px; resize: vertical; }
-      .run-btn {
-        background: var(--accent);
-        color: white;
-        border: 0;
-        font-weight: 700;
-        margin-top: 10px;
-        cursor: pointer;
-      }
-      .status {
-        display: inline-block;
-        background: var(--chip);
-        border-radius: 100px;
-        padding: 4px 10px;
-        font-weight: 700;
-        font-size: 12px;
-        text-transform: uppercase;
-      }
-      .progress-track {
-        width: 100%;
-        height: 10px;
-        background: #ece4d6;
-        border-radius: 999px;
-        overflow: hidden;
-        margin: 10px 0 6px;
-      }
-      .progress-fill {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #2f9b87, #0f6d5f);
-        transition: width .25s ease;
-      }
-      .mono {
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        white-space: pre-wrap;
-        word-break: break-word;
-        font-size: 12.5px;
-      }
+
       .history {
-        max-height: 280px;
+        max-height: 540px;
         overflow: auto;
-        margin-top: 10px;
+        display: grid;
+        gap: 8px;
+        padding-right: 4px;
       }
+
       .run-item {
         border: 1px solid var(--line);
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 10px;
-        margin-bottom: 8px;
         cursor: pointer;
+        transition: border-color .2s ease, transform .15s ease, background .2s ease;
+        background: #fff;
       }
-      .run-item.active { border-color: #88b9ad; background: #f5fcfa; }
-      .run-query { font-weight: 700; margin-bottom: 4px; }
-      .run-meta { font-size: 12px; color: var(--muted); }
-      .section-spacer { margin-top: 14px; }
+
+      .run-item:hover {
+        border-color: #bfc8da;
+        transform: translateY(-1px);
+      }
+
+      .run-item.active {
+        border-color: #8f9db7;
+        background: #f5f8ff;
+      }
+
+      .run-query {
+        font-weight: 800;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .run-meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .mono {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 12.6px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: #232a36;
+        line-height: 1.45;
+      }
+
+      details {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px;
+        margin-top: 10px;
+        background: #fff;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 800;
+      }
+
+      @media (min-width: 960px) {
+        .app {
+          grid-template-columns: 290px 1fr;
+          align-items: start;
+        }
+
+        .field-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .content-grid {
+          grid-template-columns: .95fr 1.05fr;
+        }
+
+        .sidebar {
+          position: sticky;
+          top: 20px;
+          max-height: calc(100vh - 40px);
+        }
+      }
+
+      @keyframes reveal {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .card { animation: reveal .35s ease; }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <header class="topbar card">
-        <div>
-          <h1 class="title">SEO Content Agent Dashboard</h1>
-          <div class="muted" id="whoami">Loading user...</div>
+    <div class="orbs"></div>
+    <div class="app">
+      <aside class="sidebar card">
+        <div class="brand">
+          <img class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
+          <p class="eyebrow">Content Writing Agent</p>
         </div>
-        <button id="logoutBtn" class="btn" type="button">Logout</button>
-      </header>
 
-      <div class="grid">
-        <section class="card">
-          <h2>Create New Article Run</h2>
-          <label for="query">Query</label>
-          <input id="query" placeholder="how to vinyl wrap a motorcycle" />
+        <div>
+          <p class="who" id="whoami">Loading user...</p>
+          <button id="logoutBtn" class="logout" type="button">Logout</button>
+        </div>
 
-          <label for="seedUrls">Seed URLs (one per line)</label>
-          <textarea id="seedUrls" placeholder="https://example.com/blog-a"></textarea>
+        <div class="stats">
+          <div class="stat">
+            <span class="k" id="totalRuns">0</span>
+            <span class="l">Total runs in your account</span>
+          </div>
+          <div class="stat">
+            <span class="k" id="completedRuns">0</span>
+            <span class="l">Completed outputs</span>
+          </div>
+          <div class="stat">
+            <span class="k" id="runningRuns">0</span>
+            <span class="l">Active right now</span>
+          </div>
+        </div>
+      </aside>
 
-          <label for="citations">AI citations text (optional)</label>
-          <textarea id="citations" placeholder="Paste any citation-rich AI response"></textarea>
+      <main class="main">
+        <section class="composer card">
+          <div class="composer-head">
+            <h1>Generate SEO Article</h1>
+            <p>Submit your topic and optional citations. The agent handles extraction, analysis, and drafting.</p>
+          </div>
 
-          <label for="overview">AI overview text (optional)</label>
-          <textarea id="overview" placeholder="Paste AI overview answer"></textarea>
-
-          <button id="runBtn" class="run-btn">Run Workflow</button>
-
-          <div class="section-spacer">
-            <span id="status" class="status">idle</span>
-            <div class="progress-track">
-              <div id="progressFill" class="progress-fill"></div>
+          <div class="field-grid">
+            <div class="wide">
+              <label for="query">Primary Query</label>
+              <input id="query" placeholder="how to vinyl wrap a motorcycle" />
             </div>
-            <div class="muted" id="stage">Waiting to start</div>
-            <div class="mono" id="runId"></div>
+
+            <div>
+              <label for="seedUrls">Seed URLs (one per line)</label>
+              <textarea id="seedUrls" placeholder="https://example.com/guide"></textarea>
+            </div>
+
+            <div>
+              <label for="citations">AI citations text (optional)</label>
+              <textarea id="citations" placeholder="Paste citation-rich AI answer"></textarea>
+            </div>
+
+            <div class="wide">
+              <label for="overview">AI overview text (optional)</label>
+              <textarea id="overview" placeholder="Paste overview response here"></textarea>
+            </div>
           </div>
 
-          <div class="section-spacer">
-            <h3>Sources</h3>
-            <div id="sources" class="mono"></div>
-          </div>
+          <button id="runBtn" class="run-btn" type="button">Run Workflow</button>
 
-          <div class="section-spacer">
-            <h3>SEO Analysis</h3>
-            <div id="analysis" class="mono"></div>
-          </div>
-
-          <div class="section-spacer">
-            <h3>Article</h3>
-            <div id="article" class="mono"></div>
+          <div class="status-row">
+            <div class="status-head">
+              <span id="status" class="status">idle</span>
+              <strong id="progressLabel">0%</strong>
+            </div>
+            <div id="stage" class="stage">Waiting to start</div>
+            <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+            <div id="runId" class="run-id"></div>
           </div>
         </section>
 
-        <aside class="card">
-          <h2>Your Run History</h2>
-          <p class="muted">All runs in your account are saved here and can be reopened anytime.</p>
-          <div class="history" id="history"></div>
-        </aside>
-      </div>
+        <section class="content-grid">
+          <section class="panel card">
+            <h2>Your Run History</h2>
+            <div id="history" class="history"></div>
+          </section>
+
+          <section class="panel card">
+            <h2>Output</h2>
+
+            <details open>
+              <summary>Sources</summary>
+              <pre id="sources" class="mono"></pre>
+            </details>
+
+            <details>
+              <summary>SEO Analysis</summary>
+              <pre id="analysis" class="mono"></pre>
+            </details>
+
+            <details>
+              <summary>Article Draft</summary>
+              <pre id="article" class="mono"></pre>
+            </details>
+          </section>
+        </section>
+      </main>
     </div>
 
     <script>
@@ -195,14 +497,17 @@
       const runIdEl = document.getElementById("runId");
       const stageEl = document.getElementById("stage");
       const progressFill = document.getElementById("progressFill");
+      const progressLabel = document.getElementById("progressLabel");
       const whoamiEl = document.getElementById("whoami");
       const sourcesEl = document.getElementById("sources");
       const analysisEl = document.getElementById("analysis");
       const articleEl = document.getElementById("article");
       const historyEl = document.getElementById("history");
+      const totalRunsEl = document.getElementById("totalRuns");
+      const completedRunsEl = document.getElementById("completedRuns");
+      const runningRunsEl = document.getElementById("runningRuns");
 
       let currentRunId = null;
-      let currentPoll = null;
       let runsCache = [];
 
       const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -212,9 +517,9 @@
           queued: "Queued...",
           collecting_sources: "Collecting candidate sources...",
           extracting_articles: "Extracting article content...",
-          summarizing_competitors: "Summarizing competitors...",
+          summarizing_competitors: "Summarizing competitor content...",
           analyzing_seo_gaps: "Analyzing SEO gaps and opportunities...",
-          writing_article: "Writing your article...",
+          writing_article: "Writing article draft...",
           exporting_output: "Saving output...",
           completed: "Completed",
           failed: "Failed"
@@ -222,12 +527,23 @@
         return map[stage] || stage;
       }
 
+      function paintStatus(status) {
+        statusEl.classList.remove("running", "completed", "failed");
+        if (["queued", "running"].includes(status)) statusEl.classList.add("running");
+        if (status === "completed") statusEl.classList.add("completed");
+        if (status === "failed") statusEl.classList.add("failed");
+      }
+
       function renderRunDetails(run) {
         currentRunId = run.id;
         runIdEl.textContent = `Run ID: ${run.id}`;
         statusEl.textContent = run.status;
+        paintStatus(run.status);
+
+        const pct = Number(run.progress_percent || 0);
+        progressFill.style.width = `${pct}%`;
+        progressLabel.textContent = `${pct}%`;
         stageEl.textContent = humanStage(run.stage);
-        progressFill.style.width = `${run.progress_percent || 0}%`;
 
         if (run.status === "completed") {
           sourcesEl.textContent = (run.artifacts.sources || []).join("\n");
@@ -243,6 +559,11 @@
       function renderHistory(runs) {
         runsCache = runs;
         historyEl.innerHTML = "";
+
+        totalRunsEl.textContent = String(runs.length);
+        completedRunsEl.textContent = String(runs.filter((r) => r.status === "completed").length);
+        runningRunsEl.textContent = String(runs.filter((r) => ["queued", "running"].includes(r.status)).length);
+
         if (!runs.length) {
           historyEl.textContent = "No runs yet.";
           return;
@@ -291,10 +612,6 @@
 
       async function pollRun(runId) {
         currentRunId = runId;
-        if (currentPoll) {
-          clearTimeout(currentPoll);
-          currentPoll = null;
-        }
 
         while (true) {
           await sleep(1800);
@@ -303,13 +620,12 @@
             window.location.href = "/login";
             return;
           }
+
           const run = await res.json();
           renderRunDetails(run);
           await loadHistory();
 
-          if (run.status === "completed" || run.status === "failed") {
-            break;
-          }
+          if (run.status === "completed" || run.status === "failed") break;
         }
       }
 
@@ -327,6 +643,9 @@
           ai_overview_text: document.getElementById("overview").value,
         };
 
+        runBtn.disabled = true;
+        runBtn.textContent = "Starting...";
+
         sourcesEl.textContent = "";
         analysisEl.textContent = "";
         articleEl.textContent = "";
@@ -338,11 +657,17 @@
           body: JSON.stringify(payload),
         });
 
+        runBtn.disabled = false;
+        runBtn.textContent = "Run Workflow";
+
         if (!createRes.ok) {
           const data = await createRes.json().catch(() => ({}));
           analysisEl.textContent = data.detail || "Failed to start run.";
           statusEl.textContent = "failed";
+          paintStatus("failed");
           stageEl.textContent = "Unable to start";
+          progressFill.style.width = "100%";
+          progressLabel.textContent = "100%";
           return;
         }
 
