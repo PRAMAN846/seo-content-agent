@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | SEO Content Agent</title>
+    <style>
+      :root {
+        --bg: #f5f2ea;
+        --panel: #fffdf8;
+        --ink: #1f2329;
+        --muted: #5f6772;
+        --accent: #0f6d5f;
+        --line: #ddd4c5;
+        --danger: #a22525;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: "Manrope", "Segoe UI", sans-serif;
+        background: radial-gradient(circle at 15% 10%, #d7efe8 0%, transparent 38%), var(--bg);
+        color: var(--ink);
+        padding: 18px;
+      }
+      .card {
+        width: 100%;
+        max-width: 460px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      h1 { margin: 0 0 4px; font-size: 1.6rem; }
+      p { margin: 0; color: var(--muted); }
+      .tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin-top: 16px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .tabs button {
+        border: 0;
+        padding: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        background: #f4eee2;
+      }
+      .tabs button.active {
+        background: var(--accent);
+        color: #fff;
+      }
+      label {
+        display: block;
+        margin-top: 12px;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+      }
+      .submit {
+        width: 100%;
+        border: 0;
+        background: var(--accent);
+        color: #fff;
+        padding: 11px;
+        border-radius: 10px;
+        margin-top: 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .msg {
+        margin-top: 10px;
+        color: var(--danger);
+        min-height: 18px;
+      }
+      .help {
+        margin-top: 10px;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>SEO Content Agent</h1>
+      <p>Login or create an account to access your dashboard.</p>
+
+      <div class="tabs">
+        <button id="tabLogin" class="active" type="button">Login</button>
+        <button id="tabRegister" type="button">Register</button>
+      </div>
+
+      <form id="authForm">
+        <label for="email">Email</label>
+        <input id="email" type="email" required placeholder="you@example.com" />
+
+        <label for="password">Password</label>
+        <input id="password" type="password" required minlength="8" placeholder="At least 8 characters" />
+
+        <button class="submit" id="submitBtn" type="submit">Login</button>
+      </form>
+
+      <div class="msg" id="message"></div>
+      <p class="help">After login, all generated articles are saved to your account.</p>
+    </main>
+
+    <script>
+      const tabLogin = document.getElementById("tabLogin");
+      const tabRegister = document.getElementById("tabRegister");
+      const submitBtn = document.getElementById("submitBtn");
+      const form = document.getElementById("authForm");
+      const msg = document.getElementById("message");
+
+      let mode = "login";
+
+      function setMode(nextMode) {
+        mode = nextMode;
+        const isLogin = mode === "login";
+        tabLogin.classList.toggle("active", isLogin);
+        tabRegister.classList.toggle("active", !isLogin);
+        submitBtn.textContent = isLogin ? "Login" : "Create Account";
+        msg.textContent = "";
+      }
+
+      tabLogin.addEventListener("click", () => setMode("login"));
+      tabRegister.addEventListener("click", () => setMode("register"));
+
+      async function checkExistingSession() {
+        const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+        if (res.ok) {
+          window.location.href = "/dashboard";
+        }
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        msg.textContent = "";
+
+        const payload = {
+          email: document.getElementById("email").value.trim(),
+          password: document.getElementById("password").value,
+        };
+
+        const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
+        const res = await fetch(endpoint, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          msg.textContent = data.detail || "Unable to continue. Please try again.";
+          return;
+        }
+
+        window.location.href = "/dashboard";
+      });
+
+      checkExistingSession();
+    </script>
+  </body>
+</html>

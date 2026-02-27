@@ -3,4 +3,6 @@ __pycache__/
 *.pyc
 .env
 exports/
+data/
+*.db
 .DS_Store

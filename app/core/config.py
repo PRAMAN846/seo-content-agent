@@ -18,8 +18,8 @@ class Settings:
     max_urls: int = int(os.getenv("MAX_URLS", "3"))
     app_host: str = os.getenv("APP_HOST", "0.0.0.0")
     app_port: int = int(os.getenv("APP_PORT", "8000"))
-    app_login_user: Optional[str] = os.getenv("APP_LOGIN_USER")
-    app_login_password: Optional[str] = os.getenv("APP_LOGIN_PASSWORD")
+    session_ttl_days: int = int(os.getenv("SESSION_TTL_DAYS", "30"))
+    cookie_secure: bool = os.getenv("COOKIE_SECURE", "true").lower() == "true"
 
 
 settings = Settings()

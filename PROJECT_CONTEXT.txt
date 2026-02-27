@@ -4,33 +4,40 @@ Last updated: 2026-02-27
 1) Project Goal
 Build an end-to-end SEO content writing workflow that:
 - takes a search query,
-- gets top relevant article URLs (or user/AI-citation provided URLs),
+- uses top URLs from seed/citations/overview text,
 - extracts and summarizes competitor content,
 - performs SEO gap analysis,
-- generates a new article draft,
-- exports output (currently local markdown; Google Docs/Sheets planned).
+- generates a better article draft,
+- stores results per user account for later access.
 
-2) What We Confirmed
-- Yes, this workflow can be built with Codex.
-- Search API can be skipped initially to reduce cost by using:
-  - seed URLs,
-  - AI citations,
-  - AI overview text.
-- Web extraction should be deterministic first (trafilatura/HTML parsing), LLM as analysis/writing layer.
-- Queue/scheduler can be self-built in project.
+2) Core Decisions
+- Build fully with Codex + OpenAI APIs.
+- Keep search cost low initially by using seed URLs / AI citations / AI overview input.
+- Use deterministic extraction first, then LLM for analysis/writing.
+- Use simple queue/scheduler in app for retries.
 
 3) Current Implementation (Done)
-- FastAPI backend created.
-- Simple frontend page created for running workflow from browser.
-- Pipeline implemented:
-  source collection -> URL filtering -> extraction -> per-article summary -> SEO analysis -> article writing -> local export.
-- Local export writes markdown files to exports/.
-- In-memory run tracking implemented.
-- Basic scheduler scaffold added.
-- Basic Auth login gate added for public deployment access control
-  (APP_LOGIN_USER + APP_LOGIN_PASSWORD).
+- FastAPI backend with pipeline:
+  source collection -> filtering -> extraction -> per-URL summary -> SEO analysis -> writing -> local export.
+- Proper auth system added (not browser basic auth):
+  - register/login/logout/me APIs
+  - session cookie auth
+- Persistent SQLite storage added:
+  - users
+  - sessions
+  - runs
+  - run inputs
+  - run artifacts
+- Per-user dashboard implemented:
+  - login page
+  - run creation form
+  - run history list per user
+  - reopen past runs
+- Progress tracking implemented:
+  - stage label + percent progress while run is processing.
+- Scheduler updated to retry queued runs.
 
-4) Current Model Profile (Low Cost)
+4) Current Low-Cost Model Profile
 - SMALL_MODEL=gpt-5-mini
 - ANALYST_MODEL=gpt-5-mini
 - WRITER_MODEL=gpt-5
@@ -38,32 +45,35 @@ Build an end-to-end SEO content writing workflow that:
 5) Important Files
 - README.md
 - app/main.py
+- app/api/routes_auth.py
+- app/api/routes_runs.py
+- app/models/store.py
 - app/workflows/run_pipeline.py
-- frontend/index.html
+- frontend/login.html
+- frontend/dashboard.html
 - .env
 
-6) Run Locally
+6) Local Run Steps
 - Activate venv and install requirements.
-- Ensure OPENAI_API_KEY is set in .env.
-- Start: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-- Open: http://localhost:8000
+- Ensure OPENAI_API_KEY exists in .env.
+- Start server:
+  python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+- Open:
+  http://127.0.0.1:8000
 
-7) Hosting Guidance Discussed
-Beginner-friendly path:
-1. Run locally first.
-2. Push to GitHub.
-3. Deploy to Render/Railway with:
-   - Build: pip install -r requirements.txt
-   - Start: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+7) Deployment Status
+- GitHub repo connected and pushed.
+- Render deployment created.
+- Custom subdomain connected.
+- SSL certificate issued.
 
 8) Next Recommended Upgrades
-- Add real Google Docs + Google Sheets API export.
-- Replace in-memory store with Postgres.
-- Add Redis queue/worker and retries.
-- Add cost/log monitoring and human review gate before publishing.
-- Move from shared Basic Auth to per-user auth (Supabase/Auth) for SaaS accounts.
+- Move SQLite to Postgres (production durability).
+- Add Redis worker queue for heavier usage.
+- Add Google Docs + Sheets export.
+- Add Stripe subscriptions and usage limits.
+- Add team/org support.
 
 9) Note for Future Codex Sessions
-Ask Codex at start of new thread:
+At thread start, say:
 "Read PROJECT_CONTEXT.txt first, then continue from current state."
-This helps preserve continuity across threads.

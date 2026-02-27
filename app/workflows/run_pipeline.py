@@ -21,7 +21,7 @@ async def process_run(
     ai_citations_text: str,
     ai_overview_text: str,
 ) -> None:
-    run_store.update(run_id, status="running")
+    run_store.update_run(run_id, status="running", stage="collecting_sources", progress_percent=10, error=None)
 
     try:
         candidates = collect_seed_urls(
@@ -31,6 +31,7 @@ async def process_run(
             ai_overview_text=ai_overview_text,
         )
         top_urls = select_top_urls(candidates, settings.max_urls)
+        run_store.update_run(run_id, stage="extracting_articles", progress_percent=30)
 
         if not top_urls:
             raise ValueError("No qualifying URLs found. Provide seed URLs or citation text containing links.")
@@ -42,13 +43,17 @@ async def process_run(
             if isinstance(result, Exception):
                 continue
             extracted.append(result)
+        run_store.update_run(run_id, stage="summarizing_competitors", progress_percent=55)
 
         if not extracted:
             raise ValueError("Could not extract content from selected URLs.")
 
         summaries = [summarize_article(a) for a in extracted]
+        run_store.update_run(run_id, stage="analyzing_seo_gaps", progress_percent=72)
         analysis = analyze_summaries(query, summaries)
+        run_store.update_run(run_id, stage="writing_article", progress_percent=86)
         article = write_article(query, analysis)
+        run_store.update_run(run_id, stage="exporting_output", progress_percent=95)
         export_link = export_to_local_doc(query, article)
 
         artifacts = RunArtifacts(
@@ -60,6 +65,12 @@ async def process_run(
             export_link=export_link,
         )
 
-        run_store.update(run_id, status="completed", artifacts=artifacts)
+        run_store.update_run(
+            run_id,
+            status="completed",
+            stage="completed",
+            progress_percent=100,
+            artifacts=artifacts,
+        )
     except Exception as exc:  # noqa: BLE001
-        run_store.update(run_id, status="failed", error=str(exc))
+        run_store.update_run(run_id, status="failed", stage="failed", progress_percent=100, error=str(exc))
