@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes_auth import router as auth_router
@@ -42,15 +40,15 @@ def root(request: Request) -> RedirectResponse:
     return RedirectResponse("/login", status_code=302)
 
 
-@app.get("/login")
-def login_page(request: Request) -> Union[FileResponse, RedirectResponse]:
+@app.get("/login", response_model=None)
+def login_page(request: Request) -> Response:
     if get_current_user_optional(request):
         return RedirectResponse("/dashboard", status_code=302)
     return FileResponse(frontend_dir / "login.html")
 
 
-@app.get("/dashboard")
-def dashboard_page(request: Request) -> Union[FileResponse, RedirectResponse]:
+@app.get("/dashboard", response_model=None)
+def dashboard_page(request: Request) -> Response:
     if not get_current_user_optional(request):
         return RedirectResponse("/login", status_code=302)
     return FileResponse(frontend_dir / "dashboard.html")
