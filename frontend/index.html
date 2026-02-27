@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SEO Content Agent</title>
+    <style>
+      :root {
+        --bg: #f8f5ef;
+        --card: #fffdf8;
+        --ink: #202023;
+        --muted: #61666f;
+        --accent: #0f6d5f;
+        --line: #dfd7c7;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Manrope", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at top right, #e9f6f0, transparent 35%), var(--bg);
+      }
+      .wrap {
+        max-width: 980px;
+        margin: 24px auto;
+        padding: 0 16px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      h1 { margin: 0 0 8px; font-size: 1.6rem; }
+      p { margin: 0; color: var(--muted); }
+      label {
+        display: block;
+        margin: 12px 0 6px;
+        font-weight: 600;
+      }
+      input, textarea, button {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        padding: 10px;
+        font-size: 14px;
+      }
+      textarea { min-height: 100px; resize: vertical; }
+      button {
+        margin-top: 12px;
+        background: var(--accent);
+        color: white;
+        border: 0;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      @media (min-width: 900px) {
+        .row { grid-template-columns: 1fr 1fr; }
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 13px;
+      }
+      .status { font-weight: 700; text-transform: uppercase; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>SEO Content Agent</h1>
+        <p>Run a full workflow from query -> source extraction -> summary -> SEO analysis -> article draft.</p>
+      </div>
+
+      <div class="card">
+        <label for="query">Query</label>
+        <input id="query" placeholder="how to vinyl wrap a motorcycle" />
+
+        <div class="row">
+          <div>
+            <label for="seedUrls">Seed URLs (one per line)</label>
+            <textarea id="seedUrls" placeholder="https://example.com/blog-a"></textarea>
+          </div>
+          <div>
+            <label for="citations">AI citations text (optional)</label>
+            <textarea id="citations" placeholder="Paste AI answer/citations; URLs will be extracted"></textarea>
+          </div>
+        </div>
+
+        <label for="overview">AI overview text (optional)</label>
+        <textarea id="overview" placeholder="Paste AI overview answer here"></textarea>
+
+        <button id="runBtn">Run Workflow</button>
+      </div>
+
+      <div class="card">
+        <div id="status" class="status">idle</div>
+        <p id="runId" class="mono"></p>
+      </div>
+
+      <div class="card">
+        <h3>Sources</h3>
+        <div id="sources" class="mono"></div>
+      </div>
+
+      <div class="card">
+        <h3>SEO Analysis</h3>
+        <div id="analysis" class="mono"></div>
+      </div>
+
+      <div class="card">
+        <h3>Article</h3>
+        <div id="article" class="mono"></div>
+      </div>
+    </div>
+
+    <script>
+      const runBtn = document.getElementById("runBtn");
+      const statusEl = document.getElementById("status");
+      const runIdEl = document.getElementById("runId");
+      const sourcesEl = document.getElementById("sources");
+      const analysisEl = document.getElementById("analysis");
+      const articleEl = document.getElementById("article");
+
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+      runBtn.addEventListener("click", async () => {
+        sourcesEl.textContent = "";
+        analysisEl.textContent = "";
+        articleEl.textContent = "";
+
+        const query = document.getElementById("query").value.trim();
+        const seedUrlsRaw = document.getElementById("seedUrls").value;
+        const citations = document.getElementById("citations").value;
+        const overview = document.getElementById("overview").value;
+
+        if (!query) {
+          alert("Enter a query first.");
+          return;
+        }
+
+        const payload = {
+          query,
+          seed_urls: seedUrlsRaw.split("\n").map((x) => x.trim()).filter(Boolean),
+          ai_citations_text: citations,
+          ai_overview_text: overview,
+        };
+
+        statusEl.textContent = "QUEUED";
+
+        const create = await fetch("/api/runs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!create.ok) {
+          const msg = await create.text();
+          statusEl.textContent = "FAILED";
+          runIdEl.textContent = msg;
+          return;
+        }
+
+        const run = await create.json();
+        runIdEl.textContent = `Run ID: ${run.id}`;
+
+        while (true) {
+          await sleep(2000);
+          const res = await fetch(`/api/runs/${run.id}`);
+          const latest = await res.json();
+          statusEl.textContent = latest.status;
+
+          if (latest.status === "completed") {
+            sourcesEl.textContent = (latest.artifacts.sources || []).join("\n");
+            analysisEl.textContent = latest.artifacts.seo_analysis || "";
+            articleEl.textContent = latest.artifacts.article_markdown || "";
+            break;
+          }
+
+          if (latest.status === "failed") {
+            analysisEl.textContent = latest.error || "Unknown error";
+            break;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
