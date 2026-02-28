@@ -1,23 +1,32 @@
 # SEO Content Agent
 
-A practical SEO writing app with SaaS-style login, per-user history, and progress tracking.
+A two-agent SEO content workspace with login, per-user history, editable briefs, and article generation.
 
-## What it does
+## Product structure
 
-1. Accepts a query + optional source inputs
-2. Collects source URLs from seed links and AI citation text
-3. Filters low-quality sources (forums, Reddit, Quora, YouTube, etc.)
-4. Extracts article text
-5. Summarizes competitor articles
-6. Builds SEO gap analysis
-7. Writes a new article draft
-8. Saves runs/articles per user account
+### 1) SEO Brief Agent
+- Accepts a query plus optional source URLs / AI citations / overview text
+- Builds competitor analysis when sources are available
+- Produces an editable markdown SEO brief
+- Lets the user edit the brief draft and save it
+- Lets the user generate content directly from that brief
+
+### 2) Content Writer Agent
+Supports 3 modes:
+- `Use SEO Brief Agent output`
+- `Paste your own brief`
+- `Quick draft from query`
 
 ## What is included now
 
 - FastAPI backend (`app/`)
 - Login/register/logout API with session cookies
-- Dashboard UI with login page, run form, run history, and progress bar
+- Xpaan-branded login and dashboard UI
+- Two separate agent tabs in dashboard
+- Per-user history for:
+  - briefs
+  - articles
+- Progress bars and stage labels for both agents
 - Database store that supports:
   - Neon/Postgres via `DATABASE_URL` (recommended for production)
   - SQLite fallback via `APP_DB_PATH` (for local/dev)
@@ -25,12 +34,11 @@ A practical SEO writing app with SaaS-style login, per-user history, and progres
 
 ## Local setup
 
-## Prerequisites
-
+### Prerequisites
 - Python 3.9+
 - Terminal access
 
-## Setup
+### Setup
 
 ```bash
 cd "/Users/pramanmenaria/Documents/content writing agent"
@@ -57,64 +65,49 @@ python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Open:
-
 - `http://127.0.0.1:8000`
 
-## Deploy on Render with Neon (recommended)
+## Deploy on Render with Neon
 
-### A) Create Neon database
+### Neon
+1. Create Neon project
+2. Copy pooled connection string
+3. Keep `sslmode=require`
 
-1. Sign in to Neon and create a new project.
-2. Create database/branch (default is fine).
-3. Copy connection string from Neon dashboard (`postgresql://...`).
-4. Ensure SSL is enabled (`sslmode=require`, usually already included).
+### Render environment variables
+- `OPENAI_API_KEY`
+- `SMALL_MODEL=gpt-5-mini`
+- `ANALYST_MODEL=gpt-5-mini`
+- `WRITER_MODEL=gpt-5`
+- `COOKIE_SECURE=true`
+- `SESSION_TTL_DAYS=30`
+- `DATABASE_URL=<your-neon-connection-string>`
 
-### B) Configure Render service
+### Render commands
+- Build: `pip install -r requirements.txt`
+- Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 
-1. Push repo to GitHub.
-2. Create Render `Web Service` from that repo.
-3. Build command:
-   - `pip install -r requirements.txt`
-4. Start command:
-   - `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. In Render -> Environment, set:
-   - `OPENAI_API_KEY`
-   - `SMALL_MODEL=gpt-5-mini`
-   - `ANALYST_MODEL=gpt-5-mini`
-   - `WRITER_MODEL=gpt-5`
-   - `COOKIE_SECURE=true`
-   - `SESSION_TTL_DAYS=30`
-   - `DATABASE_URL=<your-neon-connection-string>`
-6. Redeploy service.
+## Main API overview
 
-Notes:
-- If `DATABASE_URL` is set, app uses Neon/Postgres automatically.
-- If `DATABASE_URL` is empty, app falls back to SQLite.
+### Auth
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
 
-## Custom subdomain
+### Briefs
+- `GET /api/briefs`
+- `POST /api/briefs`
+- `GET /api/briefs/{brief_id}`
+- `PATCH /api/briefs/{brief_id}`
 
-1. Render service -> `Settings` -> `Custom Domains`
-2. Add subdomain (example: `app.yourdomain.com`)
-3. In your DNS provider, add the exact CNAME shown by Render
-4. Wait until certificate status is issued
-
-## API overview
-
-- Auth
-  - `POST /api/auth/register`
-  - `POST /api/auth/login`
-  - `POST /api/auth/logout`
-  - `GET /api/auth/me`
-- Runs
-  - `POST /api/runs`
-  - `GET /api/runs`
-  - `GET /api/runs/{run_id}`
-- Health
-  - `GET /api/health`
+### Articles
+- `GET /api/articles`
+- `POST /api/articles`
+- `GET /api/articles/{article_id}`
 
 ## Next upgrades
-
-- Add Redis worker queue for high throughput
-- Add Google Docs/Sheets export
+- Add Google Docs / Sheets export
+- Add Redis worker queue for heavier usage
 - Add Stripe billing + usage limits
 - Add team/org roles

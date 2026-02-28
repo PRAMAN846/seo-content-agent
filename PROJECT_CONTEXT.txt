@@ -4,78 +4,101 @@ Last updated: 2026-02-27
 1) Project Goal
 Build an end-to-end SEO content writing workflow that:
 - takes a search query,
-- uses top URLs from seed/citations/overview text,
+- uses top URLs from seed/citations/overview text when available,
 - extracts and summarizes competitor content,
 - performs SEO gap analysis,
-- generates a better article draft,
+- generates an editable SEO brief,
+- generates long-form content from that brief or from user-provided brief input,
 - stores results per user account for later access.
 
-2) Core Decisions
-- Build fully with Codex + OpenAI APIs.
-- Keep search cost low initially by using seed URLs / AI citations / AI overview input.
-- Use deterministic extraction first, then LLM for analysis/writing.
-- Use simple queue/scheduler in app for retries.
+2) Core Product Direction
+The app is now split into two visible agents inside one dashboard:
+- SEO Brief Agent
+- Content Writer Agent
 
-3) Current Implementation (Done)
-- FastAPI backend with pipeline:
-  source collection -> filtering -> extraction -> per-URL summary -> SEO analysis -> writing -> local export.
-- Proper auth system added (not browser basic auth):
-  - register/login/logout/me APIs
-  - session cookie auth
-- Persistent storage implemented:
-  - supports Neon/Postgres via DATABASE_URL (preferred in production)
-  - keeps SQLite fallback for local/dev when DATABASE_URL is absent
-  - schema includes users/sessions/runs/run_inputs
-  - users
-  - sessions
-  - runs
-  - run inputs
-  - run artifacts
-- Per-user dashboard implemented:
-  - login page
-  - run creation form
-  - run history list per user
-  - reopen past runs
-- Progress tracking implemented:
-  - stage label + percent progress while run is processing.
-- Scheduler updated to retry queued runs.
+3) Confirmed UX Decisions
+- Brief approval is optional.
+- After brief creation, user can:
+  - edit draft
+  - save draft
+  - create content
+- Dashboard uses separate tabs (Option A), not one combined wizard.
+- Content Writer Agent supports 3 modes:
+  - from generated brief
+  - from user brief
+  - quick draft from query
 
-4) Current Low-Cost Model Profile
-- SMALL_MODEL=gpt-5-mini
-- ANALYST_MODEL=gpt-5-mini
-- WRITER_MODEL=gpt-5
+4) Current Implementation (Done)
+- FastAPI backend with auth and session cookies.
+- Neon/Postgres support via `DATABASE_URL` with SQLite fallback for local/dev.
+- Per-user history for briefs and articles.
+- SEO Brief Agent implemented:
+  - input query/sources/citations/overview
+  - competitor analysis when sources exist
+  - editable markdown brief draft
+- Content Writer Agent implemented:
+  - generate from saved brief
+  - generate from custom brief
+  - quick draft from query
+- Separate progress/status tracking for briefs and articles.
+- Xpaan-branded dashboard redesign implemented.
 
 5) Important Files
 - README.md
 - app/main.py
 - app/api/routes_auth.py
-- app/api/routes_runs.py
+- app/api/routes_briefs.py
+- app/api/routes_articles.py
+- app/models/schemas.py
 - app/models/store.py
-- app/workflows/run_pipeline.py
+- app/workflows/brief_pipeline.py
+- app/workflows/article_pipeline.py
+- app/workflows/source_analysis.py
 - frontend/login.html
 - frontend/dashboard.html
+- frontend/assets/xpaan-logo.svg
 - .env
 
-6) Local Run Steps
+6) Current Low-Cost Model Profile
+- SMALL_MODEL=gpt-5-mini
+- ANALYST_MODEL=gpt-5-mini
+- WRITER_MODEL=gpt-5
+
+7) Local Run Steps
 - Activate venv and install requirements.
-- Ensure OPENAI_API_KEY exists in .env.
+- Ensure OPENAI_API_KEY exists in `.env`.
 - Start server:
   python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 - Open:
   http://127.0.0.1:8000
 
-7) Deployment Status
+8) Deployment Status
 - GitHub repo connected and pushed.
 - Render deployment created.
 - Custom subdomain connected.
 - SSL certificate issued.
+- Neon-compatible persistence implemented.
+- Two-agent dashboard implementation now exists locally in code.
 
-8) Next Recommended Upgrades
-- Add Redis worker queue for heavier usage.
+9) Current Deployment Notes
+Important Render env vars:
+- OPENAI_API_KEY
+- SMALL_MODEL
+- ANALYST_MODEL
+- WRITER_MODEL
+- COOKIE_SECURE=true
+- SESSION_TTL_DAYS=30
+- DATABASE_URL=<Neon connection string>
+
+10) Next Recommended Upgrades
+- Push/deploy the new two-agent architecture to Render.
+- Verify live create/edit/save brief flow.
+- Verify live content generation in all 3 writer modes.
 - Add Google Docs + Sheets export.
+- Add Redis worker queue for heavier usage.
 - Add Stripe subscriptions and usage limits.
-- Add team/org support.
+- Replace placeholder SVG if final Xpaan logo asset is provided.
 
-9) Note for Future Codex Sessions
+11) Note for Future Codex Sessions
 At thread start, say:
 "Read PROJECT_CONTEXT.txt first, then continue from current state."

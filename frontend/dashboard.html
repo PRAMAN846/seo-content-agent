@@ -11,19 +11,19 @@
         --bg: #f5f6f8;
         --surface: #ffffff;
         --surface-2: #f9fafc;
+        --surface-3: #f2f5fb;
         --ink: #11131a;
-        --muted: #616979;
+        --muted: #626b78;
         --line: #e5e8ef;
         --brand: #0a0b0e;
         --brand-soft: #1a2030;
         --chip: #eef1f7;
         --success: #0f766e;
-        --warn: #b54708;
         --danger: #b42318;
+        --active: #ecf2ff;
       }
 
       * { box-sizing: border-box; }
-
       body {
         margin: 0;
         min-height: 100vh;
@@ -45,27 +45,13 @@
         filter: blur(42px);
         opacity: .34;
       }
-
-      .orbs::before {
-        width: 270px;
-        height: 270px;
-        left: -80px;
-        top: 40px;
-        background: #d4ddf3;
-      }
-
-      .orbs::after {
-        width: 240px;
-        height: 240px;
-        right: -70px;
-        bottom: 80px;
-        background: #dce3f5;
-      }
+      .orbs::before { width: 270px; height: 270px; left: -80px; top: 40px; background: #d4ddf3; }
+      .orbs::after { width: 240px; height: 240px; right: -70px; bottom: 80px; background: #dce3f5; }
 
       .app {
         position: relative;
         z-index: 1;
-        max-width: 1280px;
+        max-width: 1360px;
         margin: 0 auto;
         padding: 20px;
         display: grid;
@@ -78,6 +64,7 @@
         border: 1px solid var(--line);
         border-radius: 18px;
         box-shadow: 0 12px 35px rgba(17, 19, 26, 0.06);
+        animation: reveal .35s ease;
       }
 
       .sidebar {
@@ -87,307 +74,127 @@
         align-content: start;
       }
 
-      .brand {
-        padding: 8px;
-      }
-
-      .logo {
-        width: 190px;
-        height: auto;
-        max-width: 100%;
-      }
-
-      .eyebrow {
-        margin: 8px 0 0;
-        font-size: 12px;
-        color: var(--muted);
-        letter-spacing: .08em;
-        text-transform: uppercase;
-      }
-
-      .who {
-        font-size: 14px;
-        color: #2b3442;
-        line-height: 1.5;
-      }
-
+      .brand { padding: 8px; }
+      .logo { width: 190px; max-width: 100%; height: auto; }
+      .eyebrow { margin: 8px 0 0; font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+      .who { font-size: 14px; color: #2b3442; line-height: 1.5; }
       .logout {
-        border: 0;
-        background: #10131a;
-        color: #fff;
-        padding: 10px 12px;
-        width: 100%;
-        border-radius: 12px;
-        cursor: pointer;
-        font-weight: 700;
+        border: 0; background: #10131a; color: #fff; padding: 10px 12px; width: 100%;
+        border-radius: 12px; cursor: pointer; font-weight: 700;
       }
 
-      .stats {
-        display: grid;
-        gap: 10px;
-      }
+      .stats { display: grid; gap: 10px; }
+      .stat { border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; background: var(--surface-2); }
+      .stat .k { display: block; font-family: "Sora", sans-serif; font-size: 22px; line-height: 1.2; }
+      .stat .l { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
 
-      .stat {
+      .main { display: grid; gap: 16px; }
+
+      .topbar { padding: 16px 18px; }
+      .topbar h1 { margin: 0; font-family: "Sora", sans-serif; font-size: 24px; letter-spacing: -.4px; }
+      .topbar p { margin: 6px 0 0; color: var(--muted); }
+
+      .tabs { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+      .tab-btn {
         border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 11px 12px;
         background: var(--surface-2);
+        color: #2c3444;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .tab-btn.active {
+        background: linear-gradient(140deg, var(--brand-soft), var(--brand));
+        color: #fff;
+        border-color: transparent;
       }
 
-      .stat .k {
-        display: block;
-        font-family: "Sora", sans-serif;
-        font-size: 22px;
-        line-height: 1.2;
-      }
+      .view { display: none; }
+      .view.active { display: grid; gap: 16px; }
 
-      .stat .l {
-        display: block;
-        color: var(--muted);
-        font-size: 12px;
-        margin-top: 4px;
-      }
-
-      .main {
+      .grid-two {
         display: grid;
+        grid-template-columns: 1fr;
         gap: 16px;
       }
 
-      .composer {
-        padding: 18px;
-      }
+      .section { padding: 18px; }
+      .section h2 { margin: 0 0 6px; font-family: "Sora", sans-serif; font-size: 18px; }
+      .section p.desc { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
 
-      .composer-head {
-        margin-bottom: 12px;
-      }
+      .field-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+      .wide { grid-column: 1 / -1; }
 
-      .composer-head h1 {
-        margin: 0;
-        font-family: "Sora", sans-serif;
-        font-size: 24px;
-        letter-spacing: -.4px;
+      label { display: block; font-weight: 700; font-size: 13px; margin: 0 0 6px; }
+      input, textarea, select {
+        width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px;
+        font-size: 14px; font-family: inherit; background: #fff; transition: border-color .2s ease, box-shadow .2s ease;
       }
-
-      .composer-head p {
-        margin: 6px 0 0;
-        color: var(--muted);
+      textarea { min-height: 96px; resize: vertical; }
+      input:focus, textarea:focus, select:focus {
+        outline: none; border-color: #a8b1c3; box-shadow: 0 0 0 3px rgba(168, 177, 195, 0.2);
       }
+      textarea[readonly] { background: var(--surface-3); color: #384052; }
 
-      .field-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 12px;
+      .row-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+      .btn {
+        border: 1px solid var(--line); background: #fff; color: #1d2431; padding: 11px 14px; border-radius: 12px;
+        font-weight: 800; cursor: pointer;
       }
-
-      .wide {
-        grid-column: 1 / -1;
+      .btn.primary {
+        border: 0; color: #fff; background: linear-gradient(140deg, var(--brand-soft), var(--brand));
       }
-
-      label {
-        display: block;
-        font-weight: 700;
-        font-size: 13px;
-        margin: 0 0 6px;
-      }
-
-      input, textarea {
-        width: 100%;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 11px 12px;
-        font-size: 14px;
-        font-family: inherit;
-        transition: border-color .2s ease, box-shadow .2s ease;
-      }
-
-      textarea {
-        min-height: 92px;
-        resize: vertical;
-      }
-
-      input:focus, textarea:focus {
-        outline: none;
-        border-color: #a8b1c3;
-        box-shadow: 0 0 0 3px rgba(168, 177, 195, 0.2);
-      }
-
-      .run-btn {
-        border: 0;
-        background: linear-gradient(140deg, var(--brand-soft), var(--brand));
-        color: #fff;
-        padding: 12px 14px;
-        border-radius: 12px;
-        font-weight: 800;
-        cursor: pointer;
-        transition: transform .16s ease;
-      }
-
-      .run-btn:active { transform: translateY(1px); }
+      .btn:disabled { opacity: .5; cursor: not-allowed; }
 
       .status-row {
-        margin-top: 14px;
-        border: 1px solid var(--line);
-        background: var(--surface-2);
-        border-radius: 14px;
-        padding: 12px;
+        margin-top: 14px; border: 1px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 12px;
       }
-
-      .status-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-      }
-
+      .status-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
       .status {
-        display: inline-block;
-        font-size: 11px;
-        letter-spacing: .07em;
-        font-weight: 800;
-        padding: 5px 10px;
-        border-radius: 100px;
-        text-transform: uppercase;
-        background: var(--chip);
-        color: #2b3547;
+        display: inline-block; font-size: 11px; letter-spacing: .07em; font-weight: 800; padding: 5px 10px;
+        border-radius: 100px; text-transform: uppercase; background: var(--chip); color: #2b3547;
       }
-
       .status.running { background: #ecf2ff; color: #1d4ed8; }
       .status.completed { background: #e9f8f3; color: var(--success); }
       .status.failed { background: #ffefef; color: var(--danger); }
+      .stage { color: var(--muted); font-size: 13px; margin-top: 6px; }
+      .progress-track { margin-top: 10px; height: 10px; border-radius: 999px; background: #e6eaf3; overflow: hidden; }
+      .progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #2b3442, #0e1118); transition: width .25s ease; }
+      .run-id { margin-top: 7px; color: #5d6575; font-size: 12px; word-break: break-all; }
 
-      .stage {
-        color: var(--muted);
-        font-size: 13px;
-        margin-top: 6px;
-      }
-
-      .progress-track {
-        margin-top: 10px;
-        height: 10px;
-        border-radius: 999px;
-        background: #e6eaf3;
-        overflow: hidden;
-      }
-
-      .progress-fill {
-        height: 100%;
-        width: 0;
-        border-radius: inherit;
-        background: linear-gradient(90deg, #2b3442, #0e1118);
-        transition: width .25s ease;
-      }
-
-      .run-id {
-        margin-top: 7px;
-        color: #5d6575;
-        font-size: 12px;
-        word-break: break-all;
-      }
-
-      .content-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .panel {
-        padding: 16px;
-      }
-
-      .panel h2 {
-        margin: 0 0 10px;
-        font-family: "Sora", sans-serif;
-        font-size: 17px;
-      }
-
-      .history {
-        max-height: 540px;
-        overflow: auto;
-        display: grid;
-        gap: 8px;
-        padding-right: 4px;
-      }
-
-      .run-item {
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 10px;
-        cursor: pointer;
+      .history { max-height: 520px; overflow: auto; display: grid; gap: 8px; padding-right: 4px; }
+      .history-item {
+        border: 1px solid var(--line); border-radius: 12px; padding: 10px; cursor: pointer; background: #fff;
         transition: border-color .2s ease, transform .15s ease, background .2s ease;
-        background: #fff;
       }
+      .history-item:hover { border-color: #bfc8da; transform: translateY(-1px); }
+      .history-item.active { border-color: #8f9db7; background: #f5f8ff; }
+      .history-title { font-weight: 800; font-size: 14px; margin-bottom: 4px; }
+      .history-meta { color: var(--muted); font-size: 12px; }
 
-      .run-item:hover {
-        border-color: #bfc8da;
-        transform: translateY(-1px);
-      }
-
-      .run-item.active {
-        border-color: #8f9db7;
-        background: #f5f8ff;
-      }
-
-      .run-query {
-        font-weight: 800;
-        font-size: 14px;
-        margin-bottom: 4px;
-      }
-
-      .run-meta {
-        color: var(--muted);
-        font-size: 12px;
-      }
-
-      .mono {
-        margin: 0;
-        white-space: pre-wrap;
-        word-break: break-word;
-        font-size: 12.6px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        color: #232a36;
-        line-height: 1.45;
-      }
-
+      .stack { display: grid; gap: 16px; }
       details {
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 10px;
-        margin-top: 10px;
-        background: #fff;
+        border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: #fff;
       }
-
-      summary {
-        cursor: pointer;
-        font-weight: 800;
+      summary { cursor: pointer; font-weight: 800; }
+      .mono {
+        margin: 10px 0 0; white-space: pre-wrap; word-break: break-word; font-size: 12.6px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #232a36; line-height: 1.45;
       }
+      .helper { color: var(--muted); font-size: 12px; margin-top: 8px; }
 
-      @media (min-width: 960px) {
-        .app {
-          grid-template-columns: 290px 1fr;
-          align-items: start;
-        }
-
-        .field-grid {
-          grid-template-columns: 1fr 1fr;
-        }
-
-        .content-grid {
-          grid-template-columns: .95fr 1.05fr;
-        }
-
-        .sidebar {
-          position: sticky;
-          top: 20px;
-          max-height: calc(100vh - 40px);
-        }
+      @media (min-width: 1020px) {
+        .app { grid-template-columns: 290px 1fr; align-items: start; }
+        .sidebar { position: sticky; top: 20px; max-height: calc(100vh - 40px); }
+        .grid-two { grid-template-columns: 1.1fr .9fr; }
+        .field-grid { grid-template-columns: 1fr 1fr; }
       }
 
       @keyframes reveal {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
       }
-
-      .card { animation: reveal .35s ease; }
     </style>
   </head>
   <body>
@@ -396,7 +203,7 @@
       <aside class="sidebar card">
         <div class="brand">
           <img class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
-          <p class="eyebrow">Content Writing Agent</p>
+          <p class="eyebrow">Content Writing Agents</p>
         </div>
 
         <div>
@@ -406,182 +213,434 @@
 
         <div class="stats">
           <div class="stat">
-            <span class="k" id="totalRuns">0</span>
-            <span class="l">Total runs in your account</span>
+            <span class="k" id="totalBriefs">0</span>
+            <span class="l">SEO briefs created</span>
           </div>
           <div class="stat">
-            <span class="k" id="completedRuns">0</span>
-            <span class="l">Completed outputs</span>
+            <span class="k" id="totalArticles">0</span>
+            <span class="l">Articles generated</span>
           </div>
           <div class="stat">
-            <span class="k" id="runningRuns">0</span>
-            <span class="l">Active right now</span>
+            <span class="k" id="activeJobs">0</span>
+            <span class="l">Active jobs right now</span>
           </div>
         </div>
       </aside>
 
       <main class="main">
-        <section class="composer card">
-          <div class="composer-head">
-            <h1>Generate SEO Article</h1>
-            <p>Submit your topic and optional citations. The agent handles extraction, analysis, and drafting.</p>
-          </div>
-
-          <div class="field-grid">
-            <div class="wide">
-              <label for="query">Primary Query</label>
-              <input id="query" placeholder="how to vinyl wrap a motorcycle" />
-            </div>
-
-            <div>
-              <label for="seedUrls">Seed URLs (one per line)</label>
-              <textarea id="seedUrls" placeholder="https://example.com/guide"></textarea>
-            </div>
-
-            <div>
-              <label for="citations">AI citations text (optional)</label>
-              <textarea id="citations" placeholder="Paste citation-rich AI answer"></textarea>
-            </div>
-
-            <div class="wide">
-              <label for="overview">AI overview text (optional)</label>
-              <textarea id="overview" placeholder="Paste overview response here"></textarea>
-            </div>
-          </div>
-
-          <button id="runBtn" class="run-btn" type="button">Run Workflow</button>
-
-          <div class="status-row">
-            <div class="status-head">
-              <span id="status" class="status">idle</span>
-              <strong id="progressLabel">0%</strong>
-            </div>
-            <div id="stage" class="stage">Waiting to start</div>
-            <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
-            <div id="runId" class="run-id"></div>
+        <section class="topbar card">
+          <h1>Two-Agent Content Workspace</h1>
+          <p>Use the SEO Brief Agent to create a structured brief, then move to the Content Writer Agent whenever you want to generate the full article.</p>
+          <div class="tabs">
+            <button id="tabBriefs" class="tab-btn active" type="button">SEO Brief Agent</button>
+            <button id="tabArticles" class="tab-btn" type="button">Content Writer Agent</button>
           </div>
         </section>
 
-        <section class="content-grid">
-          <section class="panel card">
-            <h2>Your Run History</h2>
-            <div id="history" class="history"></div>
-          </section>
+        <section id="briefView" class="view active">
+          <div class="grid-two">
+            <section class="section card">
+              <h2>Generate SEO Brief</h2>
+              <p class="desc">Create SERP-style analysis, competitor gaps, and an editable content brief.</p>
 
-          <section class="panel card">
-            <h2>Output</h2>
+              <div class="field-grid">
+                <div class="wide">
+                  <label for="briefQuery">Primary Query</label>
+                  <input id="briefQuery" placeholder="how to vinyl wrap a motorcycle" />
+                </div>
+                <div>
+                  <label for="briefSeedUrls">Seed URLs (one per line)</label>
+                  <textarea id="briefSeedUrls" placeholder="https://example.com/guide"></textarea>
+                </div>
+                <div>
+                  <label for="briefCitations">AI citations text (optional)</label>
+                  <textarea id="briefCitations" placeholder="Paste citation-rich AI answer"></textarea>
+                </div>
+                <div class="wide">
+                  <label for="briefOverview">AI overview text (optional)</label>
+                  <textarea id="briefOverview" placeholder="Paste overview response here"></textarea>
+                </div>
+              </div>
 
-            <details open>
-              <summary>Sources</summary>
-              <pre id="sources" class="mono"></pre>
-            </details>
+              <div class="row-actions">
+                <button id="generateBriefBtn" class="btn primary" type="button">Generate SEO Brief</button>
+              </div>
 
-            <details>
-              <summary>SEO Analysis</summary>
-              <pre id="analysis" class="mono"></pre>
-            </details>
+              <div class="status-row">
+                <div class="status-head">
+                  <span id="briefStatus" class="status">idle</span>
+                  <strong id="briefProgressLabel">0%</strong>
+                </div>
+                <div id="briefStage" class="stage">Waiting to start</div>
+                <div class="progress-track"><div id="briefProgressFill" class="progress-fill"></div></div>
+                <div id="briefRunId" class="run-id"></div>
+              </div>
+            </section>
 
-            <details>
-              <summary>Article Draft</summary>
-              <pre id="article" class="mono"></pre>
-            </details>
-          </section>
+            <section class="section card">
+              <h2>Brief History</h2>
+              <p class="desc">Each brief can be reopened, edited, and turned into content later.</p>
+              <div id="briefHistory" class="history"></div>
+            </section>
+          </div>
+
+          <div class="grid-two">
+            <section class="section card">
+              <h2>Editable Brief Draft</h2>
+              <p class="desc">Edit if needed, then save or generate content immediately.</p>
+              <label for="briefEditor">Brief Draft</label>
+              <textarea id="briefEditor" readonly placeholder="Generated brief will appear here"></textarea>
+              <div class="row-actions">
+                <button id="editBriefBtn" class="btn" type="button" disabled>Edit Draft</button>
+                <button id="saveBriefBtn" class="btn" type="button" disabled>Save Draft</button>
+                <button id="createContentFromBriefBtn" class="btn primary" type="button" disabled>Create Content</button>
+              </div>
+              <p class="helper">`Create Content` uses the current saved brief. If you edit the text first, save it before generating content.</p>
+            </section>
+
+            <section class="section card stack">
+              <div>
+                <h2>Brief Analysis</h2>
+                <details open>
+                  <summary>Sources</summary>
+                  <pre id="briefSources" class="mono"></pre>
+                </details>
+                <details>
+                  <summary>SEO Analysis</summary>
+                  <pre id="briefAnalysis" class="mono"></pre>
+                </details>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="articleView" class="view">
+          <div class="grid-two">
+            <section class="section card">
+              <h2>Generate Detailed Content</h2>
+              <p class="desc">Choose how the writer agent should work for this run.</p>
+
+              <div class="field-grid">
+                <div class="wide">
+                  <label for="articleMode">Writer Mode</label>
+                  <select id="articleMode">
+                    <option value="from_brief">Use SEO Brief Agent output</option>
+                    <option value="from_custom_brief">Paste your own brief</option>
+                    <option value="quick_draft">Quick draft from query</option>
+                  </select>
+                </div>
+
+                <div class="wide" id="modeFromBrief">
+                  <label for="briefSelect">Select a Brief</label>
+                  <select id="briefSelect"></select>
+                  <p class="helper">Choose any saved brief from the SEO Brief Agent history.</p>
+                </div>
+
+                <div class="wide hidden-mode" id="modeCustomBrief">
+                  <label for="customBriefQuery">Primary Query</label>
+                  <input id="customBriefQuery" placeholder="Enter query for the custom brief" />
+                  <label for="customBriefBody" style="margin-top:12px;">Custom Brief</label>
+                  <textarea id="customBriefBody" placeholder="Paste your content brief here"></textarea>
+                </div>
+
+                <div class="wide hidden-mode" id="modeQuickDraft">
+                  <label for="quickQuery">Primary Query</label>
+                  <input id="quickQuery" placeholder="Enter query for quick draft" />
+                  <div class="field-grid" style="margin-top:12px;">
+                    <div>
+                      <label for="quickSeedUrls">Seed URLs (one per line)</label>
+                      <textarea id="quickSeedUrls" placeholder="https://example.com/article"></textarea>
+                    </div>
+                    <div>
+                      <label for="quickCitations">AI citations text (optional)</label>
+                      <textarea id="quickCitations" placeholder="Paste citations"></textarea>
+                    </div>
+                    <div class="wide">
+                      <label for="quickOverview">AI overview text (optional)</label>
+                      <textarea id="quickOverview" placeholder="Paste overview response"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row-actions">
+                <button id="generateArticleBtn" class="btn primary" type="button">Generate Detailed Content</button>
+              </div>
+
+              <div class="status-row">
+                <div class="status-head">
+                  <span id="articleStatus" class="status">idle</span>
+                  <strong id="articleProgressLabel">0%</strong>
+                </div>
+                <div id="articleStage" class="stage">Waiting to start</div>
+                <div class="progress-track"><div id="articleProgressFill" class="progress-fill"></div></div>
+                <div id="articleRunId" class="run-id"></div>
+              </div>
+            </section>
+
+            <section class="section card">
+              <h2>Article History</h2>
+              <p class="desc">Reopen detailed drafts created from briefs, custom briefs, or quick-draft mode.</p>
+              <div id="articleHistory" class="history"></div>
+            </section>
+          </div>
+
+          <div class="grid-two">
+            <section class="section card stack">
+              <div>
+                <h2>Source Brief</h2>
+                <textarea id="articleSourceBrief" readonly placeholder="Source brief used for this article will appear here"></textarea>
+              </div>
+            </section>
+
+            <section class="section card stack">
+              <div>
+                <h2>Article Output</h2>
+                <details open>
+                  <summary>Article Draft</summary>
+                  <pre id="articleOutput" class="mono"></pre>
+                </details>
+                <details>
+                  <summary>Export Link</summary>
+                  <pre id="articleExport" class="mono"></pre>
+                </details>
+              </div>
+            </section>
+          </div>
         </section>
       </main>
     </div>
 
     <script>
-      const runBtn = document.getElementById("runBtn");
-      const logoutBtn = document.getElementById("logoutBtn");
-      const statusEl = document.getElementById("status");
-      const runIdEl = document.getElementById("runId");
-      const stageEl = document.getElementById("stage");
-      const progressFill = document.getElementById("progressFill");
-      const progressLabel = document.getElementById("progressLabel");
-      const whoamiEl = document.getElementById("whoami");
-      const sourcesEl = document.getElementById("sources");
-      const analysisEl = document.getElementById("analysis");
-      const articleEl = document.getElementById("article");
-      const historyEl = document.getElementById("history");
-      const totalRunsEl = document.getElementById("totalRuns");
-      const completedRunsEl = document.getElementById("completedRuns");
-      const runningRunsEl = document.getElementById("runningRuns");
-
-      let currentRunId = null;
-      let runsCache = [];
+      const state = {
+        briefs: [],
+        articles: [],
+        selectedBriefId: null,
+        selectedArticleId: null,
+        briefEditorDirty: false,
+      };
 
       const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+      const els = {
+        whoami: document.getElementById("whoami"),
+        logoutBtn: document.getElementById("logoutBtn"),
+        tabBriefs: document.getElementById("tabBriefs"),
+        tabArticles: document.getElementById("tabArticles"),
+        briefView: document.getElementById("briefView"),
+        articleView: document.getElementById("articleView"),
+        totalBriefs: document.getElementById("totalBriefs"),
+        totalArticles: document.getElementById("totalArticles"),
+        activeJobs: document.getElementById("activeJobs"),
+
+        briefQuery: document.getElementById("briefQuery"),
+        briefSeedUrls: document.getElementById("briefSeedUrls"),
+        briefCitations: document.getElementById("briefCitations"),
+        briefOverview: document.getElementById("briefOverview"),
+        generateBriefBtn: document.getElementById("generateBriefBtn"),
+        briefStatus: document.getElementById("briefStatus"),
+        briefProgressLabel: document.getElementById("briefProgressLabel"),
+        briefStage: document.getElementById("briefStage"),
+        briefProgressFill: document.getElementById("briefProgressFill"),
+        briefRunId: document.getElementById("briefRunId"),
+        briefHistory: document.getElementById("briefHistory"),
+        briefEditor: document.getElementById("briefEditor"),
+        editBriefBtn: document.getElementById("editBriefBtn"),
+        saveBriefBtn: document.getElementById("saveBriefBtn"),
+        createContentFromBriefBtn: document.getElementById("createContentFromBriefBtn"),
+        briefSources: document.getElementById("briefSources"),
+        briefAnalysis: document.getElementById("briefAnalysis"),
+
+        articleMode: document.getElementById("articleMode"),
+        briefSelect: document.getElementById("briefSelect"),
+        modeFromBrief: document.getElementById("modeFromBrief"),
+        modeCustomBrief: document.getElementById("modeCustomBrief"),
+        modeQuickDraft: document.getElementById("modeQuickDraft"),
+        customBriefQuery: document.getElementById("customBriefQuery"),
+        customBriefBody: document.getElementById("customBriefBody"),
+        quickQuery: document.getElementById("quickQuery"),
+        quickSeedUrls: document.getElementById("quickSeedUrls"),
+        quickCitations: document.getElementById("quickCitations"),
+        quickOverview: document.getElementById("quickOverview"),
+        generateArticleBtn: document.getElementById("generateArticleBtn"),
+        articleStatus: document.getElementById("articleStatus"),
+        articleProgressLabel: document.getElementById("articleProgressLabel"),
+        articleStage: document.getElementById("articleStage"),
+        articleProgressFill: document.getElementById("articleProgressFill"),
+        articleRunId: document.getElementById("articleRunId"),
+        articleHistory: document.getElementById("articleHistory"),
+        articleSourceBrief: document.getElementById("articleSourceBrief"),
+        articleOutput: document.getElementById("articleOutput"),
+        articleExport: document.getElementById("articleExport"),
+      };
 
       function humanStage(stage) {
         const map = {
           queued: "Queued...",
           collecting_sources: "Collecting candidate sources...",
-          extracting_articles: "Extracting article content...",
-          summarizing_competitors: "Summarizing competitor content...",
-          analyzing_seo_gaps: "Analyzing SEO gaps and opportunities...",
-          writing_article: "Writing article draft...",
+          building_brief: "Building editable SEO brief...",
+          edited_draft: "Draft updated",
+          writing_article: "Writing detailed article...",
+          building_internal_brief: "Building internal brief...",
           exporting_output: "Saving output...",
           completed: "Completed",
-          failed: "Failed"
+          failed: "Failed",
         };
         return map[stage] || stage;
       }
 
-      function paintStatus(status) {
-        statusEl.classList.remove("running", "completed", "failed");
-        if (["queued", "running"].includes(status)) statusEl.classList.add("running");
-        if (status === "completed") statusEl.classList.add("completed");
-        if (status === "failed") statusEl.classList.add("failed");
+      function paintStatus(el, status) {
+        el.classList.remove("running", "completed", "failed");
+        if (["queued", "running"].includes(status)) el.classList.add("running");
+        if (status === "completed") el.classList.add("completed");
+        if (status === "failed") el.classList.add("failed");
       }
 
-      function renderRunDetails(run) {
-        currentRunId = run.id;
-        runIdEl.textContent = `Run ID: ${run.id}`;
-        statusEl.textContent = run.status;
-        paintStatus(run.status);
+      function selectedBrief() {
+        return state.briefs.find((item) => item.id === state.selectedBriefId) || null;
+      }
 
-        const pct = Number(run.progress_percent || 0);
-        progressFill.style.width = `${pct}%`;
-        progressLabel.textContent = `${pct}%`;
-        stageEl.textContent = humanStage(run.stage);
+      function selectedArticle() {
+        return state.articles.find((item) => item.id === state.selectedArticleId) || null;
+      }
 
-        if (run.status === "completed") {
-          sourcesEl.textContent = (run.artifacts.sources || []).join("\n");
-          analysisEl.textContent = run.artifacts.seo_analysis || "";
-          articleEl.textContent = run.artifacts.article_markdown || "";
-        } else if (run.status === "failed") {
-          sourcesEl.textContent = "";
-          analysisEl.textContent = run.error || "Unknown error";
-          articleEl.textContent = "";
+      function setActiveTab(kind) {
+        const isBriefs = kind === "briefs";
+        els.tabBriefs.classList.toggle("active", isBriefs);
+        els.tabArticles.classList.toggle("active", !isBriefs);
+        els.briefView.classList.toggle("active", isBriefs);
+        els.articleView.classList.toggle("active", !isBriefs);
+      }
+
+      function renderStats() {
+        els.totalBriefs.textContent = String(state.briefs.length);
+        els.totalArticles.textContent = String(state.articles.length);
+        const activeCount = state.briefs.filter((item) => ["queued", "running"].includes(item.status)).length +
+          state.articles.filter((item) => ["queued", "running"].includes(item.status)).length;
+        els.activeJobs.textContent = String(activeCount);
+      }
+
+      function renderBriefHistory() {
+        els.briefHistory.innerHTML = "";
+        if (!state.briefs.length) {
+          els.briefHistory.textContent = "No briefs yet.";
+        } else {
+          state.briefs.forEach((brief) => {
+            const item = document.createElement("div");
+            item.className = "history-item" + (brief.id === state.selectedBriefId ? " active" : "");
+            item.innerHTML = `
+              <div class="history-title">${brief.query}</div>
+              <div class="history-meta">${brief.status.toUpperCase()} • ${brief.progress_percent}% • ${new Date(brief.created_at).toLocaleString()}</div>
+            `;
+            item.addEventListener("click", () => {
+              state.selectedBriefId = brief.id;
+              state.briefEditorDirty = false;
+              renderBriefDetails();
+              renderBriefHistory();
+            });
+            els.briefHistory.appendChild(item);
+          });
+        }
+
+        const available = state.briefs.filter((brief) => brief.artifacts.brief_markdown);
+        els.briefSelect.innerHTML = available.length
+          ? available.map((brief) => `<option value="${brief.id}">${brief.query}</option>`).join("")
+          : '<option value="">No generated briefs yet</option>';
+
+        if (state.selectedBriefId && available.some((brief) => brief.id === state.selectedBriefId)) {
+          els.briefSelect.value = state.selectedBriefId;
         }
       }
 
-      function renderHistory(runs) {
-        runsCache = runs;
-        historyEl.innerHTML = "";
-
-        totalRunsEl.textContent = String(runs.length);
-        completedRunsEl.textContent = String(runs.filter((r) => r.status === "completed").length);
-        runningRunsEl.textContent = String(runs.filter((r) => ["queued", "running"].includes(r.status)).length);
-
-        if (!runs.length) {
-          historyEl.textContent = "No runs yet.";
+      function renderBriefDetails() {
+        const brief = selectedBrief();
+        if (!brief) {
+          els.briefStatus.textContent = "idle";
+          paintStatus(els.briefStatus, "idle");
+          els.briefProgressLabel.textContent = "0%";
+          els.briefProgressFill.style.width = "0%";
+          els.briefStage.textContent = "Waiting to start";
+          els.briefRunId.textContent = "";
+          els.briefEditor.value = "";
+          els.briefEditor.readOnly = true;
+          els.briefSources.textContent = "";
+          els.briefAnalysis.textContent = "";
+          els.editBriefBtn.disabled = true;
+          els.saveBriefBtn.disabled = true;
+          els.createContentFromBriefBtn.disabled = true;
           return;
         }
 
-        for (const run of runs) {
+        els.briefStatus.textContent = brief.status;
+        paintStatus(els.briefStatus, brief.status);
+        els.briefProgressLabel.textContent = `${brief.progress_percent}%`;
+        els.briefProgressFill.style.width = `${brief.progress_percent}%`;
+        els.briefStage.textContent = humanStage(brief.stage);
+        els.briefRunId.textContent = `Brief ID: ${brief.id}`;
+        if (!state.briefEditorDirty) {
+          els.briefEditor.value = brief.artifacts.brief_markdown || "";
+        }
+        els.briefSources.textContent = (brief.artifacts.sources || []).join("\n");
+        els.briefAnalysis.textContent = brief.artifacts.seo_analysis || brief.error || "";
+        const hasDraft = Boolean(brief.artifacts.brief_markdown);
+        els.editBriefBtn.disabled = !hasDraft;
+        els.saveBriefBtn.disabled = !state.briefEditorDirty;
+        els.createContentFromBriefBtn.disabled = !hasDraft;
+      }
+
+      function renderArticleHistory() {
+        els.articleHistory.innerHTML = "";
+        if (!state.articles.length) {
+          els.articleHistory.textContent = "No articles yet.";
+          return;
+        }
+        state.articles.forEach((article) => {
           const item = document.createElement("div");
-          item.className = "run-item" + (run.id === currentRunId ? " active" : "");
+          item.className = "history-item" + (article.id === state.selectedArticleId ? " active" : "");
           item.innerHTML = `
-            <div class="run-query">${run.query}</div>
-            <div class="run-meta">${run.status.toUpperCase()} • ${run.progress_percent}% • ${new Date(run.created_at).toLocaleString()}</div>
+            <div class="history-title">${article.query || article.mode}</div>
+            <div class="history-meta">${article.mode} • ${article.status.toUpperCase()} • ${article.progress_percent}% • ${new Date(article.created_at).toLocaleString()}</div>
           `;
           item.addEventListener("click", () => {
-            renderRunDetails(run);
-            renderHistory(runsCache);
+            state.selectedArticleId = article.id;
+            renderArticleDetails();
+            renderArticleHistory();
           });
-          historyEl.appendChild(item);
+          els.articleHistory.appendChild(item);
+        });
+      }
+
+      function renderArticleDetails() {
+        const article = selectedArticle();
+        if (!article) {
+          els.articleStatus.textContent = "idle";
+          paintStatus(els.articleStatus, "idle");
+          els.articleProgressLabel.textContent = "0%";
+          els.articleProgressFill.style.width = "0%";
+          els.articleStage.textContent = "Waiting to start";
+          els.articleRunId.textContent = "";
+          els.articleSourceBrief.value = "";
+          els.articleOutput.textContent = "";
+          els.articleExport.textContent = "";
+          return;
         }
+
+        els.articleStatus.textContent = article.status;
+        paintStatus(els.articleStatus, article.status);
+        els.articleProgressLabel.textContent = `${article.progress_percent}%`;
+        els.articleProgressFill.style.width = `${article.progress_percent}%`;
+        els.articleStage.textContent = humanStage(article.stage);
+        els.articleRunId.textContent = `Article ID: ${article.id}`;
+        els.articleSourceBrief.value = article.artifacts.source_brief_markdown || "";
+        els.articleOutput.textContent = article.artifacts.article_markdown || article.error || "";
+        els.articleExport.textContent = article.artifacts.export_link || "";
+      }
+
+      function updateWriterModeUI() {
+        const mode = els.articleMode.value;
+        els.modeFromBrief.style.display = mode === "from_brief" ? "block" : "none";
+        els.modeCustomBrief.style.display = mode === "from_custom_brief" ? "block" : "none";
+        els.modeQuickDraft.style.display = mode === "quick_draft" ? "block" : "none";
       }
 
       async function loadCurrentUser() {
@@ -591,100 +650,237 @@
           return;
         }
         const user = await res.json();
-        whoamiEl.textContent = `Signed in as ${user.email}`;
+        els.whoami.textContent = `Signed in as ${user.email}`;
       }
 
-      async function loadHistory() {
-        const res = await fetch("/api/runs", { credentials: "same-origin" });
+      async function loadBriefs() {
+        const res = await fetch("/api/briefs", { credentials: "same-origin" });
         if (res.status === 401) {
           window.location.href = "/login";
           return;
         }
-
-        const runs = await res.json();
-        renderHistory(runs);
-
-        if (!currentRunId && runs.length) {
-          renderRunDetails(runs[0]);
-          renderHistory(runs);
-        }
+        state.briefs = await res.json();
+        if (!state.selectedBriefId && state.briefs.length) state.selectedBriefId = state.briefs[0].id;
+        renderBriefHistory();
+        renderBriefDetails();
+        renderStats();
       }
 
-      async function pollRun(runId) {
-        currentRunId = runId;
-
-        while (true) {
-          await sleep(1800);
-          const res = await fetch(`/api/runs/${runId}`, { credentials: "same-origin" });
-          if (res.status === 401) {
-            window.location.href = "/login";
-            return;
-          }
-
-          const run = await res.json();
-          renderRunDetails(run);
-          await loadHistory();
-
-          if (run.status === "completed" || run.status === "failed") break;
-        }
-      }
-
-      runBtn.addEventListener("click", async () => {
-        const query = document.getElementById("query").value.trim();
-        if (!query) {
-          alert("Please enter a query.");
+      async function loadArticles() {
+        const res = await fetch("/api/articles", { credentials: "same-origin" });
+        if (res.status === 401) {
+          window.location.href = "/login";
           return;
         }
+        state.articles = await res.json();
+        if (!state.selectedArticleId && state.articles.length) state.selectedArticleId = state.articles[0].id;
+        renderArticleHistory();
+        renderArticleDetails();
+        renderStats();
+      }
 
+      async function pollBrief(briefId) {
+        while (true) {
+          await sleep(1800);
+          const res = await fetch(`/api/briefs/${briefId}`, { credentials: "same-origin" });
+          if (res.status === 401) return (window.location.href = "/login");
+          const brief = await res.json();
+          state.briefs = [brief, ...state.briefs.filter((item) => item.id !== brief.id)];
+          state.selectedBriefId = brief.id;
+          state.briefEditorDirty = false;
+          renderBriefHistory();
+          renderBriefDetails();
+          renderStats();
+          if (["completed", "failed"].includes(brief.status)) break;
+        }
+      }
+
+      async function pollArticle(articleId) {
+        while (true) {
+          await sleep(1800);
+          const res = await fetch(`/api/articles/${articleId}`, { credentials: "same-origin" });
+          if (res.status === 401) return (window.location.href = "/login");
+          const article = await res.json();
+          state.articles = [article, ...state.articles.filter((item) => item.id !== article.id)];
+          state.selectedArticleId = article.id;
+          renderArticleHistory();
+          renderArticleDetails();
+          renderStats();
+          if (["completed", "failed"].includes(article.status)) break;
+        }
+      }
+
+      async function saveSelectedBrief() {
+        const brief = selectedBrief();
+        if (!brief) return null;
+        const res = await fetch(`/api/briefs/${brief.id}`, {
+          method: "PATCH",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ brief_markdown: els.briefEditor.value }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          alert(data.detail || "Unable to save brief draft.");
+          return null;
+        }
+        const updated = await res.json();
+        state.briefs = state.briefs.map((item) => item.id === updated.id ? updated : item);
+        state.briefEditorDirty = false;
+        renderBriefHistory();
+        renderBriefDetails();
+        return updated;
+      }
+
+      els.tabBriefs.addEventListener("click", () => setActiveTab("briefs"));
+      els.tabArticles.addEventListener("click", () => setActiveTab("articles"));
+      els.articleMode.addEventListener("change", updateWriterModeUI);
+
+      els.generateBriefBtn.addEventListener("click", async () => {
+        const query = els.briefQuery.value.trim();
+        if (!query) return alert("Please enter a primary query.");
         const payload = {
           query,
-          seed_urls: document.getElementById("seedUrls").value.split("\n").map((v) => v.trim()).filter(Boolean),
-          ai_citations_text: document.getElementById("citations").value,
-          ai_overview_text: document.getElementById("overview").value,
+          seed_urls: els.briefSeedUrls.value.split("\n").map((v) => v.trim()).filter(Boolean),
+          ai_citations_text: els.briefCitations.value,
+          ai_overview_text: els.briefOverview.value,
         };
 
-        runBtn.disabled = true;
-        runBtn.textContent = "Starting...";
-
-        sourcesEl.textContent = "";
-        analysisEl.textContent = "";
-        articleEl.textContent = "";
-
-        const createRes = await fetch("/api/runs", {
+        els.generateBriefBtn.disabled = true;
+        els.generateBriefBtn.textContent = "Starting...";
+        const res = await fetch("/api/briefs", {
           method: "POST",
           credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
+        els.generateBriefBtn.disabled = false;
+        els.generateBriefBtn.textContent = "Generate SEO Brief";
 
-        runBtn.disabled = false;
-        runBtn.textContent = "Run Workflow";
-
-        if (!createRes.ok) {
-          const data = await createRes.json().catch(() => ({}));
-          analysisEl.textContent = data.detail || "Failed to start run.";
-          statusEl.textContent = "failed";
-          paintStatus("failed");
-          stageEl.textContent = "Unable to start";
-          progressFill.style.width = "100%";
-          progressLabel.textContent = "100%";
-          return;
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to start brief generation.");
         }
 
-        const run = await createRes.json();
-        renderRunDetails(run);
-        await loadHistory();
-        pollRun(run.id);
+        const brief = await res.json();
+        state.selectedBriefId = brief.id;
+        state.briefs = [brief, ...state.briefs.filter((item) => item.id !== brief.id)];
+        state.briefEditorDirty = false;
+        renderBriefHistory();
+        renderBriefDetails();
+        renderStats();
+        pollBrief(brief.id);
       });
 
-      logoutBtn.addEventListener("click", async () => {
+      els.editBriefBtn.addEventListener("click", () => {
+        els.briefEditor.readOnly = false;
+        els.briefEditor.focus();
+      });
+
+      els.briefEditor.addEventListener("input", () => {
+        state.briefEditorDirty = true;
+        els.saveBriefBtn.disabled = false;
+      });
+
+      els.saveBriefBtn.addEventListener("click", async () => {
+        await saveSelectedBrief();
+        els.briefEditor.readOnly = true;
+      });
+
+      els.createContentFromBriefBtn.addEventListener("click", async () => {
+        const brief = selectedBrief();
+        if (!brief) return;
+        if (state.briefEditorDirty) {
+          const updated = await saveSelectedBrief();
+          if (!updated) return;
+        }
+
+        const res = await fetch("/api/articles", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: "from_brief", brief_id: brief.id, query: brief.query }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to start article generation.");
+        }
+
+        const article = await res.json();
+        state.selectedArticleId = article.id;
+        state.articles = [article, ...state.articles.filter((item) => item.id !== article.id)];
+        renderArticleHistory();
+        renderArticleDetails();
+        renderStats();
+        setActiveTab("articles");
+        pollArticle(article.id);
+      });
+
+      els.generateArticleBtn.addEventListener("click", async () => {
+        const mode = els.articleMode.value;
+        let payload = { mode };
+
+        if (mode === "from_brief") {
+          const briefId = els.briefSelect.value;
+          if (!briefId) return alert("Choose a generated brief first.");
+          const brief = state.briefs.find((item) => item.id === briefId);
+          if (!brief) return alert("Selected brief is not available.");
+          payload = { mode, brief_id: briefId, query: brief.query };
+        }
+
+        if (mode === "from_custom_brief") {
+          const query = els.customBriefQuery.value.trim();
+          const customBrief = els.customBriefBody.value.trim();
+          if (!query || !customBrief) return alert("Enter both query and custom brief.");
+          payload = { mode, query, custom_brief_markdown: customBrief };
+        }
+
+        if (mode === "quick_draft") {
+          const query = els.quickQuery.value.trim();
+          if (!query) return alert("Enter a query for quick draft mode.");
+          payload = {
+            mode,
+            query,
+            seed_urls: els.quickSeedUrls.value.split("\n").map((v) => v.trim()).filter(Boolean),
+            ai_citations_text: els.quickCitations.value,
+            ai_overview_text: els.quickOverview.value,
+          };
+        }
+
+        els.generateArticleBtn.disabled = true;
+        els.generateArticleBtn.textContent = "Starting...";
+        const res = await fetch("/api/articles", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        els.generateArticleBtn.disabled = false;
+        els.generateArticleBtn.textContent = "Generate Detailed Content";
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to start article generation.");
+        }
+
+        const article = await res.json();
+        state.selectedArticleId = article.id;
+        state.articles = [article, ...state.articles.filter((item) => item.id !== article.id)];
+        renderArticleHistory();
+        renderArticleDetails();
+        renderStats();
+        pollArticle(article.id);
+      });
+
+      els.logoutBtn.addEventListener("click", async () => {
         await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
         window.location.href = "/login";
       });
 
       (async function init() {
         await loadCurrentUser();
-        await loadHistory();
+        await Promise.all([loadBriefs(), loadArticles()]);
+        updateWriterModeUI();
       })();
     </script>
   </body>
