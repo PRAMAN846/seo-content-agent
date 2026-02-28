@@ -234,6 +234,7 @@
           <div class="tabs">
             <button id="tabBriefs" class="tab-btn active" type="button">SEO Brief Agent</button>
             <button id="tabArticles" class="tab-btn" type="button">Content Writer Agent</button>
+            <button id="tabSettings" class="tab-btn" type="button">Account Settings</button>
           </div>
         </section>
 
@@ -389,7 +390,10 @@
             <section class="section card stack">
               <div>
                 <h2>Source Brief</h2>
-                <textarea id="articleSourceBrief" readonly placeholder="Source brief used for this article will appear here"></textarea>
+                <div class="row-actions">
+                  <button id="toggleSourceBriefBtn" class="btn" type="button">See Brief</button>
+                </div>
+                <textarea id="articleSourceBrief" readonly style="display:none;" placeholder="Source brief used for this article will appear here"></textarea>
               </div>
             </section>
 
@@ -403,6 +407,75 @@
                 <details>
                   <summary>Export Link</summary>
                   <pre id="articleExport" class="mono"></pre>
+                </details>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="settingsView" class="view">
+          <div class="grid-two">
+            <section class="section card">
+              <h2>Account Profile</h2>
+              <p class="desc">Set your identity and brand defaults so the agents can tailor briefs and drafts better.</p>
+              <div class="field-grid">
+                <div>
+                  <label for="settingsName">Your Name</label>
+                  <input id="settingsName" placeholder="Your name" />
+                </div>
+                <div>
+                  <label for="settingsBrandName">Brand Name</label>
+                  <input id="settingsBrandName" placeholder="Xpaan Digital" />
+                </div>
+                <div class="wide">
+                  <label for="settingsBrandUrl">Brand URL</label>
+                  <input id="settingsBrandUrl" placeholder="https://yourbrand.com" />
+                </div>
+              </div>
+            </section>
+
+            <section class="section card">
+              <h2>Integrations</h2>
+              <p class="desc">Google Docs / Sheets connection is the next step. This section is prepared for that rollout.</p>
+              <div class="stack">
+                <div class="stat">
+                  <span class="k" id="googleDocsStatus">Not connected</span>
+                  <span class="l">Google Docs export status</span>
+                </div>
+                <div class="stat">
+                  <span class="k" id="googleSheetsStatus">Not connected</span>
+                  <span class="l">Google Sheets sync status</span>
+                </div>
+                <p class="helper">Google OAuth connect/export is not active yet, but the settings area is ready for it.</p>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid-two">
+            <section class="section card">
+              <h2>Custom Prompt Controls</h2>
+              <p class="desc">These overrides give advanced users more control over generated output. Useful later for higher plans.</p>
+              <label for="settingsBriefPrompt">Custom SEO Brief Prompt</label>
+              <textarea id="settingsBriefPrompt" placeholder="Add custom instructions for brief generation"></textarea>
+              <label for="settingsWriterPrompt" style="margin-top:12px;">Custom Content Writer Prompt</label>
+              <textarea id="settingsWriterPrompt" placeholder="Add custom instructions for content writing"></textarea>
+              <div class="row-actions">
+                <button id="saveSettingsBtn" class="btn primary" type="button">Save Settings</button>
+              </div>
+              <p id="settingsSavedMsg" class="helper"></p>
+            </section>
+
+            <section class="section card">
+              <h2>How Settings Are Used</h2>
+              <p class="desc">Saved profile and prompt settings are automatically applied in both agents.</p>
+              <div class="stack">
+                <details open>
+                  <summary>SEO Brief Agent</summary>
+                  <pre class="mono">Uses brand name, brand URL, and custom brief prompt override while generating the editable content brief.</pre>
+                </details>
+                <details>
+                  <summary>Content Writer Agent</summary>
+                  <pre class="mono">Uses brand name, brand URL, and custom writer prompt override while generating article drafts from a brief.</pre>
                 </details>
               </div>
             </section>
@@ -427,8 +500,10 @@
         logoutBtn: document.getElementById("logoutBtn"),
         tabBriefs: document.getElementById("tabBriefs"),
         tabArticles: document.getElementById("tabArticles"),
+        tabSettings: document.getElementById("tabSettings"),
         briefView: document.getElementById("briefView"),
         articleView: document.getElementById("articleView"),
+        settingsView: document.getElementById("settingsView"),
         totalBriefs: document.getElementById("totalBriefs"),
         totalArticles: document.getElementById("totalArticles"),
         activeJobs: document.getElementById("activeJobs"),
@@ -469,9 +544,20 @@
         articleProgressFill: document.getElementById("articleProgressFill"),
         articleRunId: document.getElementById("articleRunId"),
         articleHistory: document.getElementById("articleHistory"),
+        toggleSourceBriefBtn: document.getElementById("toggleSourceBriefBtn"),
         articleSourceBrief: document.getElementById("articleSourceBrief"),
         articleOutput: document.getElementById("articleOutput"),
         articleExport: document.getElementById("articleExport"),
+
+        settingsName: document.getElementById("settingsName"),
+        settingsBrandName: document.getElementById("settingsBrandName"),
+        settingsBrandUrl: document.getElementById("settingsBrandUrl"),
+        settingsBriefPrompt: document.getElementById("settingsBriefPrompt"),
+        settingsWriterPrompt: document.getElementById("settingsWriterPrompt"),
+        saveSettingsBtn: document.getElementById("saveSettingsBtn"),
+        settingsSavedMsg: document.getElementById("settingsSavedMsg"),
+        googleDocsStatus: document.getElementById("googleDocsStatus"),
+        googleSheetsStatus: document.getElementById("googleSheetsStatus"),
       };
 
       function humanStage(stage) {
@@ -506,10 +592,14 @@
 
       function setActiveTab(kind) {
         const isBriefs = kind === "briefs";
+        const isArticles = kind === "articles";
+        const isSettings = kind === "settings";
         els.tabBriefs.classList.toggle("active", isBriefs);
-        els.tabArticles.classList.toggle("active", !isBriefs);
+        els.tabArticles.classList.toggle("active", isArticles);
+        els.tabSettings.classList.toggle("active", isSettings);
         els.briefView.classList.toggle("active", isBriefs);
-        els.articleView.classList.toggle("active", !isBriefs);
+        els.articleView.classList.toggle("active", isArticles);
+        els.settingsView.classList.toggle("active", isSettings);
       }
 
       function renderStats() {
@@ -619,6 +709,9 @@
           els.articleProgressFill.style.width = "0%";
           els.articleStage.textContent = "Waiting to start";
           els.articleRunId.textContent = "";
+          els.toggleSourceBriefBtn.disabled = true;
+          els.toggleSourceBriefBtn.textContent = "See Brief";
+          els.articleSourceBrief.style.display = "none";
           els.articleSourceBrief.value = "";
           els.articleOutput.textContent = "";
           els.articleExport.textContent = "";
@@ -631,9 +724,23 @@
         els.articleProgressFill.style.width = `${article.progress_percent}%`;
         els.articleStage.textContent = humanStage(article.stage);
         els.articleRunId.textContent = `Article ID: ${article.id}`;
+        els.toggleSourceBriefBtn.textContent = "See Brief";
+        els.articleSourceBrief.style.display = "none";
+        els.toggleSourceBriefBtn.disabled = !article.artifacts.source_brief_markdown;
         els.articleSourceBrief.value = article.artifacts.source_brief_markdown || "";
         els.articleOutput.textContent = article.artifacts.article_markdown || article.error || "";
         els.articleExport.textContent = article.artifacts.export_link || "";
+      }
+
+      function renderSettings(settings) {
+        if (!settings) return;
+        els.settingsName.value = settings.name || "";
+        els.settingsBrandName.value = settings.brand_name || "";
+        els.settingsBrandUrl.value = settings.brand_url || "";
+        els.settingsBriefPrompt.value = settings.brief_prompt_override || "";
+        els.settingsWriterPrompt.value = settings.writer_prompt_override || "";
+        els.googleDocsStatus.textContent = settings.google_docs_connected ? "Connected" : "Not connected";
+        els.googleSheetsStatus.textContent = settings.google_sheets_connected ? "Connected" : "Not connected";
       }
 
       function updateWriterModeUI() {
@@ -651,6 +758,16 @@
         }
         const user = await res.json();
         els.whoami.textContent = `Signed in as ${user.email}`;
+      }
+
+      async function loadSettings() {
+        const res = await fetch("/api/settings", { credentials: "same-origin" });
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        const settings = await res.json();
+        renderSettings(settings);
       }
 
       async function loadBriefs() {
@@ -734,6 +851,7 @@
 
       els.tabBriefs.addEventListener("click", () => setActiveTab("briefs"));
       els.tabArticles.addEventListener("click", () => setActiveTab("articles"));
+      els.tabSettings.addEventListener("click", () => setActiveTab("settings"));
       els.articleMode.addEventListener("change", updateWriterModeUI);
 
       els.generateBriefBtn.addEventListener("click", async () => {
@@ -872,6 +990,40 @@
         pollArticle(article.id);
       });
 
+      els.toggleSourceBriefBtn.addEventListener("click", () => {
+        const isVisible = els.articleSourceBrief.style.display !== "none";
+        els.articleSourceBrief.style.display = isVisible ? "none" : "block";
+        els.toggleSourceBriefBtn.textContent = isVisible ? "See Brief" : "Hide Brief";
+      });
+
+      els.saveSettingsBtn.addEventListener("click", async () => {
+        els.saveSettingsBtn.disabled = true;
+        els.settingsSavedMsg.textContent = "Saving settings...";
+        const res = await fetch("/api/settings", {
+          method: "PUT",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: els.settingsName.value,
+            brand_name: els.settingsBrandName.value,
+            brand_url: els.settingsBrandUrl.value,
+            brief_prompt_override: els.settingsBriefPrompt.value,
+            writer_prompt_override: els.settingsWriterPrompt.value,
+          }),
+        });
+        els.saveSettingsBtn.disabled = false;
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          els.settingsSavedMsg.textContent = data.detail || "Unable to save settings.";
+          return;
+        }
+
+        const settings = await res.json();
+        renderSettings(settings);
+        els.settingsSavedMsg.textContent = "Settings saved.";
+      });
+
       els.logoutBtn.addEventListener("click", async () => {
         await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
         window.location.href = "/login";
@@ -879,7 +1031,7 @@
 
       (async function init() {
         await loadCurrentUser();
-        await Promise.all([loadBriefs(), loadArticles()]);
+        await Promise.all([loadBriefs(), loadArticles(), loadSettings()]);
         updateWriterModeUI();
       })();
     </script>

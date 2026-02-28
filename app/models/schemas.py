@@ -24,7 +24,31 @@ class ArticleSummary(BaseModel):
 class UserPublic(BaseModel):
     id: str
     email: str
+    name: Optional[str] = None
+    brand_name: Optional[str] = None
+    brand_url: Optional[str] = None
     created_at: datetime
+
+
+class UserSettings(BaseModel):
+    id: str
+    email: str
+    name: Optional[str] = None
+    brand_name: Optional[str] = None
+    brand_url: Optional[str] = None
+    brief_prompt_override: str = ""
+    writer_prompt_override: str = ""
+    google_docs_connected: bool = False
+    google_sheets_connected: bool = False
+    created_at: datetime
+
+
+class UserSettingsUpdateRequest(BaseModel):
+    name: str = ""
+    brand_name: str = ""
+    brand_url: str = ""
+    brief_prompt_override: str = ""
+    writer_prompt_override: str = ""
 
 
 class RegisterRequest(BaseModel):

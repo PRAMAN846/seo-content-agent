@@ -1,6 +1,6 @@
 # SEO Content Agent
 
-A two-agent SEO content workspace with login, per-user history, editable briefs, and article generation.
+A two-agent SEO content workspace with login, per-user history, editable briefs, account settings, and article generation.
 
 ## Product structure
 
@@ -23,14 +23,23 @@ Supports 3 modes:
 - Login/register/logout API with session cookies
 - Xpaan-branded login and dashboard UI
 - Two separate agent tabs in dashboard
+- Account Settings tab with:
+  - user name
+  - brand name
+  - brand URL
+  - custom SEO brief prompt override
+  - custom content writer prompt override
 - Per-user history for:
   - briefs
   - articles
 - Progress bars and stage labels for both agents
+- Article view with `See Brief` toggle
 - Database store that supports:
   - Neon/Postgres via `DATABASE_URL` (recommended for production)
   - SQLite fallback via `APP_DB_PATH` (for local/dev)
 - Local export to `exports/*.md`
+- Google Docs / Sheets integration status placeholders in UI
+- Prompt customization applied automatically during brief and article generation
 
 ## Local setup
 
@@ -105,6 +114,10 @@ Open:
 - `GET /api/articles`
 - `POST /api/articles`
 - `GET /api/articles/{article_id}`
+
+### Settings
+- `GET /api/settings`
+- `PUT /api/settings`
 
 ## Next upgrades
 - Add Google Docs / Sheets export

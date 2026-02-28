@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from app.models.schemas import BriefArtifacts
 from app.models.store import run_store
-from app.services.brief_builder import build_brief, build_brief_from_query
+from app.services.brief_builder import (
+    build_brief_from_query_with_customization,
+    build_brief_with_customization,
+)
 from app.workflows.source_analysis import build_source_analysis
 
 
@@ -16,6 +19,12 @@ async def process_brief(
     run_store.update_brief(brief_id, status="running", stage="collecting_sources", progress_percent=10, error=None)
 
     try:
+        brief_record = run_store.get_brief_by_id(brief_id)
+        user_settings = run_store.get_user_settings(brief_record.user_id) if brief_record else None
+        brand_name = user_settings.brand_name if user_settings else ""
+        brand_url = user_settings.brand_url if user_settings else ""
+        prompt_override = user_settings.brief_prompt_override if user_settings else ""
+
         try:
             top_urls, extracted, summaries, seo_analysis = await build_source_analysis(
                 query=query,
@@ -24,12 +33,24 @@ async def process_brief(
                 ai_overview_text=ai_overview_text,
             )
             run_store.update_brief(brief_id, stage="building_brief", progress_percent=78)
-            brief_markdown = build_brief(query, summaries, seo_analysis)
+            brief_markdown = build_brief_with_customization(
+                query,
+                summaries,
+                seo_analysis,
+                brand_name,
+                brand_url,
+                prompt_override,
+            )
         except ValueError:
             top_urls, extracted, summaries = [], [], []
             seo_analysis = "No competitor sources were provided. This brief is based on the query only and should be reviewed."
             run_store.update_brief(brief_id, stage="building_brief", progress_percent=78)
-            brief_markdown = build_brief_from_query(query)
+            brief_markdown = build_brief_from_query_with_customization(
+                query,
+                brand_name,
+                brand_url,
+                prompt_override,
+            )
 
         artifacts = BriefArtifacts(
             sources=top_urls,

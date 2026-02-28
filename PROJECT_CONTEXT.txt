@@ -1,5 +1,5 @@
 SEO Content Agent - Project Context (Short)
-Last updated: 2026-02-27
+Last updated: 2026-02-28
 
 1) Project Goal
 Build an end-to-end SEO content writing workflow that:
@@ -42,6 +42,15 @@ The app is now split into two visible agents inside one dashboard:
   - quick draft from query
 - Separate progress/status tracking for briefs and articles.
 - Xpaan-branded dashboard redesign implemented.
+- Account Settings tab implemented:
+  - user name
+  - brand name
+  - brand URL
+  - custom brief prompt override
+  - custom writer prompt override
+- Article screen now includes a `See Brief` toggle so the source brief can be shown on demand.
+- Google Docs / Sheets section exists as a prepared placeholder in settings, but OAuth/export is not active yet.
+- Saved profile and prompt settings are injected into SEO brief generation and content writing.
 
 5) Important Files
 - README.md
@@ -49,6 +58,7 @@ The app is now split into two visible agents inside one dashboard:
 - app/api/routes_auth.py
 - app/api/routes_briefs.py
 - app/api/routes_articles.py
+- app/api/routes_settings.py
 - app/models/schemas.py
 - app/models/store.py
 - app/workflows/brief_pipeline.py
@@ -91,9 +101,9 @@ Important Render env vars:
 - DATABASE_URL=<Neon connection string>
 
 10) Next Recommended Upgrades
-- Push/deploy the new two-agent architecture to Render.
-- Verify live create/edit/save brief flow.
-- Verify live content generation in all 3 writer modes.
+- Deploy/push account settings update to Render.
+- Verify live settings save/load flow.
+- Verify brand and prompt overrides influence generated briefs and drafts.
 - Add Google Docs + Sheets export.
 - Add Redis worker queue for heavier usage.
 - Add Stripe subscriptions and usage limits.

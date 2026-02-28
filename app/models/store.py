@@ -23,6 +23,7 @@ from app.models.schemas import (
     RunCreateRequest,
     RunRecord,
     UserPublic,
+    UserSettings,
 )
 
 try:
@@ -115,6 +116,32 @@ class StoreBase:
             artifacts=ArticleArtifacts(**json.loads(str(row["artifacts_json"]))),
         )
 
+    @staticmethod
+    def _row_to_user(row: Mapping[str, Any]) -> UserPublic:
+        return UserPublic(
+            id=str(row["id"]),
+            email=str(row["email"]),
+            name=row.get("name") if hasattr(row, "get") else row["name"],
+            brand_name=row.get("brand_name") if hasattr(row, "get") else row["brand_name"],
+            brand_url=row.get("brand_url") if hasattr(row, "get") else row["brand_url"],
+            created_at=StoreBase._parse_dt(row["created_at"]),
+        )
+
+    @staticmethod
+    def _row_to_user_settings(row: Mapping[str, Any]) -> UserSettings:
+        return UserSettings(
+            id=str(row["id"]),
+            email=str(row["email"]),
+            name=row.get("name") if hasattr(row, "get") else row["name"],
+            brand_name=row.get("brand_name") if hasattr(row, "get") else row["brand_name"],
+            brand_url=row.get("brand_url") if hasattr(row, "get") else row["brand_url"],
+            brief_prompt_override=(row.get("brief_prompt_override") if hasattr(row, "get") else row["brief_prompt_override"]) or "",
+            writer_prompt_override=(row.get("writer_prompt_override") if hasattr(row, "get") else row["writer_prompt_override"]) or "",
+            google_docs_connected=bool((row.get("google_docs_connected") if hasattr(row, "get") else row["google_docs_connected"]) or False),
+            google_sheets_connected=bool((row.get("google_sheets_connected") if hasattr(row, "get") else row["google_sheets_connected"]) or False),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+        )
+
 
 class SQLiteStore(StoreBase):
     def __init__(self, db_path: str) -> None:
@@ -134,6 +161,13 @@ class SQLiteStore(StoreBase):
                     id TEXT PRIMARY KEY,
                     email TEXT UNIQUE NOT NULL,
                     password_hash TEXT NOT NULL,
+                    name TEXT,
+                    brand_name TEXT,
+                    brand_url TEXT,
+                    brief_prompt_override TEXT DEFAULT '',
+                    writer_prompt_override TEXT DEFAULT '',
+                    google_docs_connected INTEGER DEFAULT 0,
+                    google_sheets_connected INTEGER DEFAULT 0,
                     created_at TEXT NOT NULL
                 );
 
@@ -194,6 +228,20 @@ class SQLiteStore(StoreBase):
                 CREATE INDEX IF NOT EXISTS idx_articles_user_created ON articles(user_id, created_at DESC);
                 """
             )
+            # Lightweight migrations for existing local databases.
+            for statement in [
+                "ALTER TABLE users ADD COLUMN name TEXT",
+                "ALTER TABLE users ADD COLUMN brand_name TEXT",
+                "ALTER TABLE users ADD COLUMN brand_url TEXT",
+                "ALTER TABLE users ADD COLUMN brief_prompt_override TEXT DEFAULT ''",
+                "ALTER TABLE users ADD COLUMN writer_prompt_override TEXT DEFAULT ''",
+                "ALTER TABLE users ADD COLUMN google_docs_connected INTEGER DEFAULT 0",
+                "ALTER TABLE users ADD COLUMN google_sheets_connected INTEGER DEFAULT 0",
+            ]:
+                try:
+                    self._conn.execute(statement)
+                except sqlite3.OperationalError:
+                    pass
             self._conn.commit()
 
     def create_user(self, email: str, password: str) -> UserPublic:
@@ -205,8 +253,14 @@ class SQLiteStore(StoreBase):
         with self._lock:
             try:
                 self._conn.execute(
-                    "INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
-                    (user_id, normalized, password_hash, now),
+                    """
+                    INSERT INTO users (
+                        id, email, password_hash, name, brand_name, brand_url,
+                        brief_prompt_override, writer_prompt_override, google_docs_connected,
+                        google_sheets_connected, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (user_id, normalized, password_hash, None, None, None, "", "", 0, 0, now),
                 )
                 self._conn.commit()
             except sqlite3.IntegrityError as exc:
@@ -218,12 +272,17 @@ class SQLiteStore(StoreBase):
         normalized = self._normalize_email(email)
         with self._lock:
             row = self._conn.execute(
-                "SELECT id, email, password_hash, created_at FROM users WHERE email = ?",
+                """
+                SELECT id, email, password_hash, name, brand_name, brand_url,
+                       brief_prompt_override, writer_prompt_override,
+                       google_docs_connected, google_sheets_connected, created_at
+                FROM users WHERE email = ?
+                """,
                 (normalized,),
             ).fetchone()
         if not row or not self._verify_password(password, str(row["password_hash"])):
             return None
-        return UserPublic(id=str(row["id"]), email=str(row["email"]), created_at=self._parse_dt(row["created_at"]))
+        return self._row_to_user(row)
 
     def create_session(self, user_id: str, ttl_days: int = 30) -> str:
         token = secrets.token_urlsafe(48)
@@ -242,6 +301,9 @@ class SQLiteStore(StoreBase):
             row = self._conn.execute(
                 """
                 SELECT u.id, u.email, u.created_at, s.expires_at
+                     , u.name, u.brand_name, u.brand_url
+                     , u.brief_prompt_override, u.writer_prompt_override
+                     , u.google_docs_connected, u.google_sheets_connected
                 FROM sessions s
                 JOIN users u ON u.id = s.user_id
                 WHERE s.token = ?
@@ -253,12 +315,43 @@ class SQLiteStore(StoreBase):
         if self._parse_dt(row["expires_at"]) < self._utcnow():
             self.delete_session(token)
             return None
-        return UserPublic(id=str(row["id"]), email=str(row["email"]), created_at=self._parse_dt(row["created_at"]))
+        return self._row_to_user(row)
 
     def delete_session(self, token: str) -> None:
         with self._lock:
             self._conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
             self._conn.commit()
+
+    def get_user_settings(self, user_id: str) -> Optional[UserSettings]:
+        with self._lock:
+            row = self._conn.execute(
+                """
+                SELECT id, email, name, brand_name, brand_url,
+                       brief_prompt_override, writer_prompt_override,
+                       google_docs_connected, google_sheets_connected, created_at
+                FROM users WHERE id = ?
+                """,
+                (user_id,),
+            ).fetchone()
+        return self._row_to_user_settings(row) if row else None
+
+    def update_user_settings(self, user_id: str, **kwargs: Any) -> Optional[UserSettings]:
+        allowed = {"name", "brand_name", "brand_url", "brief_prompt_override", "writer_prompt_override"}
+        updates = dict((k, v) for (k, v) in kwargs.items() if k in allowed)
+        if not updates:
+            return self.get_user_settings(user_id)
+
+        columns = []
+        values: List[Any] = []
+        for key, value in updates.items():
+            columns.append("{} = ?".format(key))
+            values.append(value)
+        values.append(user_id)
+
+        with self._lock:
+            self._conn.execute("UPDATE users SET {} WHERE id = ?".format(", ".join(columns)), values)
+            self._conn.commit()
+        return self.get_user_settings(user_id)
 
     def create_run(self, user_id: str, payload: RunCreateRequest) -> RunRecord:
         record_id = str(uuid4())
@@ -437,10 +530,27 @@ class PostgresStore(StoreBase):
                         id TEXT PRIMARY KEY,
                         email TEXT UNIQUE NOT NULL,
                         password_hash TEXT NOT NULL,
+                        name TEXT,
+                        brand_name TEXT,
+                        brand_url TEXT,
+                        brief_prompt_override TEXT DEFAULT '',
+                        writer_prompt_override TEXT DEFAULT '',
+                        google_docs_connected BOOLEAN DEFAULT FALSE,
+                        google_sheets_connected BOOLEAN DEFAULT FALSE,
                         created_at TIMESTAMPTZ NOT NULL
                     )
                     """
                 )
+                for statement in [
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS brand_name TEXT",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS brand_url TEXT",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS brief_prompt_override TEXT DEFAULT ''",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS writer_prompt_override TEXT DEFAULT ''",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_docs_connected BOOLEAN DEFAULT FALSE",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sheets_connected BOOLEAN DEFAULT FALSE",
+                ]:
+                    cur.execute(statement)
                 cur.execute(
                     """
                     CREATE TABLE IF NOT EXISTS sessions (
@@ -514,8 +624,14 @@ class PostgresStore(StoreBase):
             with self._connect() as conn:
                 with conn.cursor() as cur:
                     cur.execute(
-                        "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s)",
-                        (user_id, normalized, self._hash_password(password), now),
+                        """
+                        INSERT INTO users (
+                            id, email, password_hash, name, brand_name, brand_url,
+                            brief_prompt_override, writer_prompt_override,
+                            google_docs_connected, google_sheets_connected, created_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        """,
+                        (user_id, normalized, self._hash_password(password), None, None, None, "", "", False, False, now),
                     )
                 conn.commit()
         except Exception as exc:  # noqa: BLE001
@@ -530,13 +646,18 @@ class PostgresStore(StoreBase):
         with self._connect() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute(
-                    "SELECT id, email, password_hash, created_at FROM users WHERE email = %s",
+                    """
+                    SELECT id, email, password_hash, name, brand_name, brand_url,
+                           brief_prompt_override, writer_prompt_override,
+                           google_docs_connected, google_sheets_connected, created_at
+                    FROM users WHERE email = %s
+                    """,
                     (normalized,),
                 )
                 row = cur.fetchone()
         if not row or not self._verify_password(password, str(row["password_hash"])):
             return None
-        return UserPublic(id=str(row["id"]), email=str(row["email"]), created_at=self._parse_dt(row["created_at"]))
+        return self._row_to_user(row)
 
     def create_session(self, user_id: str, ttl_days: int = 30) -> str:
         token = secrets.token_urlsafe(48)
@@ -557,6 +678,9 @@ class PostgresStore(StoreBase):
                 cur.execute(
                     """
                     SELECT u.id, u.email, u.created_at, s.expires_at
+                         , u.name, u.brand_name, u.brand_url
+                         , u.brief_prompt_override, u.writer_prompt_override
+                         , u.google_docs_connected, u.google_sheets_connected
                     FROM sessions s
                     JOIN users u ON u.id = s.user_id
                     WHERE s.token = %s
@@ -569,13 +693,47 @@ class PostgresStore(StoreBase):
         if self._parse_dt(row["expires_at"]) < self._utcnow():
             self.delete_session(token)
             return None
-        return UserPublic(id=str(row["id"]), email=str(row["email"]), created_at=self._parse_dt(row["created_at"]))
+        return self._row_to_user(row)
 
     def delete_session(self, token: str) -> None:
         with self._connect() as conn:
             with conn.cursor() as cur:
                 cur.execute("DELETE FROM sessions WHERE token = %s", (token,))
             conn.commit()
+
+    def get_user_settings(self, user_id: str) -> Optional[UserSettings]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT id, email, name, brand_name, brand_url,
+                           brief_prompt_override, writer_prompt_override,
+                           google_docs_connected, google_sheets_connected, created_at
+                    FROM users WHERE id = %s
+                    """,
+                    (user_id,),
+                )
+                row = cur.fetchone()
+        return self._row_to_user_settings(row) if row else None
+
+    def update_user_settings(self, user_id: str, **kwargs: Any) -> Optional[UserSettings]:
+        allowed = {"name", "brand_name", "brand_url", "brief_prompt_override", "writer_prompt_override"}
+        updates = dict((k, v) for (k, v) in kwargs.items() if k in allowed)
+        if not updates:
+            return self.get_user_settings(user_id)
+
+        columns = []
+        values: List[Any] = []
+        for key, value in updates.items():
+            columns.append("{} = %s".format(key))
+            values.append(value)
+        values.append(user_id)
+
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("UPDATE users SET {} WHERE id = %s".format(", ".join(columns)), values)
+            conn.commit()
+        return self.get_user_settings(user_id)
 
     def create_run(self, user_id: str, payload: RunCreateRequest) -> RunRecord:
         record_id = str(uuid4())
