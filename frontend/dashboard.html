@@ -1149,8 +1149,12 @@
                     <label for="briefQuery">Primary Query</label>
                     <input id="briefQuery" placeholder="how to vinyl wrap a motorcycle" />
                   </div>
+                  <div class="wide">
+                    <label for="briefLocation">Target Location</label>
+                    <input id="briefLocation" placeholder="United States, New York, or Global" />
+                  </div>
                   <div>
-                    <label for="briefSeedUrls">Seed URLs (one per line)</label>
+                    <label for="briefSeedUrls">Top Ranking URLs (one per line)</label>
                     <textarea id="briefSeedUrls" placeholder="https://example.com/guide"></textarea>
                   </div>
                   <div>
@@ -1182,8 +1186,12 @@
                     <label for="briefSavedQuery">Primary Query</label>
                     <input id="briefSavedQuery" readonly />
                   </div>
+                  <div class="wide">
+                    <label for="briefSavedLocation">Target Location</label>
+                    <input id="briefSavedLocation" readonly />
+                  </div>
                   <div>
-                    <label for="briefSavedSeedUrls">Seed URLs (one per line)</label>
+                    <label for="briefSavedSeedUrls">Top Ranking URLs (one per line)</label>
                     <textarea id="briefSavedSeedUrls" readonly></textarea>
                   </div>
                   <div>
@@ -1270,6 +1278,8 @@
                 <div class="wide hidden-mode" id="modeCustomBrief">
                   <label for="customBriefQuery">Primary Query</label>
                   <input id="customBriefQuery" placeholder="Enter query for the custom brief" />
+                  <label for="customBriefLocation" style="margin-top: 12px;">Target Location</label>
+                  <input id="customBriefLocation" placeholder="United States, New York, or Global" />
                   <label for="customBriefBody" style="margin-top: 12px;">Custom Brief</label>
                   <textarea id="customBriefBody" placeholder="Paste your content brief here"></textarea>
                 </div>
@@ -1277,9 +1287,11 @@
                 <div class="wide hidden-mode" id="modeQuickDraft">
                   <label for="quickQuery">Primary Query</label>
                   <input id="quickQuery" placeholder="Enter query for quick draft mode" />
+                  <label for="quickLocation" style="margin-top: 12px;">Target Location</label>
+                  <input id="quickLocation" placeholder="United States, New York, or Global" />
                   <div class="field-grid" style="margin-top: 12px;">
                     <div>
-                      <label for="quickSeedUrls">Seed URLs (one per line)</label>
+                      <label for="quickSeedUrls">Top Ranking URLs (one per line)</label>
                       <textarea id="quickSeedUrls" placeholder="https://example.com/article"></textarea>
                     </div>
                     <div>
@@ -1521,10 +1533,12 @@
         briefCreatePane: document.getElementById("briefCreatePane"),
         briefSavedPane: document.getElementById("briefSavedPane"),
         briefQuery: document.getElementById("briefQuery"),
+        briefLocation: document.getElementById("briefLocation"),
         briefSeedUrls: document.getElementById("briefSeedUrls"),
         briefCitations: document.getElementById("briefCitations"),
         briefOverview: document.getElementById("briefOverview"),
         briefSavedQuery: document.getElementById("briefSavedQuery"),
+        briefSavedLocation: document.getElementById("briefSavedLocation"),
         briefSavedSeedUrls: document.getElementById("briefSavedSeedUrls"),
         briefSavedCitations: document.getElementById("briefSavedCitations"),
         briefSavedOverview: document.getElementById("briefSavedOverview"),
@@ -1549,8 +1563,10 @@
         modeCustomBrief: document.getElementById("modeCustomBrief"),
         modeQuickDraft: document.getElementById("modeQuickDraft"),
         customBriefQuery: document.getElementById("customBriefQuery"),
+        customBriefLocation: document.getElementById("customBriefLocation"),
         customBriefBody: document.getElementById("customBriefBody"),
         quickQuery: document.getElementById("quickQuery"),
+        quickLocation: document.getElementById("quickLocation"),
         quickSeedUrls: document.getElementById("quickSeedUrls"),
         quickCitations: document.getElementById("quickCitations"),
         quickOverview: document.getElementById("quickOverview"),
@@ -1913,6 +1929,7 @@
           els.briefStage.textContent = "Waiting to start";
           els.briefRunId.textContent = "";
           els.briefSavedQuery.value = "";
+          els.briefSavedLocation.value = "";
           els.briefSavedSeedUrls.value = "";
           els.briefSavedCitations.value = "";
           els.briefSavedOverview.value = "";
@@ -1935,6 +1952,7 @@
         els.briefStage.textContent = humanStage(brief.stage);
         els.briefRunId.textContent = `Brief ID: ${brief.id}`;
         els.briefSavedQuery.value = brief.query || "";
+        els.briefSavedLocation.value = brief.artifacts.requested_target_location || "";
         els.briefSavedSeedUrls.value = (brief.artifacts.requested_seed_urls || []).join("\n");
         els.briefSavedCitations.value = brief.artifacts.requested_ai_citations_text || "";
         els.briefSavedOverview.value = brief.artifacts.requested_ai_overview_text || "";
@@ -2319,6 +2337,7 @@
         state.selectedBriefId = null;
         state.briefEditorDirty = false;
         els.briefQuery.value = "";
+        els.briefLocation.value = "";
         els.briefSeedUrls.value = "";
         els.briefCitations.value = "";
         els.briefOverview.value = "";
@@ -2361,9 +2380,12 @@
 
       els.generateBriefBtn.addEventListener("click", async () => {
         const query = els.briefQuery.value.trim();
+        const targetLocation = els.briefLocation.value.trim();
         if (!query) return alert("Please enter a primary query.");
+        if (!targetLocation) return alert("Please enter a target location.");
         const payload = {
           query,
+          target_location: targetLocation,
           seed_urls: els.briefSeedUrls.value.split("\n").map((v) => v.trim()).filter(Boolean),
           ai_citations_text: els.briefCitations.value,
           ai_overview_text: els.briefOverview.value,
@@ -2456,17 +2478,21 @@
 
         if (mode === "from_custom_brief") {
           const query = els.customBriefQuery.value.trim();
+          const targetLocation = els.customBriefLocation.value.trim();
           const customBrief = els.customBriefBody.value.trim();
-          if (!query || !customBrief) return alert("Enter both query and custom brief.");
-          payload = { mode, query, custom_brief_markdown: customBrief };
+          if (!query || !targetLocation || !customBrief) return alert("Enter query, target location, and custom brief.");
+          payload = { mode, query, target_location: targetLocation, custom_brief_markdown: customBrief };
         }
 
         if (mode === "quick_draft") {
           const query = els.quickQuery.value.trim();
+          const targetLocation = els.quickLocation.value.trim();
           if (!query) return alert("Enter a query for quick draft mode.");
+          if (!targetLocation) return alert("Enter a target location for quick draft mode.");
           payload = {
             mode,
             query,
+            target_location: targetLocation,
             seed_urls: els.quickSeedUrls.value.split("\n").map((v) => v.trim()).filter(Boolean),
             ai_citations_text: els.quickCitations.value,
             ai_overview_text: els.quickOverview.value,

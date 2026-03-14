@@ -52,7 +52,7 @@ The app now has three product surfaces inside one dashboard:
   - custom personality notes for all three
   - settings UI and API support for selecting and saving them
 - SEO Brief Agent implemented:
-  - input query/sources/citations/overview
+  - input query/top ranking URLs/citations/overview
   - competitor analysis when sources exist
   - editable markdown brief draft
   - saved brief view shows the original request inputs used to create the brief

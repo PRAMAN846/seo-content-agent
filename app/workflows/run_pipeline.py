@@ -34,7 +34,7 @@ async def process_run(
         run_store.update_run(run_id, stage="extracting_articles", progress_percent=30)
 
         if not top_urls:
-            raise ValueError("No qualifying URLs found. Provide seed URLs or citation text containing links.")
+            raise ValueError("No qualifying URLs found. Provide top ranking URLs or citation text containing links.")
 
         extracted = []
         tasks = [extract_url_content(url) for url in top_urls]

@@ -26,7 +26,7 @@ async def build_source_analysis(
     )
     top_urls = select_top_urls(candidates, settings.max_urls)
     if not top_urls:
-        raise ValueError("No qualifying URLs found. Provide seed URLs or citation text containing links.")
+        raise ValueError("No qualifying URLs found. Provide top ranking URLs or citation text containing links.")
 
     results = await asyncio.gather(
         *[extract_url_content(url) for url in top_urls],

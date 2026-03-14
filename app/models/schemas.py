@@ -100,6 +100,7 @@ class WorkspaceMessage(BaseModel):
 class WorkspaceAction(BaseModel):
     type: WorkspaceActionType = "none"
     query: str = ""
+    target_location: str = ""
     brief_id: Optional[str] = None
     seed_urls: list[str] = Field(default_factory=list)
     ai_citations_text: str = ""
@@ -140,6 +141,7 @@ class LoginRequest(BaseModel):
 
 class BriefCreateRequest(BaseModel):
     query: str = Field(min_length=3)
+    target_location: str = ""
     seed_urls: list[str] = Field(default_factory=list)
     ai_citations_text: str = ""
     ai_overview_text: str = ""
@@ -150,6 +152,7 @@ class BriefUpdateRequest(BaseModel):
 
 
 class BriefArtifacts(BaseModel):
+    requested_target_location: str = ""
     requested_seed_urls: list[str] = Field(default_factory=list)
     requested_ai_citations_text: str = ""
     requested_ai_overview_text: str = ""
@@ -176,6 +179,7 @@ class BriefRecord(BaseModel):
 class ArticleCreateRequest(BaseModel):
     mode: ArticleMode
     query: str = ""
+    target_location: str = ""
     brief_id: Optional[str] = None
     custom_brief_markdown: str = ""
     seed_urls: list[str] = Field(default_factory=list)
@@ -184,6 +188,10 @@ class ArticleCreateRequest(BaseModel):
 
 
 class ArticleArtifacts(BaseModel):
+    requested_target_location: str = ""
+    requested_seed_urls: list[str] = Field(default_factory=list)
+    requested_ai_citations_text: str = ""
+    requested_ai_overview_text: str = ""
     source_brief_id: Optional[str] = None
     source_brief_markdown: str = ""
     article_markdown: str = ""

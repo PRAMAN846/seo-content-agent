@@ -27,6 +27,7 @@ async def create_brief(
         process_brief(
             brief_id=brief.id,
             query=payload.query,
+            target_location=payload.target_location,
             seed_urls=payload.seed_urls,
             ai_citations_text=payload.ai_citations_text,
             ai_overview_text=payload.ai_overview_text,

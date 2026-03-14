@@ -29,6 +29,10 @@ async def process_article_from_brief(article_id: str, query: str, source_brief_i
         run_store.update_article(article_id, stage="exporting_output", progress_percent=90)
         export_link = export_to_local_doc(query or "content-article", article_markdown)
         artifacts = ArticleArtifacts(
+            requested_target_location=article_record.artifacts.requested_target_location if article_record else "",
+            requested_seed_urls=article_record.artifacts.requested_seed_urls if article_record else [],
+            requested_ai_citations_text=article_record.artifacts.requested_ai_citations_text if article_record else "",
+            requested_ai_overview_text=article_record.artifacts.requested_ai_overview_text if article_record else "",
             source_brief_id=source_brief_id,
             source_brief_markdown=brief_markdown,
             article_markdown=article_markdown,
@@ -52,6 +56,7 @@ async def process_article_from_custom_brief(article_id: str, query: str, brief_m
 async def process_quick_draft(
     article_id: str,
     query: str,
+    target_location: str,
     seed_urls: list[str],
     ai_citations_text: str,
     ai_overview_text: str,
@@ -79,6 +84,7 @@ async def process_quick_draft(
             run_store.update_article(article_id, stage="building_internal_brief", progress_percent=72)
             brief_markdown = build_brief_with_customization(
                 query,
+                target_location,
                 summaries,
                 seo_analysis,
                 brand_name,
@@ -91,6 +97,7 @@ async def process_quick_draft(
             run_store.update_article(article_id, stage="building_internal_brief", progress_percent=72)
             brief_markdown = build_brief_from_query_with_customization(
                 query,
+                target_location,
                 brand_name,
                 brand_url,
                 brief_prompt_override,
@@ -111,6 +118,10 @@ async def process_quick_draft(
         run_store.update_article(article_id, stage="exporting_output", progress_percent=95)
         export_link = export_to_local_doc(query or "quick-draft", article_markdown)
         artifacts = ArticleArtifacts(
+            requested_target_location=target_location,
+            requested_seed_urls=seed_urls,
+            requested_ai_citations_text=ai_citations_text,
+            requested_ai_overview_text=ai_overview_text,
             source_brief_id=None,
             source_brief_markdown=brief_markdown,
             article_markdown=article_markdown,

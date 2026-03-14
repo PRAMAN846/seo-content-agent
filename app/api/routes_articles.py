@@ -37,6 +37,10 @@ async def create_article(
             raise HTTPException(status_code=400, detail="Brief content is empty")
 
         initial_artifacts = ArticleArtifacts(
+            requested_target_location=brief.artifacts.requested_target_location,
+            requested_seed_urls=brief.artifacts.requested_seed_urls,
+            requested_ai_citations_text=brief.artifacts.requested_ai_citations_text,
+            requested_ai_overview_text=brief.artifacts.requested_ai_overview_text,
             source_brief_id=brief.id,
             source_brief_markdown=brief_markdown,
         )
@@ -59,6 +63,7 @@ async def create_article(
             raise HTTPException(status_code=400, detail="query is required for custom brief mode")
 
         initial_artifacts = ArticleArtifacts(source_brief_markdown=custom_brief)
+        initial_artifacts.requested_target_location = payload.target_location
         article = run_store.create_article(user_id=current_user.id, payload=payload, artifacts=initial_artifacts)
         asyncio.create_task(
             process_article_from_custom_brief(
@@ -78,6 +83,7 @@ async def create_article(
             process_quick_draft(
                 article_id=article.id,
                 query=payload.query.strip(),
+                target_location=payload.target_location,
                 seed_urls=payload.seed_urls,
                 ai_citations_text=payload.ai_citations_text,
                 ai_overview_text=payload.ai_overview_text,

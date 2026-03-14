@@ -12,6 +12,7 @@ from app.workflows.source_analysis import build_source_analysis
 async def process_brief(
     brief_id: str,
     query: str,
+    target_location: str,
     seed_urls: list[str],
     ai_citations_text: str,
     ai_overview_text: str,
@@ -38,6 +39,7 @@ async def process_brief(
             run_store.update_brief(brief_id, stage="building_brief", progress_percent=78)
             brief_markdown = build_brief_with_customization(
                 query,
+                target_location,
                 summaries,
                 seo_analysis,
                 brand_name,
@@ -52,6 +54,7 @@ async def process_brief(
             run_store.update_brief(brief_id, stage="building_brief", progress_percent=78)
             brief_markdown = build_brief_from_query_with_customization(
                 query,
+                target_location,
                 brand_name,
                 brand_url,
                 prompt_override,
@@ -60,6 +63,7 @@ async def process_brief(
             )
 
         artifacts = BriefArtifacts(
+            requested_target_location=existing_artifacts.requested_target_location,
             requested_seed_urls=existing_artifacts.requested_seed_urls,
             requested_ai_citations_text=existing_artifacts.requested_ai_citations_text,
             requested_ai_overview_text=existing_artifacts.requested_ai_overview_text,

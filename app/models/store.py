@@ -445,6 +445,7 @@ class SQLiteStore(StoreBase):
         record_id = str(uuid4())
         now = self._now_iso()
         initial_artifacts = BriefArtifacts(
+            requested_target_location=payload.target_location,
             requested_seed_urls=payload.seed_urls,
             requested_ai_citations_text=payload.ai_citations_text,
             requested_ai_overview_text=payload.ai_overview_text,
@@ -492,7 +493,12 @@ class SQLiteStore(StoreBase):
     ) -> ArticleRecord:
         record_id = str(uuid4())
         now = self._now_iso()
-        initial_artifacts = artifacts or ArticleArtifacts()
+        initial_artifacts = artifacts or ArticleArtifacts(
+            requested_target_location=payload.target_location,
+            requested_seed_urls=payload.seed_urls,
+            requested_ai_citations_text=payload.ai_citations_text,
+            requested_ai_overview_text=payload.ai_overview_text,
+        )
         with self._lock:
             self._conn.execute(
                 """
@@ -899,6 +905,7 @@ class PostgresStore(StoreBase):
         record_id = str(uuid4())
         now = self._utcnow()
         initial_artifacts = BriefArtifacts(
+            requested_target_location=payload.target_location,
             requested_seed_urls=payload.seed_urls,
             requested_ai_citations_text=payload.ai_citations_text,
             requested_ai_overview_text=payload.ai_overview_text,
@@ -950,7 +957,12 @@ class PostgresStore(StoreBase):
     ) -> ArticleRecord:
         record_id = str(uuid4())
         now = self._utcnow()
-        initial_artifacts = artifacts or ArticleArtifacts()
+        initial_artifacts = artifacts or ArticleArtifacts(
+            requested_target_location=payload.target_location,
+            requested_seed_urls=payload.seed_urls,
+            requested_ai_citations_text=payload.ai_citations_text,
+            requested_ai_overview_text=payload.ai_overview_text,
+        )
         with self._connect() as conn:
             with conn.cursor() as cur:
                 cur.execute(

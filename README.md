@@ -14,7 +14,7 @@ A multi-surface SEO content workspace with direct agents, a conversational AI wo
 - Routes work into the existing brief/article systems
 
 ### 2) SEO Brief Agent
-- Accepts a query plus optional source URLs / AI citations / overview text
+- Accepts a query plus optional top ranking URLs / AI citations / overview text
 - Builds competitor analysis when sources are available
 - Produces an editable markdown SEO brief
 - Lets the user edit the brief draft and save it
