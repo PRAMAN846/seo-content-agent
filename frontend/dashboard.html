@@ -8,30 +8,34 @@
       @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap");
 
       :root {
-        --bg: #f5f6f8;
+        --bg: #f3f5f8;
         --surface: #ffffff;
-        --surface-2: #f9fafc;
-        --surface-3: #f2f5fb;
-        --ink: #11131a;
-        --muted: #626b78;
-        --line: #e5e8ef;
-        --brand: #0a0b0e;
-        --brand-soft: #1a2030;
-        --chip: #eef1f7;
+        --surface-2: #f7f8fb;
+        --surface-3: #eef2f8;
+        --ink: #12141a;
+        --muted: #667080;
+        --line: #dde3ed;
+        --sidebar: #0d1016;
+        --sidebar-soft: #141a23;
+        --sidebar-line: rgba(255, 255, 255, 0.1);
+        --sidebar-ink: #f7f9fc;
+        --brand: #090b10;
+        --chip: #ecf1f8;
+        --active: #eef3ff;
         --success: #0f766e;
         --danger: #b42318;
-        --active: #ecf2ff;
       }
 
       * { box-sizing: border-box; }
+
       body {
         margin: 0;
         min-height: 100vh;
         font-family: "Manrope", sans-serif;
         color: var(--ink);
         background:
-          radial-gradient(900px 420px at -10% -10%, #dfe6f7 0%, transparent 50%),
-          radial-gradient(900px 380px at 110% 115%, #e8edf8 0%, transparent 50%),
+          radial-gradient(780px 360px at -10% -10%, #dbe4f5 0%, transparent 55%),
+          radial-gradient(720px 340px at 110% 110%, #e2e8f6 0%, transparent 55%),
           var(--bg);
       }
 
@@ -43,75 +47,302 @@
         pointer-events: none;
         border-radius: 999px;
         filter: blur(42px);
-        opacity: .34;
+        opacity: 0.28;
       }
-      .orbs::before { width: 270px; height: 270px; left: -80px; top: 40px; background: #d4ddf3; }
-      .orbs::after { width: 240px; height: 240px; right: -70px; bottom: 80px; background: #dce3f5; }
+
+      .orbs::before {
+        width: 280px;
+        height: 280px;
+        left: -90px;
+        top: 70px;
+        background: #ced9ee;
+      }
+
+      .orbs::after {
+        width: 250px;
+        height: 250px;
+        right: -80px;
+        bottom: 80px;
+        background: #dbe4f3;
+      }
 
       .app {
         position: relative;
         z-index: 1;
-        max-width: 1360px;
-        margin: 0 auto;
-        padding: 20px;
+        min-height: 100vh;
         display: grid;
-        grid-template-columns: 1fr;
-        gap: 18px;
+        grid-template-columns: 318px minmax(0, 1fr);
+        gap: 20px;
+        padding: 20px;
+        transition: grid-template-columns 0.25s ease;
+      }
+
+      .app.sidebar-collapsed {
+        grid-template-columns: 92px minmax(0, 1fr);
       }
 
       .card {
         background: var(--surface);
         border: 1px solid var(--line);
-        border-radius: 18px;
-        box-shadow: 0 12px 35px rgba(17, 19, 26, 0.06);
-        animation: reveal .35s ease;
+        border-radius: 20px;
+        box-shadow: 0 14px 38px rgba(17, 19, 26, 0.06);
+        animation: reveal 0.35s ease;
       }
 
       .sidebar {
-        padding: 18px;
+        position: sticky;
+        top: 20px;
+        height: calc(100vh - 40px);
         display: grid;
-        gap: 16px;
+        grid-template-rows: auto auto 1fr auto;
+        gap: 18px;
+        padding: 18px;
+        color: var(--sidebar-ink);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
+          linear-gradient(165deg, var(--sidebar-soft), var(--sidebar));
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        box-shadow: 0 24px 60px rgba(10, 11, 14, 0.22);
+        overflow: hidden;
+      }
+
+      .sidebar-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .brand-wrap {
+        min-width: 0;
+      }
+
+      .logo {
+        width: 168px;
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .eyebrow {
+        margin: 8px 0 0;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: rgba(255, 255, 255, 0.55);
+      }
+
+      .sidebar-toggle {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        border: 1px solid var(--sidebar-line);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--sidebar-ink);
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .profile {
+        padding: 16px;
+        border: 1px solid var(--sidebar-line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-family: "Sora", sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        color: #0c1117;
+        background: linear-gradient(145deg, #ffffff, #d7dfef);
+      }
+
+      .profile-name {
+        margin: 14px 0 4px;
+        font-family: "Sora", sans-serif;
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      .profile-email {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 13px;
+        word-break: break-word;
+      }
+
+      .profile-link {
+        margin-top: 14px;
+        width: 100%;
+        border: 1px solid var(--sidebar-line);
+        background: transparent;
+        color: var(--sidebar-ink);
+        padding: 10px 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .sidebar-divider {
+        border: 0;
+        border-top: 1px solid var(--sidebar-line);
+        width: 100%;
+        margin: 0;
+      }
+
+      .sidebar-nav {
+        display: grid;
         align-content: start;
+        gap: 8px;
       }
 
-      .brand { padding: 8px; }
-      .logo { width: 190px; max-width: 100%; height: auto; }
-      .eyebrow { margin: 8px 0 0; font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
-      .who { font-size: 14px; color: #2b3442; line-height: 1.5; }
+      .nav-btn {
+        width: 100%;
+        border: 1px solid transparent;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.78);
+        border-radius: 16px;
+        display: grid;
+        grid-template-columns: 42px 1fr;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+      }
+
+      .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--sidebar-line);
+        transform: translateY(-1px);
+      }
+
+      .nav-btn.active {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.18);
+        color: #ffffff;
+      }
+
+      .nav-mark {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.08);
+        font-family: "Sora", sans-serif;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+      }
+
+      .nav-copy strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .nav-copy span {
+        display: block;
+        margin-top: 3px;
+        color: rgba(255, 255, 255, 0.52);
+        font-size: 12px;
+      }
+
+      .sidebar-metrics {
+        display: grid;
+        gap: 10px;
+      }
+
+      .metric {
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid var(--sidebar-line);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .metric strong {
+        display: block;
+        font-family: "Sora", sans-serif;
+        font-size: 22px;
+      }
+
+      .metric span {
+        display: block;
+        margin-top: 4px;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 12px;
+      }
+
       .logout {
-        border: 0; background: #10131a; color: #fff; padding: 10px 12px; width: 100%;
-        border-radius: 12px; cursor: pointer; font-weight: 700;
-      }
-
-      .stats { display: grid; gap: 10px; }
-      .stat { border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; background: var(--surface-2); }
-      .stat .k { display: block; font-family: "Sora", sans-serif; font-size: 22px; line-height: 1.2; }
-      .stat .l { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
-
-      .main { display: grid; gap: 16px; }
-
-      .topbar { padding: 16px 18px; }
-      .topbar h1 { margin: 0; font-family: "Sora", sans-serif; font-size: 24px; letter-spacing: -.4px; }
-      .topbar p { margin: 6px 0 0; color: var(--muted); }
-
-      .tabs { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
-      .tab-btn {
-        border: 1px solid var(--line);
-        background: var(--surface-2);
-        color: #2c3444;
-        padding: 10px 14px;
-        border-radius: 999px;
+        width: 100%;
+        border: 0;
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: #f8fbff;
+        color: #0f1218;
         font-weight: 800;
         cursor: pointer;
       }
-      .tab-btn.active {
-        background: linear-gradient(140deg, var(--brand-soft), var(--brand));
-        color: #fff;
-        border-color: transparent;
+
+      .main {
+        display: grid;
+        gap: 18px;
+        align-content: start;
       }
 
-      .view { display: none; }
-      .view.active { display: grid; gap: 16px; }
+      .topbar {
+        padding: 20px 22px;
+      }
+
+      .topbar-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .topbar h1 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        font-size: 28px;
+        letter-spacing: -0.04em;
+      }
+
+      .topbar p {
+        margin: 7px 0 0;
+        color: var(--muted);
+        max-width: 760px;
+      }
+
+      .topbar-chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 10px 14px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #253044;
+        background: var(--surface-2);
+        white-space: nowrap;
+      }
+
+      .view {
+        display: none;
+        gap: 16px;
+      }
+
+      .view.active {
+        display: grid;
+      }
 
       .grid-two {
         display: grid;
@@ -119,129 +350,552 @@
         gap: 16px;
       }
 
-      .section { padding: 18px; }
-      .section h2 { margin: 0 0 6px; font-family: "Sora", sans-serif; font-size: 18px; }
-      .section p.desc { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
-
-      .field-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-      .wide { grid-column: 1 / -1; }
-
-      label { display: block; font-weight: 700; font-size: 13px; margin: 0 0 6px; }
-      input, textarea, select {
-        width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px;
-        font-size: 14px; font-family: inherit; background: #fff; transition: border-color .2s ease, box-shadow .2s ease;
+      .grid-home {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
       }
-      textarea { min-height: 96px; resize: vertical; }
-      input:focus, textarea:focus, select:focus {
-        outline: none; border-color: #a8b1c3; box-shadow: 0 0 0 3px rgba(168, 177, 195, 0.2);
-      }
-      textarea[readonly] { background: var(--surface-3); color: #384052; }
 
-      .row-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+      .section {
+        padding: 20px;
+      }
+
+      .section h2 {
+        margin: 0 0 6px;
+        font-family: "Sora", sans-serif;
+        font-size: 18px;
+      }
+
+      .section p.desc {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .field-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        display: block;
+        margin: 0 0 6px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 11px 12px;
+        font-family: inherit;
+        font-size: 14px;
+        background: #ffffff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      textarea {
+        min-height: 98px;
+        resize: vertical;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+        border-color: #aab4c5;
+        box-shadow: 0 0 0 3px rgba(170, 180, 197, 0.2);
+      }
+
+      textarea[readonly] {
+        background: var(--surface-3);
+        color: #374152;
+      }
+
+      .row-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
       .btn {
-        border: 1px solid var(--line); background: #fff; color: #1d2431; padding: 11px 14px; border-radius: 12px;
-        font-weight: 800; cursor: pointer;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: #172031;
+        padding: 11px 14px;
+        border-radius: 12px;
+        font-weight: 800;
+        cursor: pointer;
       }
+
       .btn.primary {
-        border: 0; color: #fff; background: linear-gradient(140deg, var(--brand-soft), var(--brand));
+        border: 0;
+        color: #ffffff;
+        background: linear-gradient(140deg, #232c3d, #0d1016);
       }
-      .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+      .btn.linkish {
+        min-width: 108px;
+        justify-content: center;
+      }
+
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
 
       .status-row {
-        margin-top: 14px; border: 1px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 12px;
+        margin-top: 14px;
+        border: 1px solid var(--line);
+        background: var(--surface-2);
+        border-radius: 16px;
+        padding: 12px;
       }
-      .status-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+      .status-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
       .status {
-        display: inline-block; font-size: 11px; letter-spacing: .07em; font-weight: 800; padding: 5px 10px;
-        border-radius: 100px; text-transform: uppercase; background: var(--chip); color: #2b3547;
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: var(--chip);
+        color: #2a3547;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
-      .status.running { background: #ecf2ff; color: #1d4ed8; }
-      .status.completed { background: #e9f8f3; color: var(--success); }
-      .status.failed { background: #ffefef; color: var(--danger); }
-      .stage { color: var(--muted); font-size: 13px; margin-top: 6px; }
-      .progress-track { margin-top: 10px; height: 10px; border-radius: 999px; background: #e6eaf3; overflow: hidden; }
-      .progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #2b3442, #0e1118); transition: width .25s ease; }
-      .run-id { margin-top: 7px; color: #5d6575; font-size: 12px; word-break: break-all; }
 
-      .history { max-height: 520px; overflow: auto; display: grid; gap: 8px; padding-right: 4px; }
+      .status.running {
+        background: #ecf2ff;
+        color: #1d4ed8;
+      }
+
+      .status.completed {
+        background: #e9f8f3;
+        color: var(--success);
+      }
+
+      .status.failed {
+        background: #ffefef;
+        color: var(--danger);
+      }
+
+      .stage {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .progress-track {
+        margin-top: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #e4eaf3;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2b3442, #0e1118);
+        transition: width 0.25s ease;
+      }
+
+      .run-id {
+        margin-top: 7px;
+        color: #5d6575;
+        font-size: 12px;
+        word-break: break-all;
+      }
+
+      .history {
+        max-height: 520px;
+        overflow: auto;
+        display: grid;
+        gap: 8px;
+        padding-right: 4px;
+      }
+
       .history-item {
-        border: 1px solid var(--line); border-radius: 12px; padding: 10px; cursor: pointer; background: #fff;
-        transition: border-color .2s ease, transform .15s ease, background .2s ease;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+        cursor: pointer;
+        background: #ffffff;
+        transition: border-color 0.2s ease, transform 0.15s ease, background 0.2s ease;
       }
-      .history-item:hover { border-color: #bfc8da; transform: translateY(-1px); }
-      .history-item.active { border-color: #8f9db7; background: #f5f8ff; }
-      .history-title { font-weight: 800; font-size: 14px; margin-bottom: 4px; }
-      .history-meta { color: var(--muted); font-size: 12px; }
 
-      .stack { display: grid; gap: 16px; }
+      .history-item:hover {
+        border-color: #bcc7da;
+        transform: translateY(-1px);
+      }
+
+      .history-item.active {
+        border-color: #8fa0bc;
+        background: #f4f8ff;
+      }
+
+      .history-title {
+        font-weight: 800;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .history-meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
       details {
-        border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 10px;
+        background: #ffffff;
       }
-      summary { cursor: pointer; font-weight: 800; }
-      .mono {
-        margin: 10px 0 0; white-space: pre-wrap; word-break: break-word; font-size: 12.6px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #232a36; line-height: 1.45;
-      }
-      .helper { color: var(--muted); font-size: 12px; margin-top: 8px; }
 
-      @media (min-width: 1020px) {
-        .app { grid-template-columns: 290px 1fr; align-items: start; }
-        .sidebar { position: sticky; top: 20px; max-height: calc(100vh - 40px); }
-        .grid-two { grid-template-columns: 1.1fr .9fr; }
-        .field-grid { grid-template-columns: 1fr 1fr; }
+      summary {
+        cursor: pointer;
+        font-weight: 800;
+      }
+
+      .mono {
+        margin: 10px 0 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 12.6px;
+        line-height: 1.45;
+        color: #232a36;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      .helper {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .summary-card {
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: linear-gradient(180deg, #ffffff, #f6f8fc);
+      }
+
+      .summary-card strong {
+        display: block;
+        font-family: "Sora", sans-serif;
+        font-size: 28px;
+      }
+
+      .summary-card span {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      .home-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+      }
+
+      .home-table th,
+      .home-table td {
+        padding: 14px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+
+      .home-table th {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .topic-title {
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+
+      .topic-meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .cell-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .empty-cell {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .hidden-mode {
+        display: none;
+      }
+
+      .app.sidebar-collapsed .brand-wrap,
+      .app.sidebar-collapsed .profile-copy,
+      .app.sidebar-collapsed .profile-link,
+      .app.sidebar-collapsed .nav-copy,
+      .app.sidebar-collapsed .metric span,
+      .app.sidebar-collapsed .metric strong,
+      .app.sidebar-collapsed .logout-label,
+      .app.sidebar-collapsed .sidebar-divider {
+        display: none;
+      }
+
+      .app.sidebar-collapsed .sidebar {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .app.sidebar-collapsed .profile {
+        padding: 12px;
+        justify-items: center;
+      }
+
+      .app.sidebar-collapsed .avatar {
+        width: 52px;
+        height: 52px;
+        font-size: 20px;
+      }
+
+      .app.sidebar-collapsed .nav-btn {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .app.sidebar-collapsed .sidebar-head {
+        justify-content: center;
+      }
+
+      .app.sidebar-collapsed .sidebar-toggle {
+        width: 48px;
+      }
+
+      .app.sidebar-collapsed .sidebar-metrics {
+        justify-items: center;
+      }
+
+      .app.sidebar-collapsed .metric {
+        width: 100%;
+        display: grid;
+        place-items: center;
+        padding: 10px 8px;
+      }
+
+      .app.sidebar-collapsed .metric::before {
+        content: attr(data-count);
+        font-family: "Sora", sans-serif;
+        font-size: 20px;
+      }
+
+      @media (max-width: 1180px) {
+        .summary-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 960px) {
+        .app,
+        .app.sidebar-collapsed {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: relative;
+          top: 0;
+          height: auto;
+          grid-template-rows: auto auto auto auto;
+        }
+
+        .grid-two {
+          grid-template-columns: 1fr;
+        }
+
+        .field-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar-head {
+          flex-direction: column;
+        }
       }
 
       @keyframes reveal {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
   <body>
     <div class="orbs"></div>
-    <div class="app">
+    <div id="appShell" class="app">
       <aside class="sidebar card">
-        <div class="brand">
-          <img class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
-          <p class="eyebrow">Content Writing Agents</p>
+        <div class="sidebar-head">
+          <div class="brand-wrap">
+            <img class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
+            <p class="eyebrow">Content Writing Agents</p>
+          </div>
+          <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Toggle sidebar">||</button>
         </div>
 
-        <div>
-          <p class="who" id="whoami">Loading user...</p>
-          <button id="logoutBtn" class="logout" type="button">Logout</button>
+        <section class="profile">
+          <div id="profileInitial" class="avatar">U</div>
+          <div class="profile-copy">
+            <h2 id="profileName" class="profile-name">Loading...</h2>
+            <p id="profileEmail" class="profile-email">Please wait</p>
+          </div>
+          <button id="seeProfileBtn" class="profile-link" type="button">See Profile</button>
+        </section>
+
+        <hr class="sidebar-divider" />
+
+        <div class="sidebar-nav">
+          <button id="tabHome" class="nav-btn active" type="button">
+            <span class="nav-mark">HM</span>
+            <span class="nav-copy">
+              <strong>Home</strong>
+              <span>All saved topics and outputs</span>
+            </span>
+          </button>
+          <button id="tabBriefs" class="nav-btn" type="button">
+            <span class="nav-mark">CB</span>
+            <span class="nav-copy">
+              <strong>Content Brief Agent</strong>
+              <span>Generate and edit SEO briefs</span>
+            </span>
+          </button>
+          <button id="tabArticles" class="nav-btn" type="button">
+            <span class="nav-mark">CW</span>
+            <span class="nav-copy">
+              <strong>Content Writing Agent</strong>
+              <span>Write detailed article drafts</span>
+            </span>
+          </button>
+          <button id="tabSettings" class="nav-btn" type="button">
+            <span class="nav-mark">ST</span>
+            <span class="nav-copy">
+              <strong>Settings</strong>
+              <span>Profile, prompts, integrations</span>
+            </span>
+          </button>
         </div>
 
-        <div class="stats">
-          <div class="stat">
-            <span class="k" id="totalBriefs">0</span>
-            <span class="l">SEO briefs created</span>
+        <div class="sidebar-metrics">
+          <div id="metricBriefs" class="metric" data-count="0">
+            <strong id="totalBriefs">0</strong>
+            <span>Saved briefs</span>
           </div>
-          <div class="stat">
-            <span class="k" id="totalArticles">0</span>
-            <span class="l">Articles generated</span>
+          <div id="metricArticles" class="metric" data-count="0">
+            <strong id="totalArticles">0</strong>
+            <span>Detailed articles</span>
           </div>
-          <div class="stat">
-            <span class="k" id="activeJobs">0</span>
-            <span class="l">Active jobs right now</span>
+          <div id="metricJobs" class="metric" data-count="0">
+            <strong id="activeJobs">0</strong>
+            <span>Active jobs</span>
           </div>
         </div>
+
+        <button id="logoutBtn" class="logout" type="button"><span class="logout-label">Logout</span></button>
       </aside>
 
       <main class="main">
         <section class="topbar card">
-          <h1>Two-Agent Content Workspace</h1>
-          <p>Use the SEO Brief Agent to create a structured brief, then move to the Content Writer Agent whenever you want to generate the full article.</p>
-          <div class="tabs">
-            <button id="tabBriefs" class="tab-btn active" type="button">SEO Brief Agent</button>
-            <button id="tabArticles" class="tab-btn" type="button">Content Writer Agent</button>
-            <button id="tabSettings" class="tab-btn" type="button">Account Settings</button>
+          <div class="topbar-head">
+            <div>
+              <h1 id="viewTitle">Workspace Home</h1>
+              <p id="viewSubtitle">Review saved topics, open their brief or detailed content, and move into either agent whenever you need to continue work.</p>
+            </div>
+            <div id="viewChip" class="topbar-chip">Home</div>
           </div>
         </section>
 
-        <section id="briefView" class="view active">
+        <section id="homeView" class="view active">
+          <div class="summary-grid">
+            <article class="summary-card card">
+              <strong id="homeTopicsCount">0</strong>
+              <span>Topics tracked across briefs and articles</span>
+            </article>
+            <article class="summary-card card">
+              <strong id="homeBriefCount">0</strong>
+              <span>Saved content briefs available for reuse</span>
+            </article>
+            <article class="summary-card card">
+              <strong id="homeArticleCount">0</strong>
+              <span>Detailed content drafts available to reopen</span>
+            </article>
+          </div>
+
+          <section class="section card">
+            <h2>Workspace Library</h2>
+            <p class="desc">Each topic row shows the latest content brief and detailed content available for that topic.</p>
+            <div class="table-wrap">
+              <table class="home-table">
+                <thead>
+                  <tr>
+                    <th>Topic Name</th>
+                    <th>Content Brief</th>
+                    <th>Detailed Content</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody id="homeRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="briefView" class="view">
           <div class="grid-two">
             <section class="section card">
-              <h2>Generate SEO Brief</h2>
+              <h2>Generate Content Brief</h2>
               <p class="desc">Create SERP-style analysis, competitor gaps, and an editable content brief.</p>
 
               <div class="field-grid">
@@ -264,7 +918,7 @@
               </div>
 
               <div class="row-actions">
-                <button id="generateBriefBtn" class="btn primary" type="button">Generate SEO Brief</button>
+                <button id="generateBriefBtn" class="btn primary" type="button">Generate Content Brief</button>
               </div>
 
               <div class="status-row">
@@ -280,7 +934,7 @@
 
             <section class="section card">
               <h2>Brief History</h2>
-              <p class="desc">Each brief can be reopened, edited, and turned into content later.</p>
+              <p class="desc">Open any saved brief, continue editing it, or send it to the writer agent.</p>
               <div id="briefHistory" class="history"></div>
             </section>
           </div>
@@ -296,7 +950,7 @@
                 <button id="saveBriefBtn" class="btn" type="button" disabled>Save Draft</button>
                 <button id="createContentFromBriefBtn" class="btn primary" type="button" disabled>Create Content</button>
               </div>
-              <p class="helper">`Create Content` uses the current saved brief. If you edit the text first, save it before generating content.</p>
+              <p class="helper">If you change the brief text, save it before creating content so the writer uses the latest version.</p>
             </section>
 
             <section class="section card stack">
@@ -325,7 +979,7 @@
                 <div class="wide">
                   <label for="articleMode">Writer Mode</label>
                   <select id="articleMode">
-                    <option value="from_brief">Use SEO Brief Agent output</option>
+                    <option value="from_brief">Use Content Brief Agent output</option>
                     <option value="from_custom_brief">Paste your own brief</option>
                     <option value="quick_draft">Quick draft from query</option>
                   </select>
@@ -334,20 +988,20 @@
                 <div class="wide" id="modeFromBrief">
                   <label for="briefSelect">Select a Brief</label>
                   <select id="briefSelect"></select>
-                  <p class="helper">Choose any saved brief from the SEO Brief Agent history.</p>
+                  <p class="helper">Choose any saved brief from the Content Brief Agent history.</p>
                 </div>
 
                 <div class="wide hidden-mode" id="modeCustomBrief">
                   <label for="customBriefQuery">Primary Query</label>
                   <input id="customBriefQuery" placeholder="Enter query for the custom brief" />
-                  <label for="customBriefBody" style="margin-top:12px;">Custom Brief</label>
+                  <label for="customBriefBody" style="margin-top: 12px;">Custom Brief</label>
                   <textarea id="customBriefBody" placeholder="Paste your content brief here"></textarea>
                 </div>
 
                 <div class="wide hidden-mode" id="modeQuickDraft">
                   <label for="quickQuery">Primary Query</label>
-                  <input id="quickQuery" placeholder="Enter query for quick draft" />
-                  <div class="field-grid" style="margin-top:12px;">
+                  <input id="quickQuery" placeholder="Enter query for quick draft mode" />
+                  <div class="field-grid" style="margin-top: 12px;">
                     <div>
                       <label for="quickSeedUrls">Seed URLs (one per line)</label>
                       <textarea id="quickSeedUrls" placeholder="https://example.com/article"></textarea>
@@ -381,7 +1035,7 @@
 
             <section class="section card">
               <h2>Article History</h2>
-              <p class="desc">Reopen detailed drafts created from briefs, custom briefs, or quick-draft mode.</p>
+              <p class="desc">Reopen detailed drafts created from saved briefs, custom briefs, or quick-draft mode.</p>
               <div id="articleHistory" class="history"></div>
             </section>
           </div>
@@ -393,7 +1047,7 @@
                 <div class="row-actions">
                   <button id="toggleSourceBriefBtn" class="btn" type="button">See Brief</button>
                 </div>
-                <textarea id="articleSourceBrief" readonly style="display:none;" placeholder="Source brief used for this article will appear here"></textarea>
+                <textarea id="articleSourceBrief" readonly style="display: none;" placeholder="Source brief used for this article will appear here"></textarea>
               </div>
             </section>
 
@@ -436,17 +1090,17 @@
 
             <section class="section card">
               <h2>Integrations</h2>
-              <p class="desc">Google Docs / Sheets connection is the next step. This section is prepared for that rollout.</p>
+              <p class="desc">Google Docs and Google Sheets connection is the next step. This section is already placed where those controls will live.</p>
               <div class="stack">
-                <div class="stat">
-                  <span class="k" id="googleDocsStatus">Not connected</span>
-                  <span class="l">Google Docs export status</span>
+                <div class="summary-card">
+                  <strong id="googleDocsStatus">Not connected</strong>
+                  <span>Google Docs export status</span>
                 </div>
-                <div class="stat">
-                  <span class="k" id="googleSheetsStatus">Not connected</span>
-                  <span class="l">Google Sheets sync status</span>
+                <div class="summary-card">
+                  <strong id="googleSheetsStatus">Not connected</strong>
+                  <span>Google Sheets sync status</span>
                 </div>
-                <p class="helper">Google OAuth connect/export is not active yet, but the settings area is ready for it.</p>
+                <p class="helper">Google OAuth connect and export are not active yet. This page is prepared for that rollout.</p>
               </div>
             </section>
           </div>
@@ -454,10 +1108,10 @@
           <div class="grid-two">
             <section class="section card">
               <h2>Custom Prompt Controls</h2>
-              <p class="desc">These overrides give advanced users more control over generated output. Useful later for higher plans.</p>
-              <label for="settingsBriefPrompt">Custom SEO Brief Prompt</label>
+              <p class="desc">These overrides give advanced users more control over generated output and are ready for plan-based gating later.</p>
+              <label for="settingsBriefPrompt">Custom Content Brief Prompt</label>
               <textarea id="settingsBriefPrompt" placeholder="Add custom instructions for brief generation"></textarea>
-              <label for="settingsWriterPrompt" style="margin-top:12px;">Custom Content Writer Prompt</label>
+              <label for="settingsWriterPrompt" style="margin-top: 12px;">Custom Content Writer Prompt</label>
               <textarea id="settingsWriterPrompt" placeholder="Add custom instructions for content writing"></textarea>
               <div class="row-actions">
                 <button id="saveSettingsBtn" class="btn primary" type="button">Save Settings</button>
@@ -470,11 +1124,11 @@
               <p class="desc">Saved profile and prompt settings are automatically applied in both agents.</p>
               <div class="stack">
                 <details open>
-                  <summary>SEO Brief Agent</summary>
+                  <summary>Content Brief Agent</summary>
                   <pre class="mono">Uses brand name, brand URL, and custom brief prompt override while generating the editable content brief.</pre>
                 </details>
                 <details>
-                  <summary>Content Writer Agent</summary>
+                  <summary>Content Writing Agent</summary>
                   <pre class="mono">Uses brand name, brand URL, and custom writer prompt override while generating article drafts from a brief.</pre>
                 </details>
               </div>
@@ -491,22 +1145,42 @@
         selectedBriefId: null,
         selectedArticleId: null,
         briefEditorDirty: false,
+        activeTab: "home",
+        currentUser: null,
+        currentSettings: null,
       };
 
       const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
       const els = {
-        whoami: document.getElementById("whoami"),
+        appShell: document.getElementById("appShell"),
+        sidebarToggle: document.getElementById("sidebarToggle"),
+        profileInitial: document.getElementById("profileInitial"),
+        profileName: document.getElementById("profileName"),
+        profileEmail: document.getElementById("profileEmail"),
+        seeProfileBtn: document.getElementById("seeProfileBtn"),
         logoutBtn: document.getElementById("logoutBtn"),
+        viewTitle: document.getElementById("viewTitle"),
+        viewSubtitle: document.getElementById("viewSubtitle"),
+        viewChip: document.getElementById("viewChip"),
+        tabHome: document.getElementById("tabHome"),
         tabBriefs: document.getElementById("tabBriefs"),
         tabArticles: document.getElementById("tabArticles"),
         tabSettings: document.getElementById("tabSettings"),
+        homeView: document.getElementById("homeView"),
         briefView: document.getElementById("briefView"),
         articleView: document.getElementById("articleView"),
         settingsView: document.getElementById("settingsView"),
         totalBriefs: document.getElementById("totalBriefs"),
         totalArticles: document.getElementById("totalArticles"),
         activeJobs: document.getElementById("activeJobs"),
+        metricBriefs: document.getElementById("metricBriefs"),
+        metricArticles: document.getElementById("metricArticles"),
+        metricJobs: document.getElementById("metricJobs"),
+        homeTopicsCount: document.getElementById("homeTopicsCount"),
+        homeBriefCount: document.getElementById("homeBriefCount"),
+        homeArticleCount: document.getElementById("homeArticleCount"),
+        homeRows: document.getElementById("homeRows"),
 
         briefQuery: document.getElementById("briefQuery"),
         briefSeedUrls: document.getElementById("briefSeedUrls"),
@@ -564,7 +1238,7 @@
         const map = {
           queued: "Queued...",
           collecting_sources: "Collecting candidate sources...",
-          building_brief: "Building editable SEO brief...",
+          building_brief: "Building editable content brief...",
           edited_draft: "Draft updated",
           writing_article: "Writing detailed article...",
           building_internal_brief: "Building internal brief...",
@@ -590,24 +1264,180 @@
         return state.articles.find((item) => item.id === state.selectedArticleId) || null;
       }
 
+      function formatDate(value) {
+        return value ? new Date(value).toLocaleString() : "";
+      }
+
+      function getProfileDisplayName() {
+        if (state.currentSettings && state.currentSettings.name) return state.currentSettings.name;
+        if (state.currentUser && state.currentUser.name) return state.currentUser.name;
+        if (state.currentSettings && state.currentSettings.brand_name) return state.currentSettings.brand_name;
+        if (state.currentUser && state.currentUser.email) return state.currentUser.email.split("@")[0];
+        return "User";
+      }
+
+      function renderProfile() {
+        const name = getProfileDisplayName();
+        const email = state.currentUser ? state.currentUser.email : "Signed out";
+        const initial = (name || "U").trim().charAt(0).toUpperCase() || "U";
+
+        els.profileName.textContent = name;
+        els.profileEmail.textContent = email;
+        els.profileInitial.textContent = initial;
+      }
+
       function setActiveTab(kind) {
-        const isBriefs = kind === "briefs";
-        const isArticles = kind === "articles";
-        const isSettings = kind === "settings";
-        els.tabBriefs.classList.toggle("active", isBriefs);
-        els.tabArticles.classList.toggle("active", isArticles);
-        els.tabSettings.classList.toggle("active", isSettings);
-        els.briefView.classList.toggle("active", isBriefs);
-        els.articleView.classList.toggle("active", isArticles);
-        els.settingsView.classList.toggle("active", isSettings);
+        state.activeTab = kind;
+
+        const views = {
+          home: {
+            title: "Workspace Home",
+            subtitle: "Review saved topics, open their content brief or detailed content, and move into either agent whenever you need to continue work.",
+            chip: "Home",
+          },
+          briefs: {
+            title: "Content Brief Agent",
+            subtitle: "Create SERP analysis, competitor gaps, and editable content briefs before detailed writing starts.",
+            chip: "Brief Agent",
+          },
+          articles: {
+            title: "Content Writing Agent",
+            subtitle: "Write detailed content from saved briefs, custom briefs, or quick-draft mode from a query.",
+            chip: "Writer Agent",
+          },
+          settings: {
+            title: "Account Settings",
+            subtitle: "Manage your profile, brand defaults, prompt controls, and future integrations from one place.",
+            chip: "Settings",
+          },
+        };
+
+        els.tabHome.classList.toggle("active", kind === "home");
+        els.tabBriefs.classList.toggle("active", kind === "briefs");
+        els.tabArticles.classList.toggle("active", kind === "articles");
+        els.tabSettings.classList.toggle("active", kind === "settings");
+
+        els.homeView.classList.toggle("active", kind === "home");
+        els.briefView.classList.toggle("active", kind === "briefs");
+        els.articleView.classList.toggle("active", kind === "articles");
+        els.settingsView.classList.toggle("active", kind === "settings");
+
+        els.viewTitle.textContent = views[kind].title;
+        els.viewSubtitle.textContent = views[kind].subtitle;
+        els.viewChip.textContent = views[kind].chip;
       }
 
       function renderStats() {
         els.totalBriefs.textContent = String(state.briefs.length);
         els.totalArticles.textContent = String(state.articles.length);
+
+        els.metricBriefs.dataset.count = String(state.briefs.length);
+        els.metricArticles.dataset.count = String(state.articles.length);
+
         const activeCount = state.briefs.filter((item) => ["queued", "running"].includes(item.status)).length +
           state.articles.filter((item) => ["queued", "running"].includes(item.status)).length;
+
         els.activeJobs.textContent = String(activeCount);
+        els.metricJobs.dataset.count = String(activeCount);
+        els.homeBriefCount.textContent = String(state.briefs.filter((brief) => brief.artifacts.brief_markdown).length);
+        els.homeArticleCount.textContent = String(state.articles.filter((article) => article.artifacts.article_markdown).length);
+      }
+
+      function buildTopicRows() {
+        const rows = new Map();
+
+        state.briefs.forEach((brief) => {
+          const key = brief.query || brief.id;
+          const existing = rows.get(key) || {
+            topic: brief.query || "Untitled topic",
+            brief: null,
+            article: null,
+            updated_at: brief.updated_at || brief.created_at,
+          };
+
+          if (!existing.brief || new Date(brief.updated_at) > new Date(existing.brief.updated_at)) {
+            existing.brief = brief;
+          }
+          if (new Date(brief.updated_at || brief.created_at) > new Date(existing.updated_at)) {
+            existing.updated_at = brief.updated_at || brief.created_at;
+          }
+          rows.set(key, existing);
+        });
+
+        state.articles.forEach((article) => {
+          const key = article.query || article.id;
+          const existing = rows.get(key) || {
+            topic: article.query || "Untitled topic",
+            brief: null,
+            article: null,
+            updated_at: article.updated_at || article.created_at,
+          };
+
+          if (!existing.article || new Date(article.updated_at) > new Date(existing.article.updated_at)) {
+            existing.article = article;
+          }
+          if (new Date(article.updated_at || article.created_at) > new Date(existing.updated_at)) {
+            existing.updated_at = article.updated_at || article.created_at;
+          }
+          rows.set(key, existing);
+        });
+
+        return Array.from(rows.values()).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+      }
+
+      function renderHome() {
+        const rows = buildTopicRows();
+        els.homeTopicsCount.textContent = String(rows.length);
+        els.homeRows.innerHTML = "";
+
+        if (!rows.length) {
+          els.homeRows.innerHTML = `
+            <tr>
+              <td colspan="4" class="empty-cell">No saved topics yet. Generate a content brief or a detailed article to populate the workspace library.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        rows.forEach((row) => {
+          const tr = document.createElement("tr");
+          const briefCell = row.brief && row.brief.artifacts.brief_markdown
+            ? `<div class="cell-actions"><button class="btn linkish" type="button" data-open-brief="${row.brief.id}">Open Brief</button></div>`
+            : `<span class="empty-cell">No brief</span>`;
+          const articleCell = row.article && row.article.artifacts.article_markdown
+            ? `<div class="cell-actions"><button class="btn linkish" type="button" data-open-article="${row.article.id}">Open Content</button></div>`
+            : `<span class="empty-cell">No content</span>`;
+
+          tr.innerHTML = `
+            <td>
+              <div class="topic-title">${row.topic}</div>
+              <div class="topic-meta">${row.brief ? "Brief saved" : "No brief yet"} / ${row.article ? "Content saved" : "No content yet"}</div>
+            </td>
+            <td>${briefCell}</td>
+            <td>${articleCell}</td>
+            <td class="topic-meta">${formatDate(row.updated_at)}</td>
+          `;
+          els.homeRows.appendChild(tr);
+        });
+
+        els.homeRows.querySelectorAll("[data-open-brief]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.selectedBriefId = button.dataset.openBrief;
+            state.briefEditorDirty = false;
+            renderBriefHistory();
+            renderBriefDetails();
+            setActiveTab("briefs");
+          });
+        });
+
+        els.homeRows.querySelectorAll("[data-open-article]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.selectedArticleId = button.dataset.openArticle;
+            renderArticleHistory();
+            renderArticleDetails();
+            setActiveTab("articles");
+          });
+        });
       }
 
       function renderBriefHistory() {
@@ -620,7 +1450,7 @@
             item.className = "history-item" + (brief.id === state.selectedBriefId ? " active" : "");
             item.innerHTML = `
               <div class="history-title">${brief.query}</div>
-              <div class="history-meta">${brief.status.toUpperCase()} • ${brief.progress_percent}% • ${new Date(brief.created_at).toLocaleString()}</div>
+              <div class="history-meta">${brief.status.toUpperCase()} / ${brief.progress_percent}% / ${formatDate(brief.created_at)}</div>
             `;
             item.addEventListener("click", () => {
               state.selectedBriefId = brief.id;
@@ -684,12 +1514,13 @@
           els.articleHistory.textContent = "No articles yet.";
           return;
         }
+
         state.articles.forEach((article) => {
           const item = document.createElement("div");
           item.className = "history-item" + (article.id === state.selectedArticleId ? " active" : "");
           item.innerHTML = `
             <div class="history-title">${article.query || article.mode}</div>
-            <div class="history-meta">${article.mode} • ${article.status.toUpperCase()} • ${article.progress_percent}% • ${new Date(article.created_at).toLocaleString()}</div>
+            <div class="history-meta">${article.mode} / ${article.status.toUpperCase()} / ${article.progress_percent}% / ${formatDate(article.created_at)}</div>
           `;
           item.addEventListener("click", () => {
             state.selectedArticleId = article.id;
@@ -734,6 +1565,7 @@
 
       function renderSettings(settings) {
         if (!settings) return;
+        state.currentSettings = settings;
         els.settingsName.value = settings.name || "";
         els.settingsBrandName.value = settings.brand_name || "";
         els.settingsBrandUrl.value = settings.brand_url || "";
@@ -741,6 +1573,7 @@
         els.settingsWriterPrompt.value = settings.writer_prompt_override || "";
         els.googleDocsStatus.textContent = settings.google_docs_connected ? "Connected" : "Not connected";
         els.googleSheetsStatus.textContent = settings.google_sheets_connected ? "Connected" : "Not connected";
+        renderProfile();
       }
 
       function updateWriterModeUI() {
@@ -756,8 +1589,8 @@
           window.location.href = "/login";
           return;
         }
-        const user = await res.json();
-        els.whoami.textContent = `Signed in as ${user.email}`;
+        state.currentUser = await res.json();
+        renderProfile();
       }
 
       async function loadSettings() {
@@ -781,6 +1614,7 @@
         renderBriefHistory();
         renderBriefDetails();
         renderStats();
+        renderHome();
       }
 
       async function loadArticles() {
@@ -794,6 +1628,7 @@
         renderArticleHistory();
         renderArticleDetails();
         renderStats();
+        renderHome();
       }
 
       async function pollBrief(briefId) {
@@ -808,6 +1643,7 @@
           renderBriefHistory();
           renderBriefDetails();
           renderStats();
+          renderHome();
           if (["completed", "failed"].includes(brief.status)) break;
         }
       }
@@ -823,6 +1659,7 @@
           renderArticleHistory();
           renderArticleDetails();
           renderStats();
+          renderHome();
           if (["completed", "failed"].includes(article.status)) break;
         }
       }
@@ -846,12 +1683,22 @@
         state.briefEditorDirty = false;
         renderBriefHistory();
         renderBriefDetails();
+        renderStats();
+        renderHome();
         return updated;
       }
 
+      els.tabHome.addEventListener("click", () => setActiveTab("home"));
       els.tabBriefs.addEventListener("click", () => setActiveTab("briefs"));
       els.tabArticles.addEventListener("click", () => setActiveTab("articles"));
       els.tabSettings.addEventListener("click", () => setActiveTab("settings"));
+      els.seeProfileBtn.addEventListener("click", () => setActiveTab("settings"));
+
+      els.sidebarToggle.addEventListener("click", () => {
+        els.appShell.classList.toggle("sidebar-collapsed");
+        els.sidebarToggle.textContent = els.appShell.classList.contains("sidebar-collapsed") ? ">" : "||";
+      });
+
       els.articleMode.addEventListener("change", updateWriterModeUI);
 
       els.generateBriefBtn.addEventListener("click", async () => {
@@ -873,7 +1720,7 @@
           body: JSON.stringify(payload),
         });
         els.generateBriefBtn.disabled = false;
-        els.generateBriefBtn.textContent = "Generate SEO Brief";
+        els.generateBriefBtn.textContent = "Generate Content Brief";
 
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
@@ -887,6 +1734,8 @@
         renderBriefHistory();
         renderBriefDetails();
         renderStats();
+        renderHome();
+        setActiveTab("briefs");
         pollBrief(brief.id);
       });
 
@@ -930,6 +1779,7 @@
         renderArticleHistory();
         renderArticleDetails();
         renderStats();
+        renderHome();
         setActiveTab("articles");
         pollArticle(article.id);
       });
@@ -987,6 +1837,8 @@
         renderArticleHistory();
         renderArticleDetails();
         renderStats();
+        renderHome();
+        setActiveTab("articles");
         pollArticle(article.id);
       });
 
@@ -1033,6 +1885,7 @@
         await loadCurrentUser();
         await Promise.all([loadBriefs(), loadArticles(), loadSettings()]);
         updateWriterModeUI();
+        setActiveTab("home");
       })();
     </script>
   </body>

@@ -48,6 +48,12 @@ The app is now split into two visible agents inside one dashboard:
   - brand URL
   - custom brief prompt override
   - custom writer prompt override
+- Dashboard structure updated:
+  - collapsible left sidebar
+  - profile block at top with dummy avatar, user name, and `See Profile`
+  - `Home` tab as the default workspace landing view
+  - `Content Brief Agent`, `Content Writing Agent`, and `Settings` as sidebar tabs
+  - home table now lists topic name, brief link, detailed content link, and updated time
 - Article screen now includes a `See Brief` toggle so the source brief can be shown on demand.
 - Google Docs / Sheets section exists as a prepared placeholder in settings, but OAuth/export is not active yet.
 - Saved profile and prompt settings are injected into SEO brief generation and content writing.
