@@ -1,5 +1,5 @@
 SEO Content Agent - Project Context (Short)
-Last updated: 2026-02-28
+Last updated: 2026-03-14
 
 1) Project Goal
 Build an end-to-end SEO content writing workflow that:
@@ -12,7 +12,8 @@ Build an end-to-end SEO content writing workflow that:
 - stores results per user account for later access.
 
 2) Core Product Direction
-The app is now split into two visible agents inside one dashboard:
+The app now has three product surfaces inside one dashboard:
+- AI Workspace (conversational orchestrator)
 - SEO Brief Agent
 - Content Writer Agent
 
@@ -27,15 +28,28 @@ The app is now split into two visible agents inside one dashboard:
   - from generated brief
   - from user brief
   - quick draft from query
+- Phase 1 conversational layer is approved:
+  - AI Workspace tab
+  - intent detection
+  - clarifying questions
+  - routing into existing brief/article flows
+- Phase 2 should come later:
+  - personalities
+  - reviewer agents
 
 4) Current Implementation (Done)
 - FastAPI backend with auth and session cookies.
 - Neon/Postgres support via `DATABASE_URL` with SQLite fallback for local/dev.
 - Per-user history for briefs and articles.
+- AI Workspace Phase 1 implemented:
+  - conversational orchestrator tab
+  - routes requests into existing brief/article pipelines
+  - uses `ORCHESTRATOR_MODEL` with `gpt-5-mini` recommended
 - SEO Brief Agent implemented:
   - input query/sources/citations/overview
   - competitor analysis when sources exist
   - editable markdown brief draft
+  - saved brief view shows the original request inputs used to create the brief
 - Content Writer Agent implemented:
   - generate from saved brief
   - generate from custom brief
@@ -71,8 +85,10 @@ The app is now split into two visible agents inside one dashboard:
 - app/api/routes_briefs.py
 - app/api/routes_articles.py
 - app/api/routes_settings.py
+- app/api/routes_workspace.py
 - app/models/schemas.py
 - app/models/store.py
+- app/services/workspace_orchestrator.py
 - app/workflows/brief_pipeline.py
 - app/workflows/article_pipeline.py
 - app/workflows/source_analysis.py
@@ -85,6 +101,7 @@ The app is now split into two visible agents inside one dashboard:
 - SMALL_MODEL=gpt-5-mini
 - ANALYST_MODEL=gpt-5-mini
 - WRITER_MODEL=gpt-5
+- ORCHESTRATOR_MODEL=gpt-5-mini
 
 7) Local Run Steps
 - Activate venv and install requirements.
@@ -108,14 +125,21 @@ Important Render env vars:
 - SMALL_MODEL
 - ANALYST_MODEL
 - WRITER_MODEL
+- ORCHESTRATOR_MODEL
 - COOKIE_SECURE=true
 - SESSION_TTL_DAYS=30
 - DATABASE_URL=<Neon connection string>
 
 10) Next Recommended Upgrades
-- Deploy/push account settings update to Render.
-- Verify live settings save/load flow.
-- Verify brand and prompt overrides influence generated briefs and drafts.
+- Deploy/push AI Workspace Phase 1 to Render.
+- Verify conversational routing for:
+  - brief creation
+  - direct article creation
+  - article from selected saved brief
+- Phase 2 reminder:
+  - add orchestrator personalities
+  - add brief/writer personalities
+  - add reviewer agents and reviewer personalities
 - Add Google Docs + Sheets export.
 - Add Redis worker queue for heavier usage.
 - Add Stripe subscriptions and usage limits.

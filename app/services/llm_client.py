@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from openai import OpenAI
 
 from app.core.config import settings
@@ -25,6 +27,24 @@ class LLMClient:
             ],
         )
         return response.output_text.strip()
+
+    def complete_json(self, *, model: str, instruction: str, input_text: str) -> dict:
+        raw = self.complete(model=model, instruction=instruction, input_text=input_text)
+        text = raw.strip()
+        if text.startswith("```"):
+            parts = text.split("```")
+            for part in parts:
+                candidate = part.strip()
+                if candidate.startswith("json"):
+                    candidate = candidate[4:].strip()
+                if candidate.startswith("{") and candidate.endswith("}"):
+                    text = candidate
+                    break
+        start = text.find("{")
+        end = text.rfind("}")
+        if start == -1 or end == -1 or end <= start:
+            raise ValueError("Model did not return JSON")
+        return json.loads(text[start : end + 1])
 
 
 llm_client = LLMClient()

@@ -12,6 +12,7 @@ from app.api.routes_briefs import router as briefs_router
 from app.api.routes_library import router as library_router
 from app.api.routes_runs import router as runs_router
 from app.api.routes_settings import router as settings_router
+from app.api.routes_workspace import router as workspace_router
 from app.core.auth import get_current_user_optional
 from app.workers.scheduler import start_scheduler
 
@@ -22,6 +23,7 @@ app.include_router(briefs_router)
 app.include_router(articles_router)
 app.include_router(library_router)
 app.include_router(settings_router)
+app.include_router(workspace_router)
 
 app.add_middleware(
     CORSMiddleware,

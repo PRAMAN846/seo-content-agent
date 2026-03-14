@@ -644,6 +644,88 @@
         font-size: 13px;
       }
 
+      .workspace-shell {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 16px;
+      }
+
+      .chat-thread {
+        display: grid;
+        gap: 12px;
+        max-height: 620px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .chat-bubble {
+        max-width: 86%;
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: var(--surface-2);
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+
+      .chat-bubble.user {
+        margin-left: auto;
+        background: linear-gradient(140deg, #232c3d, #0d1016);
+        color: #ffffff;
+        border-color: transparent;
+      }
+
+      .chat-bubble.assistant {
+        margin-right: auto;
+      }
+
+      .workspace-composer {
+        display: grid;
+        gap: 10px;
+      }
+
+      .workspace-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .action-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px;
+        background: linear-gradient(180deg, #ffffff, #f7f9fc);
+      }
+
+      .action-card h3 {
+        margin: 0 0 8px;
+        font-family: "Sora", sans-serif;
+        font-size: 16px;
+      }
+
+      .action-card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+        font-size: 14px;
+      }
+
+      .quick-prompts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .prompt-chip {
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: #1b2433;
+        border-radius: 999px;
+        padding: 9px 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
       .table-wrap {
         overflow: auto;
       }
@@ -801,6 +883,10 @@
         .summary-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+
+        .workspace-shell {
+          grid-template-columns: 1fr;
+        }
       }
 
       @media (max-width: 960px) {
@@ -888,6 +974,19 @@
               <strong>Home</strong>
               <span>All saved topics and outputs</span>
             </span>
+            </button>
+            <button id="tabWorkspace" class="nav-btn" type="button">
+              <span class="nav-mark">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H11l-4 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z"></path>
+                  <path d="M8 8.5h8"></path>
+                  <path d="M8 11.5h5"></path>
+                </svg>
+              </span>
+              <span class="nav-copy">
+                <strong>AI Workspace</strong>
+                <span>Chat-driven content routing</span>
+              </span>
             </button>
             <button id="tabBriefs" class="nav-btn" type="button">
               <span class="nav-mark">
@@ -992,6 +1091,50 @@
               </table>
             </div>
           </section>
+        </section>
+
+        <section id="workspaceView" class="view">
+          <div class="workspace-shell">
+            <section class="section card stack">
+              <div>
+                <h2>AI Workspace</h2>
+                <p class="desc">Describe what you need. The orchestrator will ask short follow-up questions when necessary and then route the request into the right agent.</p>
+                <div id="workspaceThread" class="chat-thread"></div>
+              </div>
+
+              <div class="workspace-composer">
+                <div class="quick-prompts">
+                  <button class="prompt-chip" type="button" data-workspace-prompt="Create a content brief for how to vinyl wrap a motorcycle">Create content brief</button>
+                  <button class="prompt-chip" type="button" data-workspace-prompt="Write a detailed blog post on how to vinyl wrap a motorcycle">Write full article</button>
+                  <button class="prompt-chip" type="button" data-workspace-prompt="Use my selected brief and generate the detailed content">Use selected brief</button>
+                </div>
+                <label for="workspaceInput">Message</label>
+                <textarea id="workspaceInput" placeholder="Example: I need a blog for B2B lead generation for SaaS founders."></textarea>
+                <div class="workspace-actions">
+                  <button id="sendWorkspaceBtn" class="btn primary" type="button">Send to AI Workspace</button>
+                  <button id="clearWorkspaceBtn" class="btn" type="button">Clear Chat</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="section card stack">
+              <div class="action-card">
+                <h3>Detected Workflow</h3>
+                <p id="workspaceIntentText">No request analyzed yet.</p>
+              </div>
+              <div class="action-card">
+                <h3>Suggested Next Step</h3>
+                <p id="workspaceNextStepText">Ask for a content brief, a full article, or an article from a saved brief.</p>
+              </div>
+              <div class="action-card">
+                <h3>Latest Created Asset</h3>
+                <p id="workspaceArtifactText">Nothing created yet.</p>
+                <div class="row-actions">
+                  <button id="workspaceOpenArtifactBtn" class="btn" type="button" disabled>Open Asset</button>
+                </div>
+              </div>
+            </section>
+          </div>
         </section>
 
         <section id="briefView" class="view">
@@ -1282,6 +1425,9 @@
         currentUser: null,
         currentSettings: null,
         selectedTopics: [],
+        workspaceMessages: [],
+        workspaceArtifact: null,
+        workspacePanel: null,
       };
 
       const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -1298,10 +1444,12 @@
         viewSubtitle: document.getElementById("viewSubtitle"),
         viewChip: document.getElementById("viewChip"),
         tabHome: document.getElementById("tabHome"),
+        tabWorkspace: document.getElementById("tabWorkspace"),
         tabBriefs: document.getElementById("tabBriefs"),
         tabArticles: document.getElementById("tabArticles"),
         tabSettings: document.getElementById("tabSettings"),
         homeView: document.getElementById("homeView"),
+        workspaceView: document.getElementById("workspaceView"),
         briefView: document.getElementById("briefView"),
         articleView: document.getElementById("articleView"),
         settingsView: document.getElementById("settingsView"),
@@ -1312,6 +1460,14 @@
         homeRows: document.getElementById("homeRows"),
         selectAllTopics: document.getElementById("selectAllTopics"),
         deleteSelectedTopicsBtn: document.getElementById("deleteSelectedTopicsBtn"),
+        workspaceThread: document.getElementById("workspaceThread"),
+        workspaceInput: document.getElementById("workspaceInput"),
+        sendWorkspaceBtn: document.getElementById("sendWorkspaceBtn"),
+        clearWorkspaceBtn: document.getElementById("clearWorkspaceBtn"),
+        workspaceIntentText: document.getElementById("workspaceIntentText"),
+        workspaceNextStepText: document.getElementById("workspaceNextStepText"),
+        workspaceArtifactText: document.getElementById("workspaceArtifactText"),
+        workspaceOpenArtifactBtn: document.getElementById("workspaceOpenArtifactBtn"),
 
         briefCreatePane: document.getElementById("briefCreatePane"),
         briefSavedPane: document.getElementById("briefSavedPane"),
@@ -1433,6 +1589,11 @@
             subtitle: "Review saved topics, open their content brief or detailed content, and move into either agent whenever you need to continue work.",
             chip: "Home",
           },
+          workspace: {
+            title: "AI Workspace",
+            subtitle: "Use the conversational orchestrator to decide whether the request needs a brief, a direct draft, or an existing saved brief.",
+            chip: "AI Workspace",
+          },
           briefs: {
             title: "Content Brief Agent",
             subtitle: "Create SERP analysis, competitor gaps, and editable content briefs before detailed writing starts.",
@@ -1451,11 +1612,13 @@
         };
 
         els.tabHome.classList.toggle("active", kind === "home");
+        els.tabWorkspace.classList.toggle("active", kind === "workspace");
         els.tabBriefs.classList.toggle("active", kind === "briefs");
         els.tabArticles.classList.toggle("active", kind === "articles");
         els.tabSettings.classList.toggle("active", kind === "settings");
 
         els.homeView.classList.toggle("active", kind === "home");
+        els.workspaceView.classList.toggle("active", kind === "workspace");
         els.briefView.classList.toggle("active", kind === "briefs");
         els.articleView.classList.toggle("active", kind === "articles");
         els.settingsView.classList.toggle("active", kind === "settings");
@@ -1796,6 +1959,45 @@
         renderProfile();
       }
 
+      function humanIntent(intent) {
+        const map = {
+          brief_only: "Content brief generation",
+          write_from_query: "Direct detailed content from query",
+          write_from_existing_brief: "Detailed content from saved brief",
+          clarify: "Clarification needed",
+        };
+        return map[intent] || intent;
+      }
+
+      function renderWorkspace() {
+        els.workspaceThread.innerHTML = "";
+        if (!state.workspaceMessages.length) {
+          const empty = document.createElement("div");
+          empty.className = "chat-bubble assistant";
+          empty.textContent = "Ask for a content brief, a full article, or content from a saved brief.";
+          els.workspaceThread.appendChild(empty);
+        } else {
+          state.workspaceMessages.forEach((message) => {
+            const bubble = document.createElement("div");
+            bubble.className = `chat-bubble ${message.role}`;
+            bubble.textContent = message.content;
+            els.workspaceThread.appendChild(bubble);
+          });
+        }
+
+        const panel = state.workspacePanel || {};
+        els.workspaceIntentText.textContent = panel.intent ? humanIntent(panel.intent) : "No request analyzed yet.";
+        els.workspaceNextStepText.textContent = panel.suggested_next_step || "Ask for a content brief, a full article, or an article from a saved brief.";
+
+        if (state.workspaceArtifact) {
+          els.workspaceArtifactText.textContent = `${state.workspaceArtifact.kind.toUpperCase()} / ${state.workspaceArtifact.query} / ${state.workspaceArtifact.status}`;
+          els.workspaceOpenArtifactBtn.disabled = false;
+        } else {
+          els.workspaceArtifactText.textContent = "Nothing created yet.";
+          els.workspaceOpenArtifactBtn.disabled = true;
+        }
+      }
+
       function updateWriterModeUI() {
         const mode = els.articleMode.value;
         els.modeFromBrief.style.display = mode === "from_brief" ? "block" : "none";
@@ -1908,7 +2110,63 @@
         return updated;
       }
 
+      async function sendWorkspaceMessage(messageText) {
+        const content = (messageText || "").trim();
+        if (!content) return;
+
+        state.workspaceMessages.push({ role: "user", content });
+        renderWorkspace();
+        els.workspaceInput.value = "";
+        els.sendWorkspaceBtn.disabled = true;
+        els.sendWorkspaceBtn.textContent = "Thinking...";
+
+        const res = await fetch("/api/workspace/message", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: state.workspaceMessages,
+            selected_brief_id: state.selectedBriefId,
+            auto_execute: true,
+          }),
+        });
+
+        els.sendWorkspaceBtn.disabled = false;
+        els.sendWorkspaceBtn.textContent = "Send to AI Workspace";
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          state.workspaceMessages.push({
+            role: "assistant",
+            content: data.detail || "The AI workspace could not process that request.",
+          });
+          renderWorkspace();
+          return;
+        }
+
+        const data = await res.json();
+        state.workspaceMessages.push({ role: "assistant", content: data.reply });
+        state.workspacePanel = data;
+        state.workspaceArtifact = data.artifact || null;
+        renderWorkspace();
+
+        if (data.artifact && data.artifact.kind === "brief") {
+          await loadBriefs();
+          state.selectedBriefId = data.artifact.id;
+          renderBriefHistory();
+          renderBriefDetails();
+        }
+
+        if (data.artifact && data.artifact.kind === "article") {
+          await loadArticles();
+          state.selectedArticleId = data.artifact.id;
+          renderArticleHistory();
+          renderArticleDetails();
+        }
+      }
+
       els.tabHome.addEventListener("click", () => setActiveTab("home"));
+      els.tabWorkspace.addEventListener("click", () => setActiveTab("workspace"));
       els.tabBriefs.addEventListener("click", () => setActiveTab("briefs"));
       els.tabArticles.addEventListener("click", () => setActiveTab("articles"));
       els.tabSettings.addEventListener("click", () => setActiveTab("settings"));
@@ -1924,6 +2182,31 @@
         renderHome();
       });
 
+      document.querySelectorAll("[data-workspace-prompt]").forEach((button) => {
+        button.addEventListener("click", () => {
+          els.workspaceInput.value = button.dataset.workspacePrompt;
+          setActiveTab("workspace");
+        });
+      });
+
+      els.sendWorkspaceBtn.addEventListener("click", async () => {
+        await sendWorkspaceMessage(els.workspaceInput.value);
+      });
+
+      els.workspaceInput.addEventListener("keydown", async (event) => {
+        if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+          event.preventDefault();
+          await sendWorkspaceMessage(els.workspaceInput.value);
+        }
+      });
+
+      els.clearWorkspaceBtn.addEventListener("click", () => {
+        state.workspaceMessages = [];
+        state.workspaceArtifact = null;
+        state.workspacePanel = null;
+        renderWorkspace();
+      });
+
       els.startNewBriefBtn.addEventListener("click", () => {
         state.selectedBriefId = null;
         state.briefEditorDirty = false;
@@ -1937,6 +2220,24 @@
 
       els.deleteSelectedTopicsBtn.addEventListener("click", async () => {
         await deleteTopics(state.selectedTopics);
+      });
+
+      els.workspaceOpenArtifactBtn.addEventListener("click", async () => {
+        if (!state.workspaceArtifact) return;
+        if (state.workspaceArtifact.kind === "brief") {
+          await loadBriefs();
+          state.selectedBriefId = state.workspaceArtifact.id;
+          renderBriefHistory();
+          renderBriefDetails();
+          setActiveTab("briefs");
+        }
+        if (state.workspaceArtifact.kind === "article") {
+          await loadArticles();
+          state.selectedArticleId = state.workspaceArtifact.id;
+          renderArticleHistory();
+          renderArticleDetails();
+          setActiveTab("articles");
+        }
       });
 
       els.articleMode.addEventListener("change", updateWriterModeUI);
@@ -2125,6 +2426,7 @@
         await loadCurrentUser();
         await Promise.all([loadBriefs(), loadArticles(), loadSettings()]);
         updateWriterModeUI();
+        renderWorkspace();
         setActiveTab("home");
       })();
     </script>

@@ -61,6 +61,47 @@ class TopicDeleteResponse(BaseModel):
     deleted_articles: int = 0
 
 
+ChatRole = Literal["user", "assistant"]
+WorkspaceIntent = Literal["brief_only", "write_from_query", "write_from_existing_brief", "clarify"]
+WorkspaceActionType = Literal["create_brief", "create_article_from_brief", "create_quick_draft", "none"]
+
+
+class WorkspaceMessage(BaseModel):
+    role: ChatRole
+    content: str = Field(min_length=1)
+
+
+class WorkspaceAction(BaseModel):
+    type: WorkspaceActionType = "none"
+    query: str = ""
+    brief_id: Optional[str] = None
+    seed_urls: list[str] = Field(default_factory=list)
+    ai_citations_text: str = ""
+    ai_overview_text: str = ""
+
+
+class WorkspaceArtifact(BaseModel):
+    kind: Literal["brief", "article"]
+    id: str
+    query: str
+    status: TaskStatus
+
+
+class WorkspaceMessageRequest(BaseModel):
+    messages: list[WorkspaceMessage] = Field(default_factory=list, min_length=1)
+    selected_brief_id: Optional[str] = None
+    auto_execute: bool = True
+
+
+class WorkspaceMessageResponse(BaseModel):
+    reply: str
+    intent: WorkspaceIntent = "clarify"
+    needs_clarification: bool = False
+    suggested_next_step: str = ""
+    action: WorkspaceAction = Field(default_factory=WorkspaceAction)
+    artifact: Optional[WorkspaceArtifact] = None
+
+
 class RegisterRequest(BaseModel):
     email: str = Field(min_length=5)
     password: str = Field(min_length=8, max_length=128)

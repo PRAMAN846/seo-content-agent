@@ -1,17 +1,26 @@
 # SEO Content Agent
 
-A two-agent SEO content workspace with login, per-user history, editable briefs, account settings, and article generation.
+A multi-surface SEO content workspace with direct agents, a conversational AI workspace, per-user history, editable briefs, and article generation.
 
 ## Product structure
 
-### 1) SEO Brief Agent
+### 1) AI Workspace
+- Conversational orchestrator tab
+- Understands whether the user wants:
+  - a content brief
+  - a direct full article
+  - content from a selected saved brief
+- Asks short clarifying questions when needed
+- Routes work into the existing brief/article systems
+
+### 2) SEO Brief Agent
 - Accepts a query plus optional source URLs / AI citations / overview text
 - Builds competitor analysis when sources are available
 - Produces an editable markdown SEO brief
 - Lets the user edit the brief draft and save it
 - Lets the user generate content directly from that brief
 
-### 2) Content Writer Agent
+### 3) Content Writer Agent
 Supports 3 modes:
 - `Use SEO Brief Agent output`
 - `Paste your own brief`
@@ -22,13 +31,14 @@ Supports 3 modes:
 - FastAPI backend (`app/`)
 - Login/register/logout API with session cookies
 - Xpaan-branded login and dashboard UI
-- Two separate agent tabs in dashboard
+- `Home`, `AI Workspace`, `Content Brief Agent`, `Content Writing Agent`, and `Settings` in dashboard
 - Account Settings tab with:
   - user name
   - brand name
   - brand URL
   - custom SEO brief prompt override
   - custom content writer prompt override
+- Saved brief view now shows the original request inputs used to generate that brief
 - Per-user history for:
   - briefs
   - articles
@@ -64,6 +74,7 @@ OPENAI_API_KEY=your_key_here
 SMALL_MODEL=gpt-5-mini
 ANALYST_MODEL=gpt-5-mini
 WRITER_MODEL=gpt-5
+ORCHESTRATOR_MODEL=gpt-5-mini
 COOKIE_SECURE=false
 ```
 
@@ -88,6 +99,7 @@ Open:
 - `SMALL_MODEL=gpt-5-mini`
 - `ANALYST_MODEL=gpt-5-mini`
 - `WRITER_MODEL=gpt-5`
+- `ORCHESTRATOR_MODEL=gpt-5-mini`
 - `COOKIE_SECURE=true`
 - `SESSION_TTL_DAYS=30`
 - `DATABASE_URL=<your-neon-connection-string>`
@@ -119,7 +131,12 @@ Open:
 - `GET /api/settings`
 - `PUT /api/settings`
 
+### AI Workspace
+- `POST /api/workspace/message`
+
 ## Next upgrades
+- Phase 2: personalities for orchestrator / brief / writer
+- Phase 2: reviewer agents and reviewer personalities
 - Add Google Docs / Sheets export
 - Add Redis worker queue for heavier usage
 - Add Stripe billing + usage limits
