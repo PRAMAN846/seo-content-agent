@@ -54,6 +54,12 @@ The app is now split into two visible agents inside one dashboard:
   - `Home` tab as the default workspace landing view
   - `Content Brief Agent`, `Content Writing Agent`, and `Settings` as sidebar tabs
   - home table now lists topic name, brief link, detailed content link, and updated time
+  - logout is available directly inside the profile block
+  - sidebar stats were removed after adding `Home`
+- Topic deletion implemented from `Home`:
+  - single topic delete
+  - multi-select delete
+  - deleting a topic removes both its brief and its article(s)
 - Article screen now includes a `See Brief` toggle so the source brief can be shown on demand.
 - Google Docs / Sheets section exists as a prepared placeholder in settings, but OAuth/export is not active yet.
 - Saved profile and prompt settings are injected into SEO brief generation and content writing.

@@ -117,6 +117,15 @@
         min-width: 0;
       }
 
+      .logo-panel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #ffffff, #eef3fb);
+      }
+
       .logo {
         width: 168px;
         max-width: 100%;
@@ -140,8 +149,26 @@
         background: rgba(255, 255, 255, 0.05);
         color: var(--sidebar-ink);
         cursor: pointer;
-        font-size: 18px;
-        font-weight: 800;
+        display: grid;
+        place-items: center;
+        padding: 0;
+      }
+
+      .toggle-bars {
+        display: flex;
+        gap: 3px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .toggle-bars span {
+        display: block;
+        width: 14px;
+        height: 3px;
+        border-radius: 999px;
+        background: #ffffff;
+        transition: all 0.2s ease;
       }
 
       .profile {
@@ -180,7 +207,6 @@
 
       .profile-link {
         margin-top: 14px;
-        width: 100%;
         border: 1px solid var(--sidebar-line);
         background: transparent;
         color: var(--sidebar-ink);
@@ -188,6 +214,23 @@
         border-radius: 12px;
         font-weight: 700;
         cursor: pointer;
+      }
+
+      .profile-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .profile-action {
+        width: 100%;
+      }
+
+      .profile-action.logout-inline {
+        background: #f8fbff;
+        color: #10141a;
+        border-color: transparent;
       }
 
       .sidebar-divider {
@@ -254,42 +297,6 @@
         margin-top: 3px;
         color: rgba(255, 255, 255, 0.52);
         font-size: 12px;
-      }
-
-      .sidebar-metrics {
-        display: grid;
-        gap: 10px;
-      }
-
-      .metric {
-        padding: 12px;
-        border-radius: 14px;
-        border: 1px solid var(--sidebar-line);
-        background: rgba(255, 255, 255, 0.04);
-      }
-
-      .metric strong {
-        display: block;
-        font-family: "Sora", sans-serif;
-        font-size: 22px;
-      }
-
-      .metric span {
-        display: block;
-        margin-top: 4px;
-        color: rgba(255, 255, 255, 0.55);
-        font-size: 12px;
-      }
-
-      .logout {
-        width: 100%;
-        border: 0;
-        border-radius: 14px;
-        padding: 12px 14px;
-        background: #f8fbff;
-        color: #0f1218;
-        font-weight: 800;
-        cursor: pointer;
       }
 
       .main {
@@ -597,7 +604,7 @@
 
       .summary-grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 14px;
       }
 
@@ -625,10 +632,42 @@
         overflow: auto;
       }
 
+      .table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+
+      .table-toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .select-all {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .select-all input,
+      .topic-checkbox input {
+        width: 16px;
+        height: 16px;
+        accent-color: #11131a;
+      }
+
       .home-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 720px;
+        min-width: 860px;
       }
 
       .home-table th,
@@ -644,6 +683,16 @@
         text-transform: uppercase;
         letter-spacing: 0.08em;
         color: var(--muted);
+      }
+
+      .col-select {
+        width: 56px;
+      }
+
+      .topic-checkbox {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .topic-title {
@@ -673,12 +722,12 @@
 
       .app.sidebar-collapsed .brand-wrap,
       .app.sidebar-collapsed .profile-copy,
-      .app.sidebar-collapsed .profile-link,
       .app.sidebar-collapsed .nav-copy,
-      .app.sidebar-collapsed .metric span,
-      .app.sidebar-collapsed .metric strong,
-      .app.sidebar-collapsed .logout-label,
       .app.sidebar-collapsed .sidebar-divider {
+        display: none;
+      }
+
+      .app.sidebar-collapsed #seeProfileBtn {
         display: none;
       }
 
@@ -713,26 +762,19 @@
         width: 48px;
       }
 
-      .app.sidebar-collapsed .sidebar-metrics {
-        justify-items: center;
+      .app.sidebar-collapsed .toggle-bars {
+        gap: 4px;
+        flex-direction: row;
       }
 
-      .app.sidebar-collapsed .metric {
-        width: 100%;
-        display: grid;
-        place-items: center;
-        padding: 10px 8px;
-      }
-
-      .app.sidebar-collapsed .metric::before {
-        content: attr(data-count);
-        font-family: "Sora", sans-serif;
-        font-size: 20px;
+      .app.sidebar-collapsed .toggle-bars span {
+        width: 3px;
+        height: 16px;
       }
 
       @media (max-width: 1180px) {
         .summary-grid {
-          grid-template-columns: 1fr;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
 
@@ -754,6 +796,10 @@
         }
 
         .field-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .summary-grid {
           grid-template-columns: 1fr;
         }
 
@@ -780,10 +826,14 @@
       <aside class="sidebar card">
         <div class="sidebar-head">
           <div class="brand-wrap">
-            <img class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
+            <div class="logo-panel">
+              <img class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
+            </div>
             <p class="eyebrow">Content Writing Agents</p>
           </div>
-          <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Toggle sidebar">||</button>
+          <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Toggle sidebar">
+            <span class="toggle-bars"><span></span><span></span><span></span></span>
+          </button>
         </div>
 
         <section class="profile">
@@ -792,7 +842,10 @@
             <h2 id="profileName" class="profile-name">Loading...</h2>
             <p id="profileEmail" class="profile-email">Please wait</p>
           </div>
-          <button id="seeProfileBtn" class="profile-link" type="button">See Profile</button>
+          <div class="profile-actions">
+            <button id="seeProfileBtn" class="profile-link profile-action" type="button">See Profile</button>
+            <button id="logoutBtn" class="profile-link profile-action logout-inline" type="button">Logout</button>
+          </div>
         </section>
 
         <hr class="sidebar-divider" />
@@ -827,23 +880,6 @@
             </span>
           </button>
         </div>
-
-        <div class="sidebar-metrics">
-          <div id="metricBriefs" class="metric" data-count="0">
-            <strong id="totalBriefs">0</strong>
-            <span>Saved briefs</span>
-          </div>
-          <div id="metricArticles" class="metric" data-count="0">
-            <strong id="totalArticles">0</strong>
-            <span>Detailed articles</span>
-          </div>
-          <div id="metricJobs" class="metric" data-count="0">
-            <strong id="activeJobs">0</strong>
-            <span>Active jobs</span>
-          </div>
-        </div>
-
-        <button id="logoutBtn" class="logout" type="button"><span class="logout-label">Logout</span></button>
       </aside>
 
       <main class="main">
@@ -871,15 +907,29 @@
               <strong id="homeArticleCount">0</strong>
               <span>Detailed content drafts available to reopen</span>
             </article>
+            <article class="summary-card card">
+              <strong id="homeActiveJobs">0</strong>
+              <span>Active jobs currently running</span>
+            </article>
           </div>
 
           <section class="section card">
             <h2>Workspace Library</h2>
             <p class="desc">Each topic row shows the latest content brief and detailed content available for that topic.</p>
+            <div class="table-toolbar">
+              <label class="select-all">
+                <input id="selectAllTopics" type="checkbox" />
+                Select all topics
+              </label>
+              <div class="table-toolbar-actions">
+                <button id="deleteSelectedTopicsBtn" class="btn" type="button" disabled>Delete Selected</button>
+              </div>
+            </div>
             <div class="table-wrap">
               <table class="home-table">
                 <thead>
                   <tr>
+                    <th class="col-select">Select</th>
                     <th>Topic Name</th>
                     <th>Content Brief</th>
                     <th>Detailed Content</th>
@@ -1148,6 +1198,7 @@
         activeTab: "home",
         currentUser: null,
         currentSettings: null,
+        selectedTopics: [],
       };
 
       const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -1171,16 +1222,13 @@
         briefView: document.getElementById("briefView"),
         articleView: document.getElementById("articleView"),
         settingsView: document.getElementById("settingsView"),
-        totalBriefs: document.getElementById("totalBriefs"),
-        totalArticles: document.getElementById("totalArticles"),
-        activeJobs: document.getElementById("activeJobs"),
-        metricBriefs: document.getElementById("metricBriefs"),
-        metricArticles: document.getElementById("metricArticles"),
-        metricJobs: document.getElementById("metricJobs"),
         homeTopicsCount: document.getElementById("homeTopicsCount"),
         homeBriefCount: document.getElementById("homeBriefCount"),
         homeArticleCount: document.getElementById("homeArticleCount"),
+        homeActiveJobs: document.getElementById("homeActiveJobs"),
         homeRows: document.getElementById("homeRows"),
+        selectAllTopics: document.getElementById("selectAllTopics"),
+        deleteSelectedTopicsBtn: document.getElementById("deleteSelectedTopicsBtn"),
 
         briefQuery: document.getElementById("briefQuery"),
         briefSeedUrls: document.getElementById("briefSeedUrls"),
@@ -1328,19 +1376,12 @@
       }
 
       function renderStats() {
-        els.totalBriefs.textContent = String(state.briefs.length);
-        els.totalArticles.textContent = String(state.articles.length);
-
-        els.metricBriefs.dataset.count = String(state.briefs.length);
-        els.metricArticles.dataset.count = String(state.articles.length);
-
         const activeCount = state.briefs.filter((item) => ["queued", "running"].includes(item.status)).length +
           state.articles.filter((item) => ["queued", "running"].includes(item.status)).length;
 
-        els.activeJobs.textContent = String(activeCount);
-        els.metricJobs.dataset.count = String(activeCount);
         els.homeBriefCount.textContent = String(state.briefs.filter((brief) => brief.artifacts.brief_markdown).length);
         els.homeArticleCount.textContent = String(state.articles.filter((article) => article.artifacts.article_markdown).length);
+        els.homeActiveJobs.textContent = String(activeCount);
       }
 
       function buildTopicRows() {
@@ -1389,11 +1430,15 @@
         const rows = buildTopicRows();
         els.homeTopicsCount.textContent = String(rows.length);
         els.homeRows.innerHTML = "";
+        const visibleTopics = rows.map((row) => row.topic);
+        state.selectedTopics = state.selectedTopics.filter((topic) => visibleTopics.includes(topic));
+        els.selectAllTopics.checked = Boolean(rows.length) && state.selectedTopics.length === rows.length;
+        els.deleteSelectedTopicsBtn.disabled = state.selectedTopics.length === 0;
 
         if (!rows.length) {
           els.homeRows.innerHTML = `
             <tr>
-              <td colspan="4" class="empty-cell">No saved topics yet. Generate a content brief or a detailed article to populate the workspace library.</td>
+              <td colspan="5" class="empty-cell">No saved topics yet. Generate a content brief or a detailed article to populate the workspace library.</td>
             </tr>
           `;
           return;
@@ -1405,16 +1450,27 @@
             ? `<div class="cell-actions"><button class="btn linkish" type="button" data-open-brief="${row.brief.id}">Open Brief</button></div>`
             : `<span class="empty-cell">No brief</span>`;
           const articleCell = row.article && row.article.artifacts.article_markdown
-            ? `<div class="cell-actions"><button class="btn linkish" type="button" data-open-article="${row.article.id}">Open Content</button></div>`
+            ? `<button class="btn linkish" type="button" data-open-article="${row.article.id}">Open Content</button>`
             : `<span class="empty-cell">No content</span>`;
+          const isSelected = state.selectedTopics.includes(row.topic) ? "checked" : "";
 
           tr.innerHTML = `
+            <td>
+              <label class="topic-checkbox">
+                <input type="checkbox" data-topic-select="${row.topic}" ${isSelected} />
+              </label>
+            </td>
             <td>
               <div class="topic-title">${row.topic}</div>
               <div class="topic-meta">${row.brief ? "Brief saved" : "No brief yet"} / ${row.article ? "Content saved" : "No content yet"}</div>
             </td>
             <td>${briefCell}</td>
-            <td>${articleCell}</td>
+            <td>
+              <div class="cell-actions">
+                ${articleCell}
+                <button class="btn linkish" type="button" data-delete-topic="${row.topic}">Delete</button>
+              </div>
+            </td>
             <td class="topic-meta">${formatDate(row.updated_at)}</td>
           `;
           els.homeRows.appendChild(tr);
@@ -1438,6 +1494,68 @@
             setActiveTab("articles");
           });
         });
+
+        els.homeRows.querySelectorAll("[data-topic-select]").forEach((checkbox) => {
+          checkbox.addEventListener("change", () => {
+            const topic = checkbox.dataset.topicSelect;
+            if (checkbox.checked) {
+              if (!state.selectedTopics.includes(topic)) state.selectedTopics.push(topic);
+            } else {
+              state.selectedTopics = state.selectedTopics.filter((item) => item !== topic);
+            }
+            renderHome();
+          });
+        });
+
+        els.homeRows.querySelectorAll("[data-delete-topic]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            await deleteTopics([button.dataset.deleteTopic]);
+          });
+        });
+      }
+
+      async function deleteTopics(topics) {
+        const cleanTopics = topics.filter(Boolean);
+        if (!cleanTopics.length) return;
+        const label = cleanTopics.length === 1 ? cleanTopics[0] : `${cleanTopics.length} topics`;
+        if (!window.confirm(`Delete ${label}? This removes both the content brief and detailed content linked to it.`)) {
+          return;
+        }
+
+        els.deleteSelectedTopicsBtn.disabled = true;
+        const res = await fetch("/api/library/topics/delete", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topics: cleanTopics }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          alert(data.detail || "Unable to delete selected topics.");
+          renderHome();
+          return;
+        }
+
+        state.briefs = state.briefs.filter((brief) => !cleanTopics.includes(brief.query));
+        state.articles = state.articles.filter((article) => !cleanTopics.includes(article.query));
+        state.selectedTopics = state.selectedTopics.filter((topic) => !cleanTopics.includes(topic));
+
+        if (state.selectedBriefId && !state.briefs.some((brief) => brief.id === state.selectedBriefId)) {
+          state.selectedBriefId = state.briefs.length ? state.briefs[0].id : null;
+          state.briefEditorDirty = false;
+        }
+
+        if (state.selectedArticleId && !state.articles.some((article) => article.id === state.selectedArticleId)) {
+          state.selectedArticleId = state.articles.length ? state.articles[0].id : null;
+        }
+
+        renderBriefHistory();
+        renderBriefDetails();
+        renderArticleHistory();
+        renderArticleDetails();
+        renderStats();
+        renderHome();
       }
 
       function renderBriefHistory() {
@@ -1696,7 +1814,16 @@
 
       els.sidebarToggle.addEventListener("click", () => {
         els.appShell.classList.toggle("sidebar-collapsed");
-        els.sidebarToggle.textContent = els.appShell.classList.contains("sidebar-collapsed") ? ">" : "||";
+      });
+
+      els.selectAllTopics.addEventListener("change", () => {
+        const rows = buildTopicRows();
+        state.selectedTopics = els.selectAllTopics.checked ? rows.map((row) => row.topic) : [];
+        renderHome();
+      });
+
+      els.deleteSelectedTopicsBtn.addEventListener("click", async () => {
+        await deleteTopics(state.selectedTopics);
       });
 
       els.articleMode.addEventListener("change", updateWriterModeUI);

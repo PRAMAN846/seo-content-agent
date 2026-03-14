@@ -51,6 +51,16 @@ class UserSettingsUpdateRequest(BaseModel):
     writer_prompt_override: str = ""
 
 
+class TopicDeleteRequest(BaseModel):
+    topics: list[str] = Field(default_factory=list, min_length=1)
+
+
+class TopicDeleteResponse(BaseModel):
+    deleted_topics: list[str] = Field(default_factory=list)
+    deleted_briefs: int = 0
+    deleted_articles: int = 0
+
+
 class RegisterRequest(BaseModel):
     email: str = Field(min_length=5)
     password: str = Field(min_length=8, max_length=128)

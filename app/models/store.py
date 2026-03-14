@@ -22,6 +22,7 @@ from app.models.schemas import (
     RunArtifacts,
     RunCreateRequest,
     RunRecord,
+    TopicDeleteResponse,
     UserPublic,
     UserSettings,
 )
@@ -141,6 +142,17 @@ class StoreBase:
             google_sheets_connected=bool((row.get("google_sheets_connected") if hasattr(row, "get") else row["google_sheets_connected"]) or False),
             created_at=StoreBase._parse_dt(row["created_at"]),
         )
+
+    @staticmethod
+    def _normalize_topics(topics: List[str]) -> List[str]:
+        seen = set()
+        normalized: List[str] = []
+        for topic in topics:
+            cleaned = topic.strip()
+            if cleaned and cleaned not in seen:
+                seen.add(cleaned)
+                normalized.append(cleaned)
+        return normalized
 
 
 class SQLiteStore(StoreBase):
@@ -487,6 +499,37 @@ class SQLiteStore(StoreBase):
 
     def update_article(self, article_id: str, **kwargs: Any) -> Optional[ArticleRecord]:
         return self._update_entity("articles", article_id, self.get_article_by_id, kwargs)
+
+    def delete_topics(self, user_id: str, topics: List[str]) -> TopicDeleteResponse:
+        normalized = self._normalize_topics(topics)
+        if not normalized:
+            return TopicDeleteResponse()
+
+        placeholders = ", ".join("?" for _ in normalized)
+        with self._lock:
+            brief_count_row = self._conn.execute(
+                "SELECT COUNT(*) AS count FROM briefs WHERE user_id = ? AND query IN ({})".format(placeholders),
+                [user_id] + normalized,
+            ).fetchone()
+            article_count_row = self._conn.execute(
+                "SELECT COUNT(*) AS count FROM articles WHERE user_id = ? AND query IN ({})".format(placeholders),
+                [user_id] + normalized,
+            ).fetchone()
+            self._conn.execute(
+                "DELETE FROM briefs WHERE user_id = ? AND query IN ({})".format(placeholders),
+                [user_id] + normalized,
+            )
+            self._conn.execute(
+                "DELETE FROM articles WHERE user_id = ? AND query IN ({})".format(placeholders),
+                [user_id] + normalized,
+            )
+            self._conn.commit()
+
+        return TopicDeleteResponse(
+            deleted_topics=normalized,
+            deleted_briefs=int(brief_count_row["count"]) if brief_count_row else 0,
+            deleted_articles=int(article_count_row["count"]) if article_count_row else 0,
+        )
 
     def _update_entity(self, table: str, record_id: str, getter, kwargs: Any):
         allowed = {"status", "stage", "progress_percent", "error", "artifacts"}
@@ -878,6 +921,39 @@ class PostgresStore(StoreBase):
 
     def update_article(self, article_id: str, **kwargs: Any) -> Optional[ArticleRecord]:
         return self._update_entity("articles", article_id, self.get_article_by_id, kwargs)
+
+    def delete_topics(self, user_id: str, topics: List[str]) -> TopicDeleteResponse:
+        normalized = self._normalize_topics(topics)
+        if not normalized:
+            return TopicDeleteResponse()
+
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT COUNT(*) FROM briefs WHERE user_id = %s AND query = ANY(%s)",
+                    (user_id, normalized),
+                )
+                brief_count = int(cur.fetchone()[0])
+                cur.execute(
+                    "SELECT COUNT(*) FROM articles WHERE user_id = %s AND query = ANY(%s)",
+                    (user_id, normalized),
+                )
+                article_count = int(cur.fetchone()[0])
+                cur.execute(
+                    "DELETE FROM briefs WHERE user_id = %s AND query = ANY(%s)",
+                    (user_id, normalized),
+                )
+                cur.execute(
+                    "DELETE FROM articles WHERE user_id = %s AND query = ANY(%s)",
+                    (user_id, normalized),
+                )
+            conn.commit()
+
+        return TopicDeleteResponse(
+            deleted_topics=normalized,
+            deleted_briefs=brief_count,
+            deleted_articles=article_count,
+        )
 
     def _update_entity(self, table: str, record_id: str, getter, kwargs: Any):
         allowed = {"status", "stage", "progress_percent", "error", "artifacts"}
