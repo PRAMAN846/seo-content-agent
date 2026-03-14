@@ -83,6 +83,9 @@ class BriefUpdateRequest(BaseModel):
 
 
 class BriefArtifacts(BaseModel):
+    requested_seed_urls: list[str] = Field(default_factory=list)
+    requested_ai_citations_text: str = ""
+    requested_ai_overview_text: str = ""
     sources: list[str] = Field(default_factory=list)
     extracted_articles: list[UrlContent] = Field(default_factory=list)
     summaries: list[ArticleSummary] = Field(default_factory=list)

@@ -736,6 +736,14 @@
         display: none;
       }
 
+      .brief-pane {
+        display: none;
+      }
+
+      .brief-pane.active {
+        display: block;
+      }
+
       .app.sidebar-collapsed .brand-wrap,
       .app.sidebar-collapsed .profile-copy,
       .app.sidebar-collapsed .profile-actions,
@@ -989,30 +997,61 @@
         <section id="briefView" class="view">
           <div class="grid-two">
             <section class="section card">
-              <h2>Generate Content Brief</h2>
-              <p class="desc">Create SERP-style analysis, competitor gaps, and an editable content brief.</p>
+              <div id="briefCreatePane" class="brief-pane">
+                <h2>Generate Content Brief</h2>
+                <p class="desc">Create SERP-style analysis, competitor gaps, and an editable content brief.</p>
 
-              <div class="field-grid">
-                <div class="wide">
-                  <label for="briefQuery">Primary Query</label>
-                  <input id="briefQuery" placeholder="how to vinyl wrap a motorcycle" />
+                <div class="field-grid">
+                  <div class="wide">
+                    <label for="briefQuery">Primary Query</label>
+                    <input id="briefQuery" placeholder="how to vinyl wrap a motorcycle" />
+                  </div>
+                  <div>
+                    <label for="briefSeedUrls">Seed URLs (one per line)</label>
+                    <textarea id="briefSeedUrls" placeholder="https://example.com/guide"></textarea>
+                  </div>
+                  <div>
+                    <label for="briefCitations">AI citations text (optional)</label>
+                    <textarea id="briefCitations" placeholder="Paste citation-rich AI answer"></textarea>
+                  </div>
+                  <div class="wide">
+                    <label for="briefOverview">AI overview text (optional)</label>
+                    <textarea id="briefOverview" placeholder="Paste overview response here"></textarea>
+                  </div>
                 </div>
-                <div>
-                  <label for="briefSeedUrls">Seed URLs (one per line)</label>
-                  <textarea id="briefSeedUrls" placeholder="https://example.com/guide"></textarea>
-                </div>
-                <div>
-                  <label for="briefCitations">AI citations text (optional)</label>
-                  <textarea id="briefCitations" placeholder="Paste citation-rich AI answer"></textarea>
-                </div>
-                <div class="wide">
-                  <label for="briefOverview">AI overview text (optional)</label>
-                  <textarea id="briefOverview" placeholder="Paste overview response here"></textarea>
+
+                <div class="row-actions">
+                  <button id="generateBriefBtn" class="btn primary" type="button">Generate Content Brief</button>
                 </div>
               </div>
 
-              <div class="row-actions">
-                <button id="generateBriefBtn" class="btn primary" type="button">Generate Content Brief</button>
+              <div id="briefSavedPane" class="brief-pane">
+                <div class="row-actions" style="margin-top: 0; justify-content: space-between;">
+                  <div>
+                    <h2 style="margin-bottom: 6px;">Saved Brief Request</h2>
+                    <p class="desc" style="margin-bottom: 0;">Review the exact inputs used for this brief, then continue editing the brief below if needed.</p>
+                  </div>
+                  <button id="startNewBriefBtn" class="btn primary" type="button">Generate New Brief</button>
+                </div>
+
+                <div class="field-grid" style="margin-top: 14px;">
+                  <div class="wide">
+                    <label for="briefSavedQuery">Primary Query</label>
+                    <input id="briefSavedQuery" readonly />
+                  </div>
+                  <div>
+                    <label for="briefSavedSeedUrls">Seed URLs (one per line)</label>
+                    <textarea id="briefSavedSeedUrls" readonly></textarea>
+                  </div>
+                  <div>
+                    <label for="briefSavedCitations">AI citations text</label>
+                    <textarea id="briefSavedCitations" readonly></textarea>
+                  </div>
+                  <div class="wide">
+                    <label for="briefSavedOverview">AI overview text</label>
+                    <textarea id="briefSavedOverview" readonly></textarea>
+                  </div>
+                </div>
               </div>
 
               <div class="status-row">
@@ -1274,11 +1313,18 @@
         selectAllTopics: document.getElementById("selectAllTopics"),
         deleteSelectedTopicsBtn: document.getElementById("deleteSelectedTopicsBtn"),
 
+        briefCreatePane: document.getElementById("briefCreatePane"),
+        briefSavedPane: document.getElementById("briefSavedPane"),
         briefQuery: document.getElementById("briefQuery"),
         briefSeedUrls: document.getElementById("briefSeedUrls"),
         briefCitations: document.getElementById("briefCitations"),
         briefOverview: document.getElementById("briefOverview"),
+        briefSavedQuery: document.getElementById("briefSavedQuery"),
+        briefSavedSeedUrls: document.getElementById("briefSavedSeedUrls"),
+        briefSavedCitations: document.getElementById("briefSavedCitations"),
+        briefSavedOverview: document.getElementById("briefSavedOverview"),
         generateBriefBtn: document.getElementById("generateBriefBtn"),
+        startNewBriefBtn: document.getElementById("startNewBriefBtn"),
         briefStatus: document.getElementById("briefStatus"),
         briefProgressLabel: document.getElementById("briefProgressLabel"),
         briefStage: document.getElementById("briefStage"),
@@ -1637,12 +1683,18 @@
       function renderBriefDetails() {
         const brief = selectedBrief();
         if (!brief) {
+          els.briefCreatePane.classList.add("active");
+          els.briefSavedPane.classList.remove("active");
           els.briefStatus.textContent = "idle";
           paintStatus(els.briefStatus, "idle");
           els.briefProgressLabel.textContent = "0%";
           els.briefProgressFill.style.width = "0%";
           els.briefStage.textContent = "Waiting to start";
           els.briefRunId.textContent = "";
+          els.briefSavedQuery.value = "";
+          els.briefSavedSeedUrls.value = "";
+          els.briefSavedCitations.value = "";
+          els.briefSavedOverview.value = "";
           els.briefEditor.value = "";
           els.briefEditor.readOnly = true;
           els.briefSources.textContent = "";
@@ -1653,12 +1705,18 @@
           return;
         }
 
+        els.briefCreatePane.classList.remove("active");
+        els.briefSavedPane.classList.add("active");
         els.briefStatus.textContent = brief.status;
         paintStatus(els.briefStatus, brief.status);
         els.briefProgressLabel.textContent = `${brief.progress_percent}%`;
         els.briefProgressFill.style.width = `${brief.progress_percent}%`;
         els.briefStage.textContent = humanStage(brief.stage);
         els.briefRunId.textContent = `Brief ID: ${brief.id}`;
+        els.briefSavedQuery.value = brief.query || "";
+        els.briefSavedSeedUrls.value = (brief.artifacts.requested_seed_urls || []).join("\n");
+        els.briefSavedCitations.value = brief.artifacts.requested_ai_citations_text || "";
+        els.briefSavedOverview.value = brief.artifacts.requested_ai_overview_text || "";
         if (!state.briefEditorDirty) {
           els.briefEditor.value = brief.artifacts.brief_markdown || "";
         }
@@ -1864,6 +1922,17 @@
         const rows = buildTopicRows();
         state.selectedTopics = els.selectAllTopics.checked ? rows.map((row) => row.topic) : [];
         renderHome();
+      });
+
+      els.startNewBriefBtn.addEventListener("click", () => {
+        state.selectedBriefId = null;
+        state.briefEditorDirty = false;
+        els.briefQuery.value = "";
+        els.briefSeedUrls.value = "";
+        els.briefCitations.value = "";
+        els.briefOverview.value = "";
+        renderBriefHistory();
+        renderBriefDetails();
       });
 
       els.deleteSelectedTopicsBtn.addEventListener("click", async () => {

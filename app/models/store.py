@@ -406,13 +406,18 @@ class SQLiteStore(StoreBase):
     def create_brief(self, user_id: str, payload: BriefCreateRequest) -> BriefRecord:
         record_id = str(uuid4())
         now = self._now_iso()
+        initial_artifacts = BriefArtifacts(
+            requested_seed_urls=payload.seed_urls,
+            requested_ai_citations_text=payload.ai_citations_text,
+            requested_ai_overview_text=payload.ai_overview_text,
+        )
         with self._lock:
             self._conn.execute(
                 """
                 INSERT INTO briefs (id, user_id, query, status, stage, progress_percent, error, artifacts_json, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (record_id, user_id, payload.query, "queued", "queued", 0, None, BriefArtifacts().model_dump_json(), now, now),
+                (record_id, user_id, payload.query, "queued", "queued", 0, None, initial_artifacts.model_dump_json(), now, now),
             )
             self._conn.commit()
         created = self.get_brief(user_id, record_id)
@@ -823,6 +828,11 @@ class PostgresStore(StoreBase):
     def create_brief(self, user_id: str, payload: BriefCreateRequest) -> BriefRecord:
         record_id = str(uuid4())
         now = self._utcnow()
+        initial_artifacts = BriefArtifacts(
+            requested_seed_urls=payload.seed_urls,
+            requested_ai_citations_text=payload.ai_citations_text,
+            requested_ai_overview_text=payload.ai_overview_text,
+        )
         with self._connect() as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -830,7 +840,7 @@ class PostgresStore(StoreBase):
                     INSERT INTO briefs (id, user_id, query, status, stage, progress_percent, error, artifacts_json, created_at, updated_at)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
-                    (record_id, user_id, payload.query, "queued", "queued", 0, None, BriefArtifacts().model_dump_json(), now, now),
+                    (record_id, user_id, payload.query, "queued", "queued", 0, None, initial_artifacts.model_dump_json(), now, now),
                 )
             conn.commit()
         created = self.get_brief(user_id, record_id)

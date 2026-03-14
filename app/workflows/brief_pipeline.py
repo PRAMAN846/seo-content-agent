@@ -21,6 +21,7 @@ async def process_brief(
     try:
         brief_record = run_store.get_brief_by_id(brief_id)
         user_settings = run_store.get_user_settings(brief_record.user_id) if brief_record else None
+        existing_artifacts = brief_record.artifacts if brief_record else BriefArtifacts()
         brand_name = user_settings.brand_name if user_settings else ""
         brand_url = user_settings.brand_url if user_settings else ""
         prompt_override = user_settings.brief_prompt_override if user_settings else ""
@@ -53,6 +54,9 @@ async def process_brief(
             )
 
         artifacts = BriefArtifacts(
+            requested_seed_urls=existing_artifacts.requested_seed_urls,
+            requested_ai_citations_text=existing_artifacts.requested_ai_citations_text,
+            requested_ai_overview_text=existing_artifacts.requested_ai_overview_text,
             sources=top_urls,
             extracted_articles=extracted,
             summaries=summaries,
