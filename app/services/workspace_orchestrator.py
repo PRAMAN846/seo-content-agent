@@ -18,11 +18,12 @@ from app.models.schemas import (
 )
 from app.models.store import run_store
 from app.services.llm_client import llm_client
+from app.services.personalities import build_personality_prompt
 from app.workflows.article_pipeline import process_article_from_brief, process_quick_draft
 from app.workflows.brief_pipeline import process_brief
 
 
-ORCHESTRATOR_INSTRUCTION = """You are an AI workspace orchestrator for an SEO content system.
+ORCHESTRATOR_BASE_INSTRUCTION = """You are an AI workspace orchestrator for an SEO content system.
 Your job is to detect the user's intent, ask only necessary clarifying questions, and choose one of these actions:
 - create_brief
 - create_article_from_brief
@@ -33,9 +34,11 @@ Rules:
 - Prefer brief_only when the user explicitly asks for a brief, outline, SEO analysis, content brief, SERP analysis, or strategy.
 - Prefer write_from_query when the user asks for a full article, blog post, draft, or content from a query.
 - Prefer write_from_existing_brief when the user explicitly asks to use an existing/saved brief and a selected brief is available.
+- If the user asks to create a new brief, ignore selected_brief_id and existing saved briefs unless the user explicitly says to reuse one.
 - If the user wants content but hasn't made clear whether they want a brief first or a direct draft, ask a short clarification question.
 - If selected_brief_id is provided and the user asks to write from an existing brief, use it.
 - Keep questions short and specific.
+- When creating a brief or draft from a natural-language request, extract the actual topic/query instead of copying command phrasing like "create a content brief on".
 - Return valid JSON only.
 
 JSON schema:
@@ -70,13 +73,43 @@ def _available_briefs_text(briefs: List[BriefRecord]) -> str:
 
 
 def _heuristic_response(messages: List[WorkspaceMessage], selected_brief_id: Optional[str]) -> WorkspaceMessageResponse:
-    latest = messages[-1].content.lower()
+    latest_raw = messages[-1].content.strip()
+    latest = latest_raw.lower()
+
+    def extract_query(text: str) -> str:
+        cleaned = text.strip()
+        prefixes = [
+            "create a content brief on",
+            "create a content brief for",
+            "create content brief on",
+            "create content brief for",
+            "make a content brief on",
+            "make a content brief for",
+            "generate a content brief on",
+            "generate a content brief for",
+            "content brief on",
+            "content brief for",
+            "write an article on",
+            "write an article for",
+            "write a blog on",
+            "write a blog for",
+            "create a draft on",
+            "create a draft for",
+        ]
+        lower = cleaned.lower()
+        for prefix in prefixes:
+            if lower.startswith(prefix):
+                return cleaned[len(prefix):].strip(" .:-")
+        return cleaned
+
+    extracted_query = extract_query(latest_raw)
+
     if any(term in latest for term in ["brief", "outline", "serp", "seo analysis"]):
         return WorkspaceMessageResponse(
             reply="I can create a content brief for this. I’m ready to run the Content Brief Agent now.",
             intent="brief_only",
             suggested_next_step="Create a content brief",
-            action=WorkspaceAction(type="create_brief", query=messages[-1].content.strip()),
+            action=WorkspaceAction(type="create_brief", query=extracted_query),
         )
     if any(term in latest for term in ["article", "blog", "draft", "write"]):
         if "brief" in latest and selected_brief_id:
@@ -107,10 +140,16 @@ def plan_workspace_response(
     current_user: UserPublic,
 ) -> WorkspaceMessageResponse:
     available_briefs = run_store.list_briefs(current_user.id, limit=25)
+    user_settings = run_store.get_user_settings(current_user.id)
 
     if not llm_client.enabled:
         return _heuristic_response(messages, selected_brief_id)
 
+    personality_prompt = build_personality_prompt(
+        "workspace",
+        user_settings.orchestrator_personality_id if user_settings else "strategist",
+        user_settings.custom_orchestrator_personality if user_settings else "",
+    )
     input_text = "\n\n".join(
         [
             "Conversation:\n{}".format(_conversation_text(messages)),
@@ -122,7 +161,10 @@ def plan_workspace_response(
     try:
         data = llm_client.complete_json(
             model=settings.orchestrator_model,
-            instruction=ORCHESTRATOR_INSTRUCTION,
+            instruction="{}\n\nWorkspace personality:\n{}".format(
+                ORCHESTRATOR_BASE_INSTRUCTION,
+                personality_prompt or "Use the default balanced strategist style.",
+            ),
             input_text=input_text,
         )
         action = WorkspaceAction(**data.get("action", {}))

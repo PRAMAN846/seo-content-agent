@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 TaskStatus = Literal["queued", "running", "completed", "failed"]
 ArticleMode = Literal["from_brief", "from_custom_brief", "quick_draft"]
+PersonalityAgentType = Literal["workspace", "brief", "writer", "reviewer"]
 
 
 class UrlContent(BaseModel):
@@ -38,6 +39,12 @@ class UserSettings(BaseModel):
     brand_url: Optional[str] = None
     brief_prompt_override: str = ""
     writer_prompt_override: str = ""
+    orchestrator_personality_id: str = "strategist"
+    brief_personality_id: str = "seo_strategist"
+    writer_personality_id: str = "seo_writer"
+    custom_orchestrator_personality: str = ""
+    custom_brief_personality: str = ""
+    custom_writer_personality: str = ""
     google_docs_connected: bool = False
     google_sheets_connected: bool = False
     created_at: datetime
@@ -49,6 +56,25 @@ class UserSettingsUpdateRequest(BaseModel):
     brand_url: str = ""
     brief_prompt_override: str = ""
     writer_prompt_override: str = ""
+    orchestrator_personality_id: str = "strategist"
+    brief_personality_id: str = "seo_strategist"
+    writer_personality_id: str = "seo_writer"
+    custom_orchestrator_personality: str = ""
+    custom_brief_personality: str = ""
+    custom_writer_personality: str = ""
+
+
+class PersonalityPreset(BaseModel):
+    id: str
+    agent_type: PersonalityAgentType
+    name: str
+    description: str
+    role: str
+    primary_goal: str
+    tone: str
+    depth: str
+    structure_style: str
+    directives: list[str] = Field(default_factory=list)
 
 
 class TopicDeleteRequest(BaseModel):

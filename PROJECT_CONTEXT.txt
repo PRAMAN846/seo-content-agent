@@ -33,9 +33,9 @@ The app now has three product surfaces inside one dashboard:
   - intent detection
   - clarifying questions
   - routing into existing brief/article flows
-- Phase 2 should come later:
-  - personalities
-  - reviewer agents
+- Phase 2 direction was approved:
+  - personalities for AI Workspace / brief / writer
+  - reviewer agents after that
 
 4) Current Implementation (Done)
 - FastAPI backend with auth and session cookies.
@@ -45,6 +45,12 @@ The app now has three product surfaces inside one dashboard:
   - conversational orchestrator tab
   - routes requests into existing brief/article pipelines
   - uses `ORCHESTRATOR_MODEL` with `gpt-5-mini` recommended
+- Phase 2 personalities implemented:
+  - AI Workspace personality presets
+  - Content Brief Agent personality presets
+  - Content Writing Agent personality presets
+  - custom personality notes for all three
+  - settings UI and API support for selecting and saving them
 - SEO Brief Agent implemented:
   - input query/sources/citations/overview
   - competitor analysis when sources exist
@@ -62,6 +68,9 @@ The app now has three product surfaces inside one dashboard:
   - brand URL
   - custom brief prompt override
   - custom writer prompt override
+  - workspace personality preset + custom notes
+  - brief personality preset + custom notes
+  - writer personality preset + custom notes
 - Dashboard structure updated:
   - collapsible left sidebar
   - profile block at top with dummy avatar, user name, and `See Profile`
@@ -85,10 +94,12 @@ The app now has three product surfaces inside one dashboard:
 - app/api/routes_briefs.py
 - app/api/routes_articles.py
 - app/api/routes_settings.py
+- app/api/routes_personalities.py
 - app/api/routes_workspace.py
 - app/models/schemas.py
 - app/models/store.py
 - app/services/workspace_orchestrator.py
+- app/services/personalities.py
 - app/workflows/brief_pipeline.py
 - app/workflows/article_pipeline.py
 - app/workflows/source_analysis.py
@@ -131,14 +142,12 @@ Important Render env vars:
 - DATABASE_URL=<Neon connection string>
 
 10) Next Recommended Upgrades
-- Deploy/push AI Workspace Phase 1 to Render.
-- Verify conversational routing for:
-  - brief creation
-  - direct article creation
-  - article from selected saved brief
-- Phase 2 reminder:
-  - add orchestrator personalities
-  - add brief/writer personalities
+- Deploy the latest Phase 2 personality build to Render.
+- Verify personality selection affects:
+  - AI Workspace routing style
+  - brief generation style
+  - content writing style
+- Next reminder:
   - add reviewer agents and reviewer personalities
 - Add Google Docs + Sheets export.
 - Add Redis worker queue for heavier usage.

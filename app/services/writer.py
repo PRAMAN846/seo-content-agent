@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from app.core.config import settings
 from app.services.llm_client import llm_client
+from app.services.personalities import build_personality_prompt
 
 WRITER_INSTRUCTION = (
     "You are an expert SEO writer. Write a new, original article that is factual and grounded in the source analysis. "
@@ -26,7 +27,7 @@ def write_article(query: str, seo_analysis: str) -> str:
 
 
 def write_article_from_brief(query: str, brief_markdown: str) -> str:
-    return write_article_from_brief_with_customization(query, brief_markdown, "", "", "")
+    return write_article_from_brief_with_customization(query, brief_markdown, "", "", "", "seo_writer", "")
 
 
 def write_article_from_brief_with_customization(
@@ -35,8 +36,13 @@ def write_article_from_brief_with_customization(
     brand_name: str,
     brand_url: str,
     prompt_override: str,
+    personality_id: str,
+    custom_personality: str,
 ) -> str:
     extra = []
+    personality_prompt = build_personality_prompt("writer", personality_id, custom_personality)
+    if personality_prompt:
+        extra.append("Writer personality:\n{}".format(personality_prompt))
     if brand_name:
         extra.append("Brand name: {}".format(brand_name))
     if brand_url:

@@ -38,6 +38,14 @@ Supports 3 modes:
   - brand URL
   - custom SEO brief prompt override
   - custom content writer prompt override
+- Personality controls for:
+  - AI Workspace
+  - Content Brief Agent
+  - Content Writing Agent
+- Custom personality notes for:
+  - AI Workspace
+  - Content Brief Agent
+  - Content Writing Agent
 - Saved brief view now shows the original request inputs used to generate that brief
 - Per-user history for:
   - briefs
@@ -50,6 +58,7 @@ Supports 3 modes:
 - Local export to `exports/*.md`
 - Google Docs / Sheets integration status placeholders in UI
 - Prompt customization applied automatically during brief and article generation
+- Personality presets applied automatically during AI routing, brief generation, and content writing
 
 ## Local setup
 
@@ -131,12 +140,14 @@ Open:
 - `GET /api/settings`
 - `PUT /api/settings`
 
+### Personalities
+- `GET /api/personalities`
+
 ### AI Workspace
 - `POST /api/workspace/message`
 
 ## Next upgrades
-- Phase 2: personalities for orchestrator / brief / writer
-- Phase 2: reviewer agents and reviewer personalities
+- Reviewer agents and reviewer personalities
 - Add Google Docs / Sheets export
 - Add Redis worker queue for heavier usage
 - Add Stripe billing + usage limits

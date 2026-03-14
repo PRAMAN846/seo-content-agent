@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api/workspace", tags=["workspace"])
 
 
 @router.post("/message", response_model=WorkspaceMessageResponse)
-def workspace_message(
+async def workspace_message(
     payload: WorkspaceMessageRequest,
     current_user: UserPublic = Depends(get_current_user),
 ) -> WorkspaceMessageResponse:

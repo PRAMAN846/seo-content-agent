@@ -23,6 +23,8 @@ async def process_article_from_brief(article_id: str, query: str, source_brief_i
             user_settings.brand_name if user_settings else "",
             user_settings.brand_url if user_settings else "",
             user_settings.writer_prompt_override if user_settings else "",
+            user_settings.writer_personality_id if user_settings else "seo_writer",
+            user_settings.custom_writer_personality if user_settings else "",
         )
         run_store.update_article(article_id, stage="exporting_output", progress_percent=90)
         export_link = export_to_local_doc(query or "content-article", article_markdown)
@@ -63,6 +65,10 @@ async def process_quick_draft(
         brand_url = user_settings.brand_url if user_settings else ""
         brief_prompt_override = user_settings.brief_prompt_override if user_settings else ""
         writer_prompt_override = user_settings.writer_prompt_override if user_settings else ""
+        brief_personality_id = user_settings.brief_personality_id if user_settings else "seo_strategist"
+        writer_personality_id = user_settings.writer_personality_id if user_settings else "seo_writer"
+        custom_brief_personality = user_settings.custom_brief_personality if user_settings else ""
+        custom_writer_personality = user_settings.custom_writer_personality if user_settings else ""
         try:
             _, _, summaries, seo_analysis = await build_source_analysis(
                 query=query,
@@ -78,6 +84,8 @@ async def process_quick_draft(
                 brand_name,
                 brand_url,
                 brief_prompt_override,
+                brief_personality_id,
+                custom_brief_personality,
             )
         except ValueError:
             run_store.update_article(article_id, stage="building_internal_brief", progress_percent=72)
@@ -86,6 +94,8 @@ async def process_quick_draft(
                 brand_name,
                 brand_url,
                 brief_prompt_override,
+                brief_personality_id,
+                custom_brief_personality,
             )
         run_store.update_article(article_id, stage="writing_article", progress_percent=84)
 
@@ -95,6 +105,8 @@ async def process_quick_draft(
             brand_name,
             brand_url,
             writer_prompt_override,
+            writer_personality_id,
+            custom_writer_personality,
         )
         run_store.update_article(article_id, stage="exporting_output", progress_percent=95)
         export_link = export_to_local_doc(query or "quick-draft", article_markdown)

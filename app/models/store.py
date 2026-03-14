@@ -138,6 +138,12 @@ class StoreBase:
             brand_url=row.get("brand_url") if hasattr(row, "get") else row["brand_url"],
             brief_prompt_override=(row.get("brief_prompt_override") if hasattr(row, "get") else row["brief_prompt_override"]) or "",
             writer_prompt_override=(row.get("writer_prompt_override") if hasattr(row, "get") else row["writer_prompt_override"]) or "",
+            orchestrator_personality_id=(row.get("orchestrator_personality_id") if hasattr(row, "get") else row["orchestrator_personality_id"]) or "strategist",
+            brief_personality_id=(row.get("brief_personality_id") if hasattr(row, "get") else row["brief_personality_id"]) or "seo_strategist",
+            writer_personality_id=(row.get("writer_personality_id") if hasattr(row, "get") else row["writer_personality_id"]) or "seo_writer",
+            custom_orchestrator_personality=(row.get("custom_orchestrator_personality") if hasattr(row, "get") else row["custom_orchestrator_personality"]) or "",
+            custom_brief_personality=(row.get("custom_brief_personality") if hasattr(row, "get") else row["custom_brief_personality"]) or "",
+            custom_writer_personality=(row.get("custom_writer_personality") if hasattr(row, "get") else row["custom_writer_personality"]) or "",
             google_docs_connected=bool((row.get("google_docs_connected") if hasattr(row, "get") else row["google_docs_connected"]) or False),
             google_sheets_connected=bool((row.get("google_sheets_connected") if hasattr(row, "get") else row["google_sheets_connected"]) or False),
             created_at=StoreBase._parse_dt(row["created_at"]),
@@ -178,6 +184,12 @@ class SQLiteStore(StoreBase):
                     brand_url TEXT,
                     brief_prompt_override TEXT DEFAULT '',
                     writer_prompt_override TEXT DEFAULT '',
+                    orchestrator_personality_id TEXT DEFAULT 'strategist',
+                    brief_personality_id TEXT DEFAULT 'seo_strategist',
+                    writer_personality_id TEXT DEFAULT 'seo_writer',
+                    custom_orchestrator_personality TEXT DEFAULT '',
+                    custom_brief_personality TEXT DEFAULT '',
+                    custom_writer_personality TEXT DEFAULT '',
                     google_docs_connected INTEGER DEFAULT 0,
                     google_sheets_connected INTEGER DEFAULT 0,
                     created_at TEXT NOT NULL
@@ -247,6 +259,12 @@ class SQLiteStore(StoreBase):
                 "ALTER TABLE users ADD COLUMN brand_url TEXT",
                 "ALTER TABLE users ADD COLUMN brief_prompt_override TEXT DEFAULT ''",
                 "ALTER TABLE users ADD COLUMN writer_prompt_override TEXT DEFAULT ''",
+                "ALTER TABLE users ADD COLUMN orchestrator_personality_id TEXT DEFAULT 'strategist'",
+                "ALTER TABLE users ADD COLUMN brief_personality_id TEXT DEFAULT 'seo_strategist'",
+                "ALTER TABLE users ADD COLUMN writer_personality_id TEXT DEFAULT 'seo_writer'",
+                "ALTER TABLE users ADD COLUMN custom_orchestrator_personality TEXT DEFAULT ''",
+                "ALTER TABLE users ADD COLUMN custom_brief_personality TEXT DEFAULT ''",
+                "ALTER TABLE users ADD COLUMN custom_writer_personality TEXT DEFAULT ''",
                 "ALTER TABLE users ADD COLUMN google_docs_connected INTEGER DEFAULT 0",
                 "ALTER TABLE users ADD COLUMN google_sheets_connected INTEGER DEFAULT 0",
             ]:
@@ -268,11 +286,13 @@ class SQLiteStore(StoreBase):
                     """
                     INSERT INTO users (
                         id, email, password_hash, name, brand_name, brand_url,
-                        brief_prompt_override, writer_prompt_override, google_docs_connected,
-                        google_sheets_connected, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        brief_prompt_override, writer_prompt_override,
+                        orchestrator_personality_id, brief_personality_id, writer_personality_id,
+                        custom_orchestrator_personality, custom_brief_personality, custom_writer_personality,
+                        google_docs_connected, google_sheets_connected, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
-                    (user_id, normalized, password_hash, None, None, None, "", "", 0, 0, now),
+                    (user_id, normalized, password_hash, None, None, None, "", "", "strategist", "seo_strategist", "seo_writer", "", "", "", 0, 0, now),
                 )
                 self._conn.commit()
             except sqlite3.IntegrityError as exc:
@@ -287,6 +307,8 @@ class SQLiteStore(StoreBase):
                 """
                 SELECT id, email, password_hash, name, brand_name, brand_url,
                        brief_prompt_override, writer_prompt_override,
+                       orchestrator_personality_id, brief_personality_id, writer_personality_id,
+                       custom_orchestrator_personality, custom_brief_personality, custom_writer_personality,
                        google_docs_connected, google_sheets_connected, created_at
                 FROM users WHERE email = ?
                 """,
@@ -315,6 +337,8 @@ class SQLiteStore(StoreBase):
                 SELECT u.id, u.email, u.created_at, s.expires_at
                      , u.name, u.brand_name, u.brand_url
                      , u.brief_prompt_override, u.writer_prompt_override
+                     , u.orchestrator_personality_id, u.brief_personality_id, u.writer_personality_id
+                     , u.custom_orchestrator_personality, u.custom_brief_personality, u.custom_writer_personality
                      , u.google_docs_connected, u.google_sheets_connected
                 FROM sessions s
                 JOIN users u ON u.id = s.user_id
@@ -340,6 +364,8 @@ class SQLiteStore(StoreBase):
                 """
                 SELECT id, email, name, brand_name, brand_url,
                        brief_prompt_override, writer_prompt_override,
+                       orchestrator_personality_id, brief_personality_id, writer_personality_id,
+                       custom_orchestrator_personality, custom_brief_personality, custom_writer_personality,
                        google_docs_connected, google_sheets_connected, created_at
                 FROM users WHERE id = ?
                 """,
@@ -348,7 +374,19 @@ class SQLiteStore(StoreBase):
         return self._row_to_user_settings(row) if row else None
 
     def update_user_settings(self, user_id: str, **kwargs: Any) -> Optional[UserSettings]:
-        allowed = {"name", "brand_name", "brand_url", "brief_prompt_override", "writer_prompt_override"}
+        allowed = {
+            "name",
+            "brand_name",
+            "brand_url",
+            "brief_prompt_override",
+            "writer_prompt_override",
+            "orchestrator_personality_id",
+            "brief_personality_id",
+            "writer_personality_id",
+            "custom_orchestrator_personality",
+            "custom_brief_personality",
+            "custom_writer_personality",
+        }
         updates = dict((k, v) for (k, v) in kwargs.items() if k in allowed)
         if not updates:
             return self.get_user_settings(user_id)
@@ -583,6 +621,12 @@ class PostgresStore(StoreBase):
                         brand_url TEXT,
                         brief_prompt_override TEXT DEFAULT '',
                         writer_prompt_override TEXT DEFAULT '',
+                        orchestrator_personality_id TEXT DEFAULT 'strategist',
+                        brief_personality_id TEXT DEFAULT 'seo_strategist',
+                        writer_personality_id TEXT DEFAULT 'seo_writer',
+                        custom_orchestrator_personality TEXT DEFAULT '',
+                        custom_brief_personality TEXT DEFAULT '',
+                        custom_writer_personality TEXT DEFAULT '',
                         google_docs_connected BOOLEAN DEFAULT FALSE,
                         google_sheets_connected BOOLEAN DEFAULT FALSE,
                         created_at TIMESTAMPTZ NOT NULL
@@ -595,6 +639,12 @@ class PostgresStore(StoreBase):
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS brand_url TEXT",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS brief_prompt_override TEXT DEFAULT ''",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS writer_prompt_override TEXT DEFAULT ''",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS orchestrator_personality_id TEXT DEFAULT 'strategist'",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS brief_personality_id TEXT DEFAULT 'seo_strategist'",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS writer_personality_id TEXT DEFAULT 'seo_writer'",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS custom_orchestrator_personality TEXT DEFAULT ''",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS custom_brief_personality TEXT DEFAULT ''",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS custom_writer_personality TEXT DEFAULT ''",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_docs_connected BOOLEAN DEFAULT FALSE",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sheets_connected BOOLEAN DEFAULT FALSE",
                 ]:
@@ -676,10 +726,12 @@ class PostgresStore(StoreBase):
                         INSERT INTO users (
                             id, email, password_hash, name, brand_name, brand_url,
                             brief_prompt_override, writer_prompt_override,
+                            orchestrator_personality_id, brief_personality_id, writer_personality_id,
+                            custom_orchestrator_personality, custom_brief_personality, custom_writer_personality,
                             google_docs_connected, google_sheets_connected, created_at
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """,
-                        (user_id, normalized, self._hash_password(password), None, None, None, "", "", False, False, now),
+                        (user_id, normalized, self._hash_password(password), None, None, None, "", "", "strategist", "seo_strategist", "seo_writer", "", "", "", False, False, now),
                     )
                 conn.commit()
         except Exception as exc:  # noqa: BLE001
@@ -697,6 +749,8 @@ class PostgresStore(StoreBase):
                     """
                     SELECT id, email, password_hash, name, brand_name, brand_url,
                            brief_prompt_override, writer_prompt_override,
+                           orchestrator_personality_id, brief_personality_id, writer_personality_id,
+                           custom_orchestrator_personality, custom_brief_personality, custom_writer_personality,
                            google_docs_connected, google_sheets_connected, created_at
                     FROM users WHERE email = %s
                     """,
@@ -728,6 +782,8 @@ class PostgresStore(StoreBase):
                     SELECT u.id, u.email, u.created_at, s.expires_at
                          , u.name, u.brand_name, u.brand_url
                          , u.brief_prompt_override, u.writer_prompt_override
+                         , u.orchestrator_personality_id, u.brief_personality_id, u.writer_personality_id
+                         , u.custom_orchestrator_personality, u.custom_brief_personality, u.custom_writer_personality
                          , u.google_docs_connected, u.google_sheets_connected
                     FROM sessions s
                     JOIN users u ON u.id = s.user_id
@@ -756,6 +812,8 @@ class PostgresStore(StoreBase):
                     """
                     SELECT id, email, name, brand_name, brand_url,
                            brief_prompt_override, writer_prompt_override,
+                           orchestrator_personality_id, brief_personality_id, writer_personality_id,
+                           custom_orchestrator_personality, custom_brief_personality, custom_writer_personality,
                            google_docs_connected, google_sheets_connected, created_at
                     FROM users WHERE id = %s
                     """,
@@ -765,7 +823,19 @@ class PostgresStore(StoreBase):
         return self._row_to_user_settings(row) if row else None
 
     def update_user_settings(self, user_id: str, **kwargs: Any) -> Optional[UserSettings]:
-        allowed = {"name", "brand_name", "brand_url", "brief_prompt_override", "writer_prompt_override"}
+        allowed = {
+            "name",
+            "brand_name",
+            "brand_url",
+            "brief_prompt_override",
+            "writer_prompt_override",
+            "orchestrator_personality_id",
+            "brief_personality_id",
+            "writer_personality_id",
+            "custom_orchestrator_personality",
+            "custom_brief_personality",
+            "custom_writer_personality",
+        }
         updates = dict((k, v) for (k, v) in kwargs.items() if k in allowed)
         if not updates:
             return self.get_user_settings(user_id)

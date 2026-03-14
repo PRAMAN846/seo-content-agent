@@ -1396,16 +1396,59 @@
             </section>
 
             <section class="section card">
+              <h2>Agent Personalities</h2>
+              <p class="desc">Choose how each agent should think and behave. These presets change planning style, structure, and output emphasis without replacing your prompt overrides.</p>
+              <div class="field-grid">
+                <div class="wide">
+                  <label for="settingsWorkspacePersonality">AI Workspace Personality</label>
+                  <select id="settingsWorkspacePersonality"></select>
+                  <p id="settingsWorkspacePersonalityHelp" class="helper">Used by the conversational orchestrator.</p>
+                </div>
+
+                <div class="wide">
+                  <label for="settingsWorkspacePersonalityCustom">Custom AI Workspace Personality Notes</label>
+                  <textarea id="settingsWorkspacePersonalityCustom" placeholder="Add custom behavior for the AI Workspace"></textarea>
+                </div>
+
+                <div class="wide">
+                  <label for="settingsBriefPersonality">Content Brief Personality</label>
+                  <select id="settingsBriefPersonality"></select>
+                  <p id="settingsBriefPersonalityHelp" class="helper">Used when generating competitor analysis and the editable content brief.</p>
+                </div>
+
+                <div class="wide">
+                  <label for="settingsBriefPersonalityCustom">Custom Brief Personality Notes</label>
+                  <textarea id="settingsBriefPersonalityCustom" placeholder="Add custom behavior for the Content Brief Agent"></textarea>
+                </div>
+
+                <div class="wide">
+                  <label for="settingsWriterPersonality">Content Writer Personality</label>
+                  <select id="settingsWriterPersonality"></select>
+                  <p id="settingsWriterPersonalityHelp" class="helper">Used when writing the long-form article.</p>
+                </div>
+
+                <div class="wide">
+                  <label for="settingsWriterPersonalityCustom">Custom Writer Personality Notes</label>
+                  <textarea id="settingsWriterPersonalityCustom" placeholder="Add custom behavior for the Content Writing Agent"></textarea>
+                </div>
+              </div>
+            </section>
+
+            <section class="section card">
               <h2>How Settings Are Used</h2>
               <p class="desc">Saved profile and prompt settings are automatically applied in both agents.</p>
               <div class="stack">
                 <details open>
                   <summary>Content Brief Agent</summary>
-                  <pre class="mono">Uses brand name, brand URL, and custom brief prompt override while generating the editable content brief.</pre>
+                  <pre class="mono">Uses brand profile, selected brief personality, custom brief personality notes, and custom brief prompt override while generating the editable content brief.</pre>
                 </details>
                 <details>
                   <summary>Content Writing Agent</summary>
-                  <pre class="mono">Uses brand name, brand URL, and custom writer prompt override while generating article drafts from a brief.</pre>
+                  <pre class="mono">Uses brand profile, selected writer personality, custom writer personality notes, and custom writer prompt override while generating article drafts from a brief.</pre>
+                </details>
+                <details>
+                  <summary>AI Workspace</summary>
+                  <pre class="mono">Uses the selected AI Workspace personality and custom workspace personality notes while deciding whether to create a brief, write content directly, or route through a saved brief.</pre>
                 </details>
               </div>
             </section>
@@ -1424,6 +1467,12 @@
         activeTab: "home",
         currentUser: null,
         currentSettings: null,
+        personalities: {
+          workspace: [],
+          brief: [],
+          writer: [],
+          reviewer: [],
+        },
         selectedTopics: [],
         workspaceMessages: [],
         workspaceArtifact: null,
@@ -1522,6 +1571,15 @@
         settingsBrandUrl: document.getElementById("settingsBrandUrl"),
         settingsBriefPrompt: document.getElementById("settingsBriefPrompt"),
         settingsWriterPrompt: document.getElementById("settingsWriterPrompt"),
+        settingsWorkspacePersonality: document.getElementById("settingsWorkspacePersonality"),
+        settingsWorkspacePersonalityHelp: document.getElementById("settingsWorkspacePersonalityHelp"),
+        settingsWorkspacePersonalityCustom: document.getElementById("settingsWorkspacePersonalityCustom"),
+        settingsBriefPersonality: document.getElementById("settingsBriefPersonality"),
+        settingsBriefPersonalityHelp: document.getElementById("settingsBriefPersonalityHelp"),
+        settingsBriefPersonalityCustom: document.getElementById("settingsBriefPersonalityCustom"),
+        settingsWriterPersonality: document.getElementById("settingsWriterPersonality"),
+        settingsWriterPersonalityHelp: document.getElementById("settingsWriterPersonalityHelp"),
+        settingsWriterPersonalityCustom: document.getElementById("settingsWriterPersonalityCustom"),
         saveSettingsBtn: document.getElementById("saveSettingsBtn"),
         settingsSavedMsg: document.getElementById("settingsSavedMsg"),
         googleDocsStatus: document.getElementById("googleDocsStatus"),
@@ -1954,9 +2012,49 @@
         els.settingsBrandUrl.value = settings.brand_url || "";
         els.settingsBriefPrompt.value = settings.brief_prompt_override || "";
         els.settingsWriterPrompt.value = settings.writer_prompt_override || "";
+        els.settingsWorkspacePersonality.value = settings.orchestrator_personality_id || "strategist";
+        els.settingsBriefPersonality.value = settings.brief_personality_id || "seo_strategist";
+        els.settingsWriterPersonality.value = settings.writer_personality_id || "seo_writer";
+        els.settingsWorkspacePersonalityCustom.value = settings.custom_orchestrator_personality || "";
+        els.settingsBriefPersonalityCustom.value = settings.custom_brief_personality || "";
+        els.settingsWriterPersonalityCustom.value = settings.custom_writer_personality || "";
         els.googleDocsStatus.textContent = settings.google_docs_connected ? "Connected" : "Not connected";
         els.googleSheetsStatus.textContent = settings.google_sheets_connected ? "Connected" : "Not connected";
+        updatePersonalityHelp("workspace", els.settingsWorkspacePersonality.value);
+        updatePersonalityHelp("brief", els.settingsBriefPersonality.value);
+        updatePersonalityHelp("writer", els.settingsWriterPersonality.value);
         renderProfile();
+      }
+
+      function renderPersonalityOptions() {
+        const renderSelect = (selectEl, presets, fallbackId) => {
+          selectEl.innerHTML = presets.length
+            ? presets.map((preset) => `<option value="${preset.id}">${preset.name}</option>`).join("")
+            : `<option value="${fallbackId}">${fallbackId}</option>`;
+        };
+
+        renderSelect(els.settingsWorkspacePersonality, state.personalities.workspace || [], "strategist");
+        renderSelect(els.settingsBriefPersonality, state.personalities.brief || [], "seo_strategist");
+        renderSelect(els.settingsWriterPersonality, state.personalities.writer || [], "seo_writer");
+
+        if (state.currentSettings) {
+          renderSettings(state.currentSettings);
+        }
+      }
+
+      function updatePersonalityHelp(agentType, presetId) {
+        const helpMap = {
+          workspace: els.settingsWorkspacePersonalityHelp,
+          brief: els.settingsBriefPersonalityHelp,
+          writer: els.settingsWriterPersonalityHelp,
+        };
+        const helpEl = helpMap[agentType];
+        if (!helpEl) return;
+        const presets = state.personalities[agentType] || [];
+        const selected = presets.find((preset) => preset.id === presetId);
+        helpEl.textContent = selected
+          ? `${selected.description} Role: ${selected.role}. Goal: ${selected.primary_goal}.`
+          : "Preset description unavailable.";
       }
 
       function humanIntent(intent) {
@@ -2023,6 +2121,16 @@
         }
         const settings = await res.json();
         renderSettings(settings);
+      }
+
+      async function loadPersonalities() {
+        const res = await fetch("/api/personalities", { credentials: "same-origin" });
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        state.personalities = await res.json();
+        renderPersonalityOptions();
       }
 
       async function loadBriefs() {
@@ -2241,6 +2349,15 @@
       });
 
       els.articleMode.addEventListener("change", updateWriterModeUI);
+      els.settingsWorkspacePersonality.addEventListener("change", () => {
+        updatePersonalityHelp("workspace", els.settingsWorkspacePersonality.value);
+      });
+      els.settingsBriefPersonality.addEventListener("change", () => {
+        updatePersonalityHelp("brief", els.settingsBriefPersonality.value);
+      });
+      els.settingsWriterPersonality.addEventListener("change", () => {
+        updatePersonalityHelp("writer", els.settingsWriterPersonality.value);
+      });
 
       els.generateBriefBtn.addEventListener("click", async () => {
         const query = els.briefQuery.value.trim();
@@ -2402,6 +2519,12 @@
             brand_url: els.settingsBrandUrl.value,
             brief_prompt_override: els.settingsBriefPrompt.value,
             writer_prompt_override: els.settingsWriterPrompt.value,
+            orchestrator_personality_id: els.settingsWorkspacePersonality.value,
+            brief_personality_id: els.settingsBriefPersonality.value,
+            writer_personality_id: els.settingsWriterPersonality.value,
+            custom_orchestrator_personality: els.settingsWorkspacePersonalityCustom.value,
+            custom_brief_personality: els.settingsBriefPersonalityCustom.value,
+            custom_writer_personality: els.settingsWriterPersonalityCustom.value,
           }),
         });
         els.saveSettingsBtn.disabled = false;
@@ -2424,7 +2547,7 @@
 
       (async function init() {
         await loadCurrentUser();
-        await Promise.all([loadBriefs(), loadArticles(), loadSettings()]);
+        await Promise.all([loadBriefs(), loadArticles(), loadPersonalities(), loadSettings()]);
         updateWriterModeUI();
         renderWorkspace();
         setActiveTab("home");

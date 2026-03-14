@@ -3,6 +3,7 @@ from __future__ import annotations
 from app.core.config import settings
 from app.models.schemas import ArticleSummary
 from app.services.llm_client import llm_client
+from app.services.personalities import build_personality_prompt
 
 BRIEF_INSTRUCTION = (
     "You are an SEO brief strategist. Create an editable markdown content brief using the competitor analysis and source summaries. "
@@ -20,7 +21,7 @@ FALLBACK_BRIEF_INSTRUCTION = (
 
 
 def build_brief(query: str, summaries: list[ArticleSummary], seo_analysis: str) -> str:
-    return build_brief_with_customization(query, summaries, seo_analysis, "", "", "")
+    return build_brief_with_customization(query, summaries, seo_analysis, "", "", "", "seo_strategist", "")
 
 
 def build_brief_with_customization(
@@ -30,9 +31,14 @@ def build_brief_with_customization(
     brand_name: str,
     brand_url: str,
     prompt_override: str,
+    personality_id: str,
+    custom_personality: str,
 ) -> str:
     joined = "\n\n".join("Source: {}\n{}".format(summary.url, summary.summary) for summary in summaries)
     extra = []
+    personality_prompt = build_personality_prompt("brief", personality_id, custom_personality)
+    if personality_prompt:
+        extra.append("Brief personality:\n{}".format(personality_prompt))
     if brand_name:
         extra.append("Brand name: {}".format(brand_name))
     if brand_url:
@@ -52,7 +58,7 @@ def build_brief_with_customization(
 
 
 def build_brief_from_query(query: str) -> str:
-    return build_brief_from_query_with_customization(query, "", "", "")
+    return build_brief_from_query_with_customization(query, "", "", "", "seo_strategist", "")
 
 
 def build_brief_from_query_with_customization(
@@ -60,8 +66,13 @@ def build_brief_from_query_with_customization(
     brand_name: str,
     brand_url: str,
     prompt_override: str,
+    personality_id: str,
+    custom_personality: str,
 ) -> str:
     extra = []
+    personality_prompt = build_personality_prompt("brief", personality_id, custom_personality)
+    if personality_prompt:
+        extra.append("Brief personality:\n{}".format(personality_prompt))
     if brand_name:
         extra.append("Brand name: {}".format(brand_name))
     if brand_url:

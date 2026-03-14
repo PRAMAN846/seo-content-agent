@@ -25,6 +25,8 @@ async def process_brief(
         brand_name = user_settings.brand_name if user_settings else ""
         brand_url = user_settings.brand_url if user_settings else ""
         prompt_override = user_settings.brief_prompt_override if user_settings else ""
+        personality_id = user_settings.brief_personality_id if user_settings else "seo_strategist"
+        custom_personality = user_settings.custom_brief_personality if user_settings else ""
 
         try:
             top_urls, extracted, summaries, seo_analysis = await build_source_analysis(
@@ -41,6 +43,8 @@ async def process_brief(
                 brand_name,
                 brand_url,
                 prompt_override,
+                personality_id,
+                custom_personality,
             )
         except ValueError:
             top_urls, extracted, summaries = [], [], []
@@ -51,6 +55,8 @@ async def process_brief(
                 brand_name,
                 brand_url,
                 prompt_override,
+                personality_id,
+                custom_personality,
             )
 
         artifacts = BriefArtifacts(

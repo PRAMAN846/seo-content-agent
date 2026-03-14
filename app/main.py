@@ -10,6 +10,7 @@ from app.api.routes_auth import router as auth_router
 from app.api.routes_articles import router as articles_router
 from app.api.routes_briefs import router as briefs_router
 from app.api.routes_library import router as library_router
+from app.api.routes_personalities import router as personalities_router
 from app.api.routes_runs import router as runs_router
 from app.api.routes_settings import router as settings_router
 from app.api.routes_workspace import router as workspace_router
@@ -22,6 +23,7 @@ app.include_router(auth_router)
 app.include_router(briefs_router)
 app.include_router(articles_router)
 app.include_router(library_router)
+app.include_router(personalities_router)
 app.include_router(settings_router)
 app.include_router(workspace_router)
 

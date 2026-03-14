@@ -29,6 +29,12 @@ def update_settings(
         brand_url=payload.brand_url.strip(),
         brief_prompt_override=payload.brief_prompt_override.strip(),
         writer_prompt_override=payload.writer_prompt_override.strip(),
+        orchestrator_personality_id=payload.orchestrator_personality_id.strip(),
+        brief_personality_id=payload.brief_personality_id.strip(),
+        writer_personality_id=payload.writer_personality_id.strip(),
+        custom_orchestrator_personality=payload.custom_orchestrator_personality.strip(),
+        custom_brief_personality=payload.custom_brief_personality.strip(),
+        custom_writer_personality=payload.custom_writer_personality.strip(),
     )
     if not updated:
         raise HTTPException(status_code=500, detail="Unable to update settings")
