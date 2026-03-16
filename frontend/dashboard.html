@@ -824,6 +824,147 @@
         gap: 16px;
       }
 
+      .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+      }
+
+      .project-card {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 18px;
+        background: linear-gradient(180deg, #ffffff, #f6f8fc);
+      }
+
+      .project-card h3 {
+        margin: 0 0 8px;
+        font-family: "Sora", sans-serif;
+        font-size: 18px;
+      }
+
+      .project-card p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .project-hero {
+        min-width: min(320px, 100%);
+        max-width: 360px;
+      }
+
+      .project-kicker {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        border-radius: 999px;
+        background: #eef3fb;
+        color: #34425d;
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 10px;
+      }
+
+      .project-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin: 14px 0;
+      }
+
+      .project-meta-grid strong,
+      .project-meta-grid span {
+        display: block;
+      }
+
+      .project-meta-grid strong {
+        font-size: 16px;
+      }
+
+      .project-meta-grid span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .project-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .project-empty {
+        border: 1px dashed var(--line);
+        border-radius: 18px;
+        padding: 22px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(246, 248, 252, 0.95));
+        color: var(--muted);
+      }
+
+      .workspace-header {
+        display: grid;
+        gap: 16px;
+      }
+
+      .workspace-head-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .subnav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .subnav-btn {
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: #1d2738;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .subnav-btn.active {
+        background: linear-gradient(140deg, #232c3d, #0d1016);
+        color: #ffffff;
+        border-color: transparent;
+      }
+
+      .date-range {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        align-items: end;
+        min-width: min(440px, 100%);
+      }
+
+      .date-range-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+
+      .visibility-panel {
+        display: none;
+        gap: 16px;
+      }
+
+      .visibility-panel.active {
+        display: grid;
+      }
+
       .tracker-tree,
       .metric-list,
       .mini-list {
@@ -1006,6 +1147,15 @@
 
         .tracker-split {
           grid-template-columns: 1fr;
+        }
+
+        .date-range {
+          grid-template-columns: 1fr;
+          min-width: 100%;
+        }
+
+        .project-meta-grid {
+          grid-template-columns: 1fr 1fr;
         }
       }
 
@@ -1490,121 +1640,203 @@
         </section>
 
         <section id="visibilityView" class="view">
-          <div class="summary-grid">
-            <article class="summary-card card">
-              <strong id="visibilityTopicsCount">0</strong>
-              <span>Tracker topics configured</span>
-            </article>
-            <article class="summary-card card">
-              <strong id="visibilityListsCount">0</strong>
-              <span>Prompt lists available to run</span>
-            </article>
-            <article class="summary-card card">
-              <strong id="visibilityPromptsCount">0</strong>
-              <span>Total prompts stored</span>
-            </article>
-            <article class="summary-card card">
-              <strong id="visibilityRunsCount">0</strong>
-              <span>Prompt snapshots captured</span>
-            </article>
-          </div>
-
-          <div class="tracker-split">
+          <div id="visibilityProjectsScreen" class="stack">
             <section class="section card stack">
-              <div>
-                <h2>Tracker Profile</h2>
-                <p class="desc">Set the tracked brand and the default run cadence used when creating new prompt lists.</p>
-                <div class="field-grid">
-                  <div>
-                    <label for="visibilityBrandName">Tracked Brand Name</label>
-                    <input id="visibilityBrandName" placeholder="Xpaan Digital" />
-                  </div>
-                  <div>
-                    <label for="visibilityDefaultSchedule">Default Schedule</label>
-                    <select id="visibilityDefaultSchedule">
-                      <option value="disabled">Manual only</option>
-                      <option value="weekly">Weekly</option>
-                      <option value="twice_monthly">Twice Monthly</option>
-                      <option value="monthly">Monthly</option>
-                    </select>
-                  </div>
-                  <div class="wide">
-                    <label for="visibilityBrandUrl">Tracked Brand URL</label>
-                    <input id="visibilityBrandUrl" placeholder="https://yourbrand.com" />
-                  </div>
+              <div class="workspace-head-top">
+                <div>
+                  <h2>Visibility Projects</h2>
+                  <p class="desc">Create one project per brand or client, then open it to manage prompts, runs, and reports.</p>
                 </div>
-                <div class="row-actions">
-                  <button id="saveVisibilityProfileBtn" class="btn primary" type="button">Save Tracker Profile</button>
+                <div class="tracker-block project-hero">
+                  <span class="project-kicker">Workspace-ready structure</span>
+                  <strong id="visibilityProjectsSummary">0 projects</strong>
+                  <span>Projects keep brand setup, competitors, prompt hierarchies, dated runs, and reports separated cleanly.</span>
                 </div>
-                <p id="visibilityProfileMsg" class="helper"></p>
-              </div>
-
-              <div>
-                <h2>Competitors</h2>
-                <p class="desc">Add competitor brands and domains to compare presence and citations in reports.</p>
-                <div class="field-grid">
-                  <div>
-                    <label for="visibilityCompetitorName">Competitor Name</label>
-                    <input id="visibilityCompetitorName" placeholder="Competitor brand" />
-                  </div>
-                  <div>
-                    <label for="visibilityCompetitorDomain">Competitor Domain</label>
-                    <input id="visibilityCompetitorDomain" placeholder="competitor.com" />
-                  </div>
-                </div>
-                <div class="row-actions">
-                  <button id="addVisibilityCompetitorBtn" class="btn" type="button">Add Competitor</button>
-                </div>
-                <div id="visibilityCompetitorsList" class="mini-list"></div>
               </div>
             </section>
 
-            <section class="section card stack">
-              <div>
-                <h2>Hierarchy Builder</h2>
-                <p class="desc">Create a topic, break it into subtopics, then add prompt lists and prompts beneath each list.</p>
-                <div class="tracker-tree">
-                  <div class="tracker-block">
-                    <h3>Topic</h3>
-                    <p>Create your top-level theme.</p>
-                    <label for="visibilityTopicName">Topic Name</label>
-                    <input id="visibilityTopicName" placeholder="AI brand visibility" />
-                    <div class="row-actions">
-                      <button id="addVisibilityTopicBtn" class="btn" type="button">Add Topic</button>
-                      <button id="deleteVisibilityTopicBtn" class="btn" type="button">Delete Selected Topic</button>
+            <div class="tracker-split">
+              <section class="section card stack">
+                <div>
+                  <h2>All Projects</h2>
+                  <p class="desc">Open a project to work inside the tracker, or jump directly into that project's settings.</p>
+                </div>
+                <div id="visibilityProjectsGrid" class="project-grid"></div>
+              </section>
+
+              <section class="section card stack">
+                <div>
+                  <h2>Add New Project</h2>
+                  <p class="desc">Start with the client or brand name, then keep prompts, competitors, and reports inside that project.</p>
+                  <div class="field-grid">
+                    <div>
+                      <label for="visibilityProjectName">Project Name</label>
+                      <input id="visibilityProjectName" placeholder="Xpaan Digital / Core Brand" />
+                    </div>
+                    <div>
+                      <label for="visibilityProjectDefaultSchedule">Default Schedule</label>
+                      <select id="visibilityProjectDefaultSchedule">
+                        <option value="disabled">Manual only</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="twice_monthly">Twice Monthly</option>
+                        <option value="monthly">Monthly</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="visibilityProjectBrandName">Tracked Brand Name</label>
+                      <input id="visibilityProjectBrandName" placeholder="Xpaan Digital" />
+                    </div>
+                    <div>
+                      <label for="visibilityProjectBrandUrl">Tracked Brand URL</label>
+                      <input id="visibilityProjectBrandUrl" placeholder="https://yourbrand.com" />
                     </div>
                   </div>
+                </div>
+                <div class="row-actions">
+                  <button id="addVisibilityProjectBtn" class="btn primary" type="button">Create Project</button>
+                </div>
+                <p id="visibilityProjectCreateMsg" class="helper"></p>
+              </section>
+            </div>
+          </div>
+
+          <div id="visibilityWorkspaceScreen" class="stack hidden-mode">
+            <section class="section card workspace-header">
+              <div class="workspace-head-top">
+                <div>
+                  <div class="row-actions" style="margin: 0 0 10px;">
+                    <button id="visibilityProjectBackBtn" class="btn" type="button">Back to Projects</button>
+                  </div>
+                  <h2 id="visibilityWorkspaceProjectName">Select a project</h2>
+                  <p id="visibilityWorkspaceProjectMeta" class="desc">Choose a project to view prompt runs, reports, and settings.</p>
+                </div>
+                <div class="date-range">
+                  <div>
+                    <label for="visibilityDateStart">From Date</label>
+                    <input id="visibilityDateStart" type="date" />
+                  </div>
+                  <div>
+                    <label for="visibilityDateEnd">To Date</label>
+                    <input id="visibilityDateEnd" type="date" />
+                  </div>
+                  <div class="date-range-actions">
+                    <button id="applyVisibilityDateBtn" class="btn" type="button">Apply Dates</button>
+                    <button id="clearVisibilityDateBtn" class="btn" type="button">Clear</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subnav">
+                <button id="visibilityNavOverview" class="subnav-btn active" type="button" data-visibility-panel-btn="overview">Overview</button>
+                <button id="visibilityNavLibrary" class="subnav-btn" type="button" data-visibility-panel-btn="library">Prompt Library</button>
+                <button id="visibilityNavRuns" class="subnav-btn" type="button" data-visibility-panel-btn="runs">Runs</button>
+                <button id="visibilityNavReports" class="subnav-btn" type="button" data-visibility-panel-btn="reports">Reports</button>
+                <button id="visibilityNavSettings" class="subnav-btn" type="button" data-visibility-panel-btn="settings">Settings</button>
+              </div>
+            </section>
+
+            <section id="visibilityOverviewPanel" class="visibility-panel active">
+              <div class="summary-grid">
+                <article class="summary-card card">
+                  <strong id="visibilityTopicsCount">0</strong>
+                  <span>Tracker topics configured</span>
+                </article>
+                <article class="summary-card card">
+                  <strong id="visibilityListsCount">0</strong>
+                  <span>Prompt lists available to run</span>
+                </article>
+                <article class="summary-card card">
+                  <strong id="visibilityPromptsCount">0</strong>
+                  <span>Total prompts stored</span>
+                </article>
+                <article class="summary-card card">
+                  <strong id="visibilityRunsCount">0</strong>
+                  <span>Prompt snapshots captured</span>
+                </article>
+              </div>
+
+              <div class="tracker-split">
+                <section class="section card stack">
                   <div class="tracker-block">
-                    <h3>Subtopic</h3>
-                    <p>Attach a subtopic to the selected topic.</p>
-                    <label for="visibilityTopicSelect">Choose Topic</label>
-                    <select id="visibilityTopicSelect"></select>
-                    <label for="visibilitySubtopicName" style="margin-top: 12px;">Subtopic Name</label>
-                    <input id="visibilitySubtopicName" placeholder="Enterprise SEO tools" />
-                    <div class="row-actions">
-                      <button id="addVisibilitySubtopicBtn" class="btn" type="button">Add Subtopic</button>
-                      <button id="deleteVisibilitySubtopicBtn" class="btn" type="button">Delete Selected Subtopic</button>
-                    </div>
+                    <h3>Brand Presence Snapshot</h3>
+                    <p>Current share of voice for the selected date window.</p>
+                    <div id="visibilityOverviewBrandPresence" class="metric-list"></div>
                   </div>
                   <div class="tracker-block">
-                    <h3>Prompt List</h3>
-                    <p>Create a saved list that can be run manually or on the configured schedule.</p>
-                    <label for="visibilitySubtopicSelect">Choose Subtopic</label>
-                    <select id="visibilitySubtopicSelect"></select>
-                    <label for="visibilityPromptListName" style="margin-top: 12px;">Prompt List Name</label>
-                    <input id="visibilityPromptListName" placeholder="Commercial comparison prompts" />
-                    <label for="visibilityPromptListSchedule" style="margin-top: 12px;">List Schedule</label>
-                    <select id="visibilityPromptListSchedule">
-                      <option value="disabled">Manual only</option>
-                      <option value="weekly">Weekly</option>
-                      <option value="twice_monthly">Twice Monthly</option>
-                      <option value="monthly">Monthly</option>
-                    </select>
-                    <div class="row-actions">
-                      <button id="addVisibilityPromptListBtn" class="btn" type="button">Add Prompt List</button>
-                      <button id="deleteVisibilityPromptListBtn" class="btn" type="button">Delete Selected List</button>
+                    <h3>Daily Activity</h3>
+                    <p>Prompt-run volume over time.</p>
+                    <div id="visibilityOverviewDailyMetrics" class="trend-chart"></div>
+                  </div>
+                </section>
+
+                <section class="section card stack">
+                  <div class="tracker-block">
+                    <h3>Top Cited Domains</h3>
+                    <p>Most referenced domains in this project and date range.</p>
+                    <div id="visibilityOverviewTopDomains" class="metric-list"></div>
+                  </div>
+                  <div>
+                    <h2>Recent Jobs</h2>
+                    <p class="desc">Recent list runs for this project.</p>
+                    <div id="visibilityOverviewJobsList" class="mini-list"></div>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+            <section id="visibilityLibraryPanel" class="visibility-panel">
+              <div class="tracker-split">
+                <section class="section card stack">
+                  <div>
+                    <h2>Hierarchy Builder</h2>
+                    <p class="desc">Create topics, subtopics, prompt lists, and prompts inside this project.</p>
+                  </div>
+                  <div class="tracker-tree">
+                    <div class="tracker-block">
+                      <h3>Topic</h3>
+                      <p>Create the top-level reporting bucket.</p>
+                      <label for="visibilityTopicName">Topic Name</label>
+                      <input id="visibilityTopicName" placeholder="AI brand visibility" />
+                      <div class="row-actions">
+                        <button id="addVisibilityTopicBtn" class="btn" type="button">Add Topic</button>
+                        <button id="deleteVisibilityTopicBtn" class="btn" type="button">Delete Selected Topic</button>
+                      </div>
+                    </div>
+                    <div class="tracker-block">
+                      <h3>Subtopic</h3>
+                      <p>Attach a subtopic to the selected topic.</p>
+                      <label for="visibilityTopicSelect">Choose Topic</label>
+                      <select id="visibilityTopicSelect"></select>
+                      <label for="visibilitySubtopicName" style="margin-top: 12px;">Subtopic Name</label>
+                      <input id="visibilitySubtopicName" placeholder="Enterprise SEO tools" />
+                      <div class="row-actions">
+                        <button id="addVisibilitySubtopicBtn" class="btn" type="button">Add Subtopic</button>
+                        <button id="deleteVisibilitySubtopicBtn" class="btn" type="button">Delete Selected Subtopic</button>
+                      </div>
+                    </div>
+                    <div class="tracker-block">
+                      <h3>Prompt List</h3>
+                      <p>Create a saved list that can be run manually or on the configured schedule.</p>
+                      <label for="visibilitySubtopicSelect">Choose Subtopic</label>
+                      <select id="visibilitySubtopicSelect"></select>
+                      <label for="visibilityPromptListName" style="margin-top: 12px;">Prompt List Name</label>
+                      <input id="visibilityPromptListName" placeholder="Commercial comparison prompts" />
+                      <label for="visibilityPromptListSchedule" style="margin-top: 12px;">List Schedule</label>
+                      <select id="visibilityPromptListSchedule">
+                        <option value="disabled">Manual only</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="twice_monthly">Twice Monthly</option>
+                        <option value="monthly">Monthly</option>
+                      </select>
+                      <div class="row-actions">
+                        <button id="addVisibilityPromptListBtn" class="btn" type="button">Add Prompt List</button>
+                        <button id="deleteVisibilityPromptListBtn" class="btn" type="button">Delete Selected List</button>
+                      </div>
                     </div>
                   </div>
+                </section>
+
+                <section class="section card stack">
                   <div class="tracker-block">
                     <h3>Prompts</h3>
                     <p>Add one prompt per line to the selected prompt list, then run that list.</p>
@@ -1617,74 +1849,144 @@ What AI visibility tracking tools are cited most often?"></textarea>
                       <button id="addVisibilityPromptsBtn" class="btn" type="button">Save Prompts</button>
                       <button id="runVisibilityPromptListBtn" class="btn primary" type="button">Run Selected List</button>
                     </div>
-                    <div id="visibilityPromptPreviewList" class="mini-list" style="margin-top: 12px;"></div>
                     <p id="visibilityRunMsg" class="helper">Each run stores a dated snapshot per prompt. Query fanout is not captured in this MVP.</p>
                   </div>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <div class="tracker-split">
-            <section class="section card stack">
-              <div>
-                <div class="row-actions" style="margin-top: 0; justify-content: space-between;">
                   <div>
-                    <h2 style="margin-bottom: 6px;">Reports</h2>
-                    <p class="desc" style="margin-bottom: 0;">Switch scope between all prompts, a topic, a subtopic, or a prompt list.</p>
+                    <h2>Selected Prompt List</h2>
+                    <p class="desc">Review and clean up prompts before running the list.</p>
+                    <div id="visibilityPromptPreviewList" class="mini-list"></div>
                   </div>
-                  <button id="refreshVisibilityReportBtn" class="btn" type="button">Refresh Report</button>
-                </div>
-                <div class="field-grid" style="margin-top: 14px;">
-                  <div>
-                    <label for="visibilityReportLevel">Report Level</label>
-                    <select id="visibilityReportLevel">
-                      <option value="all">All Data</option>
-                      <option value="topic">Topic</option>
-                      <option value="subtopic">Subtopic</option>
-                      <option value="prompt_list">Prompt List</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label for="visibilityReportEntity">Scope</label>
-                    <select id="visibilityReportEntity"></select>
-                  </div>
-                </div>
-              </div>
-              <div class="tracker-block">
-                <h3 id="visibilityReportTitle">All tracked prompts</h3>
-                <p id="visibilityReportMeta">No report loaded yet.</p>
-                <div id="visibilityBrandPresence" class="metric-list"></div>
-              </div>
-              <div class="tracker-block">
-                <h3>Top Cited Domains</h3>
-                <div id="visibilityTopDomains" class="metric-list"></div>
-              </div>
-              <div class="tracker-block">
-                <h3>Top Cited URLs</h3>
-                <div id="visibilityTopUrls" class="metric-list"></div>
-              </div>
-              <div class="tracker-block">
-                <h3>Daily Activity</h3>
-                <div id="visibilityDailyMetrics" class="trend-chart"></div>
-              </div>
-              <div class="tracker-block">
-                <h3 id="visibilityDrilldownTitle">Citation Drill-down</h3>
-                <p id="visibilityDrilldownMeta">Click a domain or URL above to see which prompt snapshots produced it.</p>
-                <div id="visibilityDrilldownPrompts" class="mini-list"></div>
+                </section>
               </div>
             </section>
 
-            <section class="section card stack">
-              <div>
-                <h2>Recent Jobs</h2>
-                <p class="desc">Each list run becomes a job with per-prompt snapshots stored under it.</p>
-                <div id="visibilityJobsList" class="mini-list"></div>
+            <section id="visibilityRunsPanel" class="visibility-panel">
+              <div class="tracker-split">
+                <section class="section card stack">
+                  <div>
+                    <h2>Recent Jobs</h2>
+                    <p class="desc">Every manual or scheduled list execution becomes a dated job record.</p>
+                    <div id="visibilityJobsList" class="mini-list"></div>
+                  </div>
+                </section>
+
+                <section class="section card stack">
+                  <div>
+                    <h2>Prompt Snapshots</h2>
+                    <p class="desc">Inspect individual prompt responses, brand mentions, citations, and timestamps.</p>
+                    <div id="visibilityRunsList" class="mini-list"></div>
+                  </div>
+                </section>
               </div>
-              <div>
-                <h2>Recent Prompt Snapshots</h2>
-                <p class="desc">Review the response, tracked brands, and citations captured for each prompt.</p>
-                <div id="visibilityRunsList" class="mini-list"></div>
+            </section>
+
+            <section id="visibilityReportsPanel" class="visibility-panel">
+              <section class="section card stack">
+                <div>
+                  <div class="row-actions" style="margin-top: 0; justify-content: space-between;">
+                    <div>
+                      <h2 style="margin-bottom: 6px;">Reports</h2>
+                      <p class="desc" style="margin-bottom: 0;">Switch scope between all prompts, a topic, a subtopic, or a prompt list.</p>
+                    </div>
+                    <button id="refreshVisibilityReportBtn" class="btn" type="button">Refresh Report</button>
+                  </div>
+                  <div class="field-grid" style="margin-top: 14px;">
+                    <div>
+                      <label for="visibilityReportLevel">Report Level</label>
+                      <select id="visibilityReportLevel">
+                        <option value="all">All Data</option>
+                        <option value="topic">Topic</option>
+                        <option value="subtopic">Subtopic</option>
+                        <option value="prompt_list">Prompt List</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="visibilityReportEntity">Scope</label>
+                      <select id="visibilityReportEntity"></select>
+                    </div>
+                  </div>
+                </div>
+                <div class="tracker-block">
+                  <h3 id="visibilityReportTitle">All tracked prompts</h3>
+                  <p id="visibilityReportMeta">No report loaded yet.</p>
+                  <div id="visibilityBrandPresence" class="metric-list"></div>
+                </div>
+                <div class="tracker-block">
+                  <h3>Top Cited Domains</h3>
+                  <div id="visibilityTopDomains" class="metric-list"></div>
+                </div>
+                <div class="tracker-block">
+                  <h3>Top Cited URLs</h3>
+                  <div id="visibilityTopUrls" class="metric-list"></div>
+                </div>
+                <div class="tracker-block">
+                  <h3>Daily Activity</h3>
+                  <div id="visibilityDailyMetrics" class="trend-chart"></div>
+                </div>
+                <div class="tracker-block">
+                  <h3 id="visibilityDrilldownTitle">Citation Drill-down</h3>
+                  <p id="visibilityDrilldownMeta">Click a domain or URL above to see which prompt snapshots produced it.</p>
+                  <div id="visibilityDrilldownPrompts" class="mini-list"></div>
+                </div>
+              </section>
+            </section>
+
+            <section id="visibilitySettingsPanel" class="visibility-panel">
+              <div class="tracker-split">
+                <section class="section card stack">
+                  <div>
+                    <h2>Project Settings</h2>
+                    <p class="desc">Store brand details and default schedule settings for this project.</p>
+                    <div class="field-grid">
+                      <div>
+                        <label for="visibilityProjectSettingsName">Project Name</label>
+                        <input id="visibilityProjectSettingsName" placeholder="Xpaan Digital / Core Brand" />
+                      </div>
+                      <div>
+                        <label for="visibilityDefaultSchedule">Default Schedule</label>
+                        <select id="visibilityDefaultSchedule">
+                          <option value="disabled">Manual only</option>
+                          <option value="weekly">Weekly</option>
+                          <option value="twice_monthly">Twice Monthly</option>
+                          <option value="monthly">Monthly</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label for="visibilityBrandName">Tracked Brand Name</label>
+                        <input id="visibilityBrandName" placeholder="Xpaan Digital" />
+                      </div>
+                      <div>
+                        <label for="visibilityBrandUrl">Tracked Brand URL</label>
+                        <input id="visibilityBrandUrl" placeholder="https://yourbrand.com" />
+                      </div>
+                    </div>
+                    <div class="row-actions">
+                      <button id="saveVisibilityProfileBtn" class="btn primary" type="button">Save Project Settings</button>
+                    </div>
+                    <p id="visibilityProfileMsg" class="helper"></p>
+                  </div>
+                </section>
+
+                <section class="section card stack">
+                  <div>
+                    <h2>Competitors</h2>
+                    <p class="desc">Add competitor brands and domains to compare presence and citations in reports.</p>
+                    <div class="field-grid">
+                      <div>
+                        <label for="visibilityCompetitorName">Competitor Name</label>
+                        <input id="visibilityCompetitorName" placeholder="Competitor brand" />
+                      </div>
+                      <div>
+                        <label for="visibilityCompetitorDomain">Competitor Domain</label>
+                        <input id="visibilityCompetitorDomain" placeholder="competitor.com" />
+                      </div>
+                    </div>
+                    <div class="row-actions">
+                      <button id="addVisibilityCompetitorBtn" class="btn" type="button">Add Competitor</button>
+                    </div>
+                    <div id="visibilityCompetitorsList" class="mini-list"></div>
+                  </div>
+                </section>
               </div>
             </section>
           </div>
@@ -1808,9 +2110,15 @@ What AI visibility tracking tools are cited most often?"></textarea>
       const state = {
         briefs: [],
         articles: [],
-        visibilityOverview: null,
+        visibilityProjects: [],
+        visibilityWorkspace: null,
         visibilityReport: null,
         visibilityDrilldown: { type: "domain", value: null },
+        visibilityProjectView: "overview",
+        visibilityReportScope: { level: "all", entityId: "all" },
+        visibilityDateStart: "",
+        visibilityDateEnd: "",
+        selectedVisibilityProjectId: null,
         selectedVisibilityTopicId: null,
         selectedVisibilitySubtopicId: null,
         selectedVisibilityPromptListId: null,
@@ -1926,10 +2234,42 @@ What AI visibility tracking tools are cited most often?"></textarea>
         articleOutput: document.getElementById("articleOutput"),
         articleExport: document.getElementById("articleExport"),
 
+        visibilityProjectsScreen: document.getElementById("visibilityProjectsScreen"),
+        visibilityWorkspaceScreen: document.getElementById("visibilityWorkspaceScreen"),
+        visibilityProjectsSummary: document.getElementById("visibilityProjectsSummary"),
+        visibilityProjectsGrid: document.getElementById("visibilityProjectsGrid"),
+        visibilityProjectName: document.getElementById("visibilityProjectName"),
+        visibilityProjectBrandName: document.getElementById("visibilityProjectBrandName"),
+        visibilityProjectBrandUrl: document.getElementById("visibilityProjectBrandUrl"),
+        visibilityProjectDefaultSchedule: document.getElementById("visibilityProjectDefaultSchedule"),
+        addVisibilityProjectBtn: document.getElementById("addVisibilityProjectBtn"),
+        visibilityProjectCreateMsg: document.getElementById("visibilityProjectCreateMsg"),
+        visibilityProjectBackBtn: document.getElementById("visibilityProjectBackBtn"),
+        visibilityWorkspaceProjectName: document.getElementById("visibilityWorkspaceProjectName"),
+        visibilityWorkspaceProjectMeta: document.getElementById("visibilityWorkspaceProjectMeta"),
+        visibilityDateStart: document.getElementById("visibilityDateStart"),
+        visibilityDateEnd: document.getElementById("visibilityDateEnd"),
+        applyVisibilityDateBtn: document.getElementById("applyVisibilityDateBtn"),
+        clearVisibilityDateBtn: document.getElementById("clearVisibilityDateBtn"),
+        visibilityNavOverview: document.getElementById("visibilityNavOverview"),
+        visibilityNavLibrary: document.getElementById("visibilityNavLibrary"),
+        visibilityNavRuns: document.getElementById("visibilityNavRuns"),
+        visibilityNavReports: document.getElementById("visibilityNavReports"),
+        visibilityNavSettings: document.getElementById("visibilityNavSettings"),
         visibilityTopicsCount: document.getElementById("visibilityTopicsCount"),
         visibilityListsCount: document.getElementById("visibilityListsCount"),
         visibilityPromptsCount: document.getElementById("visibilityPromptsCount"),
         visibilityRunsCount: document.getElementById("visibilityRunsCount"),
+        visibilityOverviewPanel: document.getElementById("visibilityOverviewPanel"),
+        visibilityLibraryPanel: document.getElementById("visibilityLibraryPanel"),
+        visibilityRunsPanel: document.getElementById("visibilityRunsPanel"),
+        visibilityReportsPanel: document.getElementById("visibilityReportsPanel"),
+        visibilitySettingsPanel: document.getElementById("visibilitySettingsPanel"),
+        visibilityOverviewBrandPresence: document.getElementById("visibilityOverviewBrandPresence"),
+        visibilityOverviewDailyMetrics: document.getElementById("visibilityOverviewDailyMetrics"),
+        visibilityOverviewTopDomains: document.getElementById("visibilityOverviewTopDomains"),
+        visibilityOverviewJobsList: document.getElementById("visibilityOverviewJobsList"),
+        visibilityProjectSettingsName: document.getElementById("visibilityProjectSettingsName"),
         visibilityBrandName: document.getElementById("visibilityBrandName"),
         visibilityBrandUrl: document.getElementById("visibilityBrandUrl"),
         visibilityDefaultSchedule: document.getElementById("visibilityDefaultSchedule"),
@@ -2457,8 +2797,29 @@ What AI visibility tracking tools are cited most often?"></textarea>
         return { topics: (topics || []).length, subtopics, lists, prompts };
       }
 
+      function visibilityDateLabel() {
+        if (state.visibilityDateStart && state.visibilityDateEnd) return `${state.visibilityDateStart} to ${state.visibilityDateEnd}`;
+        if (state.visibilityDateStart) return `From ${state.visibilityDateStart}`;
+        if (state.visibilityDateEnd) return `Through ${state.visibilityDateEnd}`;
+        return "All time";
+      }
+
+      function visibilityDateParams() {
+        const params = new URLSearchParams();
+        if (state.visibilityDateStart) params.set("start_date", state.visibilityDateStart);
+        if (state.visibilityDateEnd) params.set("end_date", state.visibilityDateEnd);
+        return params;
+      }
+
+      function activeVisibilityProject() {
+        if (state.visibilityWorkspace && state.visibilityWorkspace.project && state.visibilityWorkspace.project.id === state.selectedVisibilityProjectId) {
+          return state.visibilityWorkspace.project;
+        }
+        return state.visibilityProjects.find((project) => project.id === state.selectedVisibilityProjectId) || null;
+      }
+
       function ensureVisibilitySelections() {
-        const topics = state.visibilityOverview ? state.visibilityOverview.topics || [] : [];
+        const topics = state.visibilityWorkspace ? state.visibilityWorkspace.topics || [] : [];
         if (!topics.length) {
           state.selectedVisibilityTopicId = null;
           state.selectedVisibilitySubtopicId = null;
@@ -2490,8 +2851,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
       }
 
       function selectedVisibilityTopic() {
-        return state.visibilityOverview
-          ? (state.visibilityOverview.topics || []).find((topic) => topic.id === state.selectedVisibilityTopicId) || null
+        return state.visibilityWorkspace
+          ? (state.visibilityWorkspace.topics || []).find((topic) => topic.id === state.selectedVisibilityTopicId) || null
           : null;
       }
 
@@ -2532,29 +2893,125 @@ What AI visibility tracking tools are cited most often?"></textarea>
         return current || list[0];
       }
 
+      function renderVisibilityProjects() {
+        els.visibilityProjectsSummary.textContent = `${state.visibilityProjects.length} project${state.visibilityProjects.length === 1 ? "" : "s"}`;
+        els.visibilityProjectsGrid.innerHTML = "";
+
+        if (!state.visibilityProjects.length) {
+          els.visibilityProjectsGrid.innerHTML = `
+            <div class="project-empty">
+              <strong>No visibility projects yet.</strong>
+              <p>Create your first project to start tracking prompts, runs, citations, and competitor presence.</p>
+            </div>
+          `;
+          return;
+        }
+
+        state.visibilityProjects.forEach((project) => {
+          const card = document.createElement("article");
+          card.className = "project-card";
+          card.innerHTML = `
+            <span class="project-kicker">${project.default_schedule_frequency === "disabled" ? "Manual only" : project.default_schedule_frequency.replace("_", " ")}</span>
+            <h3>${project.name || project.brand_name || "Untitled Project"}</h3>
+            <p>${project.brand_name || "Brand name not set"}${project.brand_url ? ` / ${project.brand_url}` : ""}</p>
+            <div class="project-meta-grid">
+              <div>
+                <strong>${project.prompt_list_count}</strong>
+                <span>Prompt lists</span>
+              </div>
+              <div>
+                <strong>${project.run_count}</strong>
+                <span>Snapshots</span>
+              </div>
+              <div>
+                <strong>${project.topic_count}</strong>
+                <span>Topics</span>
+              </div>
+              <div>
+                <strong>${project.last_run_at ? formatDate(project.last_run_at) : "No runs yet"}</strong>
+                <span>Last run</span>
+              </div>
+            </div>
+            <div class="project-actions">
+              <button class="btn primary" type="button" data-open-visibility-project="${project.id}">Open Project</button>
+              <button class="btn" type="button" data-open-visibility-settings="${project.id}">Settings</button>
+            </div>
+          `;
+          els.visibilityProjectsGrid.appendChild(card);
+        });
+
+        els.visibilityProjectsGrid.querySelectorAll("[data-open-visibility-project]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            await openVisibilityProject(button.dataset.openVisibilityProject, "overview");
+          });
+        });
+        els.visibilityProjectsGrid.querySelectorAll("[data-open-visibility-settings]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            await openVisibilityProject(button.dataset.openVisibilitySettings, "settings");
+          });
+        });
+      }
+
       function renderVisibility() {
-        const overview = state.visibilityOverview;
-        if (!overview) return;
+        renderVisibilityProjects();
+
+        const workspaceVisible = Boolean(state.selectedVisibilityProjectId && state.visibilityWorkspace);
+        els.visibilityProjectsScreen.classList.toggle("hidden-mode", workspaceVisible);
+        els.visibilityWorkspaceScreen.classList.toggle("hidden-mode", !workspaceVisible);
+
+        if (!workspaceVisible) return;
+
+        const workspace = state.visibilityWorkspace;
+        const project = workspace.project || activeVisibilityProject();
+        if (!workspace || !project) return;
 
         ensureVisibilitySelections();
 
-        const counts = collectVisibilityCounts(overview.topics || []);
+        els.visibilityDateStart.value = state.visibilityDateStart;
+        els.visibilityDateEnd.value = state.visibilityDateEnd;
+        els.visibilityWorkspaceProjectName.textContent = project.name || project.brand_name || "Untitled Project";
+        els.visibilityWorkspaceProjectMeta.textContent = `${project.brand_name || "Brand name not set"}${project.brand_url ? ` / ${project.brand_url}` : ""} / ${visibilityDateLabel()}`;
+
+        const navButtons = {
+          overview: els.visibilityNavOverview,
+          library: els.visibilityNavLibrary,
+          runs: els.visibilityNavRuns,
+          reports: els.visibilityNavReports,
+          settings: els.visibilityNavSettings,
+        };
+        const panels = {
+          overview: els.visibilityOverviewPanel,
+          library: els.visibilityLibraryPanel,
+          runs: els.visibilityRunsPanel,
+          reports: els.visibilityReportsPanel,
+          settings: els.visibilitySettingsPanel,
+        };
+        Object.entries(navButtons).forEach(([key, button]) => {
+          button.classList.toggle("active", state.visibilityProjectView === key);
+        });
+        Object.entries(panels).forEach(([key, panel]) => {
+          panel.classList.toggle("active", state.visibilityProjectView === key);
+        });
+
+        const allReport = workspace.reports && workspace.reports.all ? workspace.reports.all : null;
+        const report = state.visibilityReport || allReport;
+        const counts = collectVisibilityCounts(workspace.topics || []);
         els.visibilityTopicsCount.textContent = String(counts.topics);
         els.visibilityListsCount.textContent = String(counts.lists);
         els.visibilityPromptsCount.textContent = String(counts.prompts);
-        els.visibilityRunsCount.textContent = String((overview.reports && overview.reports.all ? overview.reports.all.total_runs : 0));
+        els.visibilityRunsCount.textContent = String(allReport ? allReport.total_runs : 0);
 
-        const profile = overview.profile || {};
-        els.visibilityBrandName.value = profile.brand_name || "";
-        els.visibilityBrandUrl.value = profile.brand_url || "";
-        els.visibilityDefaultSchedule.value = profile.default_schedule_frequency || "disabled";
-        els.visibilityPromptListSchedule.value = profile.default_schedule_frequency || "disabled";
+        els.visibilityProjectSettingsName.value = project.name || "";
+        els.visibilityBrandName.value = project.brand_name || "";
+        els.visibilityBrandUrl.value = project.brand_url || "";
+        els.visibilityDefaultSchedule.value = project.default_schedule_frequency || "disabled";
+        els.visibilityPromptListSchedule.value = project.default_schedule_frequency || "disabled";
 
         els.visibilityCompetitorsList.innerHTML = "";
-        if (!(profile.competitors || []).length) {
+        if (!(project.competitors || []).length) {
           els.visibilityCompetitorsList.innerHTML = '<div class="mini-item"><span>No competitors added yet.</span></div>';
         } else {
-          profile.competitors.forEach((competitor) => {
+          project.competitors.forEach((competitor) => {
             const item = document.createElement("div");
             item.className = "mini-item";
             item.innerHTML = `
@@ -2578,13 +3035,15 @@ What AI visibility tracking tools are cited most often?"></textarea>
                 alert(data.detail || "Unable to delete competitor.");
                 return;
               }
-              await loadVisibilityOverview();
-              await loadVisibilityReport("all", "all");
+              state.visibilityReportScope = { level: "all", entityId: "all" };
+              state.visibilityReport = null;
+              await loadVisibilityWorkspace();
+              await loadVisibilityProjects();
             });
           });
         }
 
-        const topics = overview.topics || [];
+        const topics = workspace.topics || [];
         els.visibilityTopicSelect.innerHTML = topics.length
           ? topics.map((topic) => `<option value="${topic.id}">${topic.name}</option>`).join("")
           : '<option value="">No topics yet</option>';
@@ -2607,6 +3066,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
         if (state.selectedVisibilityPromptListId && promptLists.some((promptList) => promptList.id === state.selectedVisibilityPromptListId)) {
           els.visibilityPromptListSelect.value = state.selectedVisibilityPromptListId;
         }
+
         const selectedPromptList = selectedVisibilityPromptList();
         els.visibilityPromptPreviewList.innerHTML = "";
         if (!selectedPromptList || !(selectedPromptList.prompts || []).length) {
@@ -2636,15 +3096,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
                 alert(data.detail || "Unable to delete prompt.");
                 return;
               }
-              await loadVisibilityOverview();
-              const reportValue = els.visibilityReportEntity.value || "all";
-              if (reportValue === "all") {
-                state.visibilityReport = state.visibilityOverview ? state.visibilityOverview.reports.all : null;
-                renderVisibility();
-              } else {
-                const [level, entityId] = reportValue.split(":");
-                await loadVisibilityReport(level, entityId);
-              }
+              state.visibilityReportScope = { level: "all", entityId: "all" };
+              state.visibilityReport = null;
+              await loadVisibilityWorkspace();
+              await loadVisibilityProjects();
             });
           });
         }
@@ -2660,44 +3115,49 @@ What AI visibility tracking tools are cited most often?"></textarea>
           });
         });
         els.visibilityReportEntity.innerHTML = reportOptions.join("");
-        const currentReportValue = state.visibilityReport && state.visibilityReport.level !== "all"
-          ? `${state.visibilityReport.level}:${state.visibilityReport.entity_id}`
-          : "all";
+        const currentReportValue = state.visibilityReportScope.level === "all"
+          ? "all"
+          : `${state.visibilityReportScope.level}:${state.visibilityReportScope.entityId}`;
         if (Array.from(els.visibilityReportEntity.options).some((option) => option.value === currentReportValue)) {
           els.visibilityReportEntity.value = currentReportValue;
+        } else {
+          els.visibilityReportEntity.value = "all";
         }
-        els.visibilityReportLevel.value = currentReportValue === "all" ? "all" : currentReportValue.split(":")[0];
+        els.visibilityReportLevel.value = els.visibilityReportEntity.value === "all" ? "all" : els.visibilityReportEntity.value.split(":")[0];
 
-        const report = state.visibilityReport || overview.reports.all;
         els.visibilityReportTitle.textContent = report ? report.entity_name : "All tracked prompts";
         els.visibilityReportMeta.textContent = report
-          ? `${report.total_runs} prompt snapshots in this view`
+          ? `${report.total_runs} prompt snapshots in this view / ${visibilityDateLabel()}`
           : "No report loaded yet.";
 
-        renderVisibilityMetricRows(
-          els.visibilityBrandPresence,
-          report ? report.brand_presence || [] : [],
-          "No brand mentions recorded yet.",
-          (item) => `
-            <div>
-              <strong>${item.brand}</strong>
-              <span>Share of voice ${(Number(item.share_of_voice || 0) * 100).toFixed(1)}%</span>
-            </div>
-            <strong>${item.prompt_mentions}</strong>
-          `,
-        );
-        renderVisibilityMetricRows(
-          els.visibilityTopDomains,
-          report ? report.top_domains || [] : [],
-          "No cited domains yet.",
-          (item) => `
-            <div>
-              <strong>${item.value}</strong>
-              <span>Domain citations</span>
-            </div>
-            <strong>${item.count}</strong>
-          `,
-        );
+        const brandFormatter = (item) => `
+          <div>
+            <strong>${item.brand}</strong>
+            <span>Share of voice ${(Number(item.share_of_voice || 0) * 100).toFixed(1)}%</span>
+          </div>
+          <strong>${item.prompt_mentions}</strong>
+        `;
+        const domainFormatter = (item) => `
+          <div>
+            <strong>${item.value}</strong>
+            <span>Domain citations</span>
+          </div>
+          <strong>${item.count}</strong>
+        `;
+        const urlFormatter = (item) => `
+          <div>
+            <strong>${item.value}</strong>
+            <span>URL citations</span>
+          </div>
+          <strong>${item.count}</strong>
+        `;
+
+        renderVisibilityMetricRows(els.visibilityBrandPresence, report ? report.brand_presence || [] : [], "No brand mentions recorded yet.", brandFormatter);
+        renderVisibilityMetricRows(els.visibilityOverviewBrandPresence, allReport ? allReport.brand_presence || [] : [], "No brand mentions recorded yet.", brandFormatter);
+        renderVisibilityMetricRows(els.visibilityTopDomains, report ? report.top_domains || [] : [], "No cited domains yet.", domainFormatter);
+        renderVisibilityMetricRows(els.visibilityOverviewTopDomains, allReport ? allReport.top_domains || [] : [], "No cited domains yet.", domainFormatter);
+        renderVisibilityMetricRows(els.visibilityTopUrls, report ? report.top_urls || [] : [], "No cited URLs yet.", urlFormatter);
+
         Array.from(els.visibilityTopDomains.children).forEach((row, index) => {
           const item = report && report.top_domains ? report.top_domains[index] : null;
           if (!item) return;
@@ -2709,18 +3169,6 @@ What AI visibility tracking tools are cited most often?"></textarea>
             renderVisibility();
           });
         });
-        renderVisibilityMetricRows(
-          els.visibilityTopUrls,
-          report ? report.top_urls || [] : [],
-          "No cited URLs yet.",
-          (item) => `
-            <div>
-              <strong>${item.value}</strong>
-              <span>URL citations</span>
-            </div>
-            <strong>${item.count}</strong>
-          `,
-        );
         Array.from(els.visibilityTopUrls.children).forEach((row, index) => {
           const item = report && report.top_urls ? report.top_urls[index] : null;
           if (!item) return;
@@ -2733,13 +3181,14 @@ What AI visibility tracking tools are cited most often?"></textarea>
           });
         });
 
-        els.visibilityDailyMetrics.innerHTML = "";
-        const dailyMetrics = report ? report.daily_metrics || [] : [];
-        if (!dailyMetrics.length) {
-          els.visibilityDailyMetrics.innerHTML = '<div class="mini-item"><span>No daily trend data yet.</span></div>';
-        } else {
-          const maxRuns = Math.max(...dailyMetrics.map((item) => item.run_count), 1);
-          dailyMetrics.forEach((item) => {
+        const renderDailyChart = (container, metrics) => {
+          container.innerHTML = "";
+          if (!metrics.length) {
+            container.innerHTML = '<div class="mini-item"><span>No daily trend data yet.</span></div>';
+            return;
+          }
+          const maxRuns = Math.max(...metrics.map((item) => item.run_count), 1);
+          metrics.forEach((item) => {
             const bar = document.createElement("div");
             bar.className = "trend-bar";
             bar.innerHTML = `
@@ -2747,9 +3196,11 @@ What AI visibility tracking tools are cited most often?"></textarea>
               <div class="trend-track"><div class="trend-fill" style="width: ${(item.run_count / maxRuns) * 100}%"></div></div>
               <strong>${item.run_count}</strong>
             `;
-            els.visibilityDailyMetrics.appendChild(bar);
+            container.appendChild(bar);
           });
-        }
+        };
+        renderDailyChart(els.visibilityDailyMetrics, report ? report.daily_metrics || [] : []);
+        renderDailyChart(els.visibilityOverviewDailyMetrics, allReport ? allReport.daily_metrics || [] : []);
 
         const drilldown = currentVisibilityDrilldown(report);
         els.visibilityDrilldownPrompts.innerHTML = "";
@@ -2776,11 +3227,13 @@ What AI visibility tracking tools are cited most often?"></textarea>
           }
         }
 
+        els.visibilityOverviewJobsList.innerHTML = "";
         els.visibilityJobsList.innerHTML = "";
-        if (!(overview.recent_jobs || []).length) {
+        if (!(workspace.recent_jobs || []).length) {
+          els.visibilityOverviewJobsList.innerHTML = '<div class="mini-item"><span>No list runs yet.</span></div>';
           els.visibilityJobsList.innerHTML = '<div class="mini-item"><span>No list runs yet.</span></div>';
         } else {
-          overview.recent_jobs.forEach((job) => {
+          workspace.recent_jobs.forEach((job, index) => {
             const item = document.createElement("div");
             item.className = "mini-item";
             item.innerHTML = `
@@ -2788,19 +3241,23 @@ What AI visibility tracking tools are cited most often?"></textarea>
               <span>${job.status.toUpperCase()} / ${job.completed_prompts} of ${job.total_prompts} prompts / ${formatDate(job.created_at)}</span>
             `;
             els.visibilityJobsList.appendChild(item);
+            if (index < 6) {
+              els.visibilityOverviewJobsList.appendChild(item.cloneNode(true));
+            }
           });
         }
 
         els.visibilityRunsList.innerHTML = "";
-        if (!(overview.recent_runs || []).length) {
+        if (!(workspace.recent_runs || []).length) {
           els.visibilityRunsList.innerHTML = '<div class="mini-item"><span>No prompt snapshots yet.</span></div>';
         } else {
-          overview.recent_runs.forEach((run) => {
+          workspace.recent_runs.forEach((run) => {
             const item = document.createElement("div");
             item.className = "mini-item";
             item.innerHTML = `
               <strong>${run.prompt_text}</strong>
               <span>${run.status.toUpperCase()} / Brands: ${(run.brands || []).join(", ") || "None"} / Domains: ${(run.cited_domains || []).join(", ") || "None"}</span>
+              <span>${(run.response_text || "No response captured.").slice(0, 220)}</span>
               <span>${formatDate(run.created_at)}</span>
             `;
             els.visibilityRunsList.appendChild(item);
@@ -2943,21 +3400,78 @@ What AI visibility tracking tools are cited most often?"></textarea>
         renderHome();
       }
 
-      async function loadVisibilityOverview() {
-        const res = await fetch("/api/visibility/overview", { credentials: "same-origin" });
+      async function loadVisibilityProjects() {
+        const res = await fetch("/api/visibility/projects", { credentials: "same-origin" });
         if (res.status === 401) {
           window.location.href = "/login";
           return;
         }
-        state.visibilityOverview = await res.json();
-        if (!state.visibilityReport && state.visibilityOverview && state.visibilityOverview.reports) {
-          state.visibilityReport = state.visibilityOverview.reports.all || null;
+        const payload = await res.json();
+        state.visibilityProjects = payload.projects || [];
+        if (state.selectedVisibilityProjectId && !state.visibilityProjects.some((project) => project.id === state.selectedVisibilityProjectId)) {
+          state.selectedVisibilityProjectId = null;
+          state.visibilityWorkspace = null;
+          state.visibilityReport = null;
+          state.visibilityReportScope = { level: "all", entityId: "all" };
         }
         renderVisibility();
       }
 
+      async function openVisibilityProject(projectId, view = "overview") {
+        state.selectedVisibilityProjectId = projectId;
+        state.visibilityProjectView = view;
+        state.visibilityWorkspace = null;
+        state.visibilityReport = null;
+        state.visibilityReportScope = { level: "all", entityId: "all" };
+        state.visibilityDrilldown = { type: "domain", value: null };
+        state.selectedVisibilityTopicId = null;
+        state.selectedVisibilitySubtopicId = null;
+        state.selectedVisibilityPromptListId = null;
+        renderVisibility();
+        await loadVisibilityWorkspace();
+      }
+
+      async function loadVisibilityWorkspace(refreshScopedReport = false) {
+        if (!state.selectedVisibilityProjectId) return;
+        const params = visibilityDateParams();
+        const query = params.toString() ? `?${params.toString()}` : "";
+        const res = await fetch(`/api/visibility/projects/${state.selectedVisibilityProjectId}/workspace${query}`, { credentials: "same-origin" });
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        if (!res.ok) {
+          state.visibilityWorkspace = null;
+          renderVisibility();
+          return;
+        }
+        state.visibilityWorkspace = await res.json();
+        const shouldRefreshScopedReport = refreshScopedReport && state.visibilityReportScope.level !== "all";
+        if (!shouldRefreshScopedReport) {
+          state.visibilityReport = state.visibilityWorkspace && state.visibilityWorkspace.reports
+            ? state.visibilityWorkspace.reports.all || null
+            : null;
+        }
+        renderVisibility();
+        if (shouldRefreshScopedReport) {
+          await loadVisibilityReport(state.visibilityReportScope.level, state.visibilityReportScope.entityId);
+        }
+      }
+
       async function loadVisibilityReport(level, entityId) {
-        const params = new URLSearchParams({ level, entity_id: entityId });
+        state.visibilityReportScope = { level, entityId };
+        if (level === "all") {
+          state.visibilityReport = state.visibilityWorkspace && state.visibilityWorkspace.reports
+            ? state.visibilityWorkspace.reports.all || null
+            : null;
+          renderVisibility();
+          return;
+        }
+        if (!state.selectedVisibilityProjectId) return;
+        const params = visibilityDateParams();
+        params.set("project_id", state.selectedVisibilityProjectId);
+        params.set("level", level);
+        params.set("entity_id", entityId);
         const res = await fetch(`/api/visibility/reports?${params.toString()}`, { credentials: "same-origin" });
         if (res.status === 401) {
           window.location.href = "/login";
@@ -2976,14 +3490,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
           const job = await res.json();
           els.visibilityRunMsg.textContent = `List run ${job.status}. ${job.completed_prompts} of ${job.total_prompts} prompts processed.`;
           if (["completed", "failed"].includes(job.status)) {
-            await loadVisibilityOverview();
-            const selectedValue = els.visibilityReportEntity.value || "all";
-            if (selectedValue === "all") {
-              state.visibilityReport = state.visibilityOverview ? state.visibilityOverview.reports.all : null;
-            } else {
-              const [level, entityId] = selectedValue.split(":");
-              await loadVisibilityReport(level, entityId);
-            }
+            await loadVisibilityWorkspace(true);
+            await loadVisibilityProjects();
             break;
           }
         }
@@ -3405,14 +3913,78 @@ What AI visibility tracking tools are cited most often?"></textarea>
         els.settingsSavedMsg.textContent = "Settings saved.";
       });
 
+      els.addVisibilityProjectBtn.addEventListener("click", async () => {
+        const name = els.visibilityProjectName.value.trim();
+        if (!name) return alert("Enter a project name.");
+        els.addVisibilityProjectBtn.disabled = true;
+        els.visibilityProjectCreateMsg.textContent = "Creating project...";
+        const res = await fetch("/api/visibility/projects", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            brand_name: els.visibilityProjectBrandName.value.trim(),
+            brand_url: els.visibilityProjectBrandUrl.value.trim(),
+            default_schedule_frequency: els.visibilityProjectDefaultSchedule.value,
+          }),
+        });
+        els.addVisibilityProjectBtn.disabled = false;
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          els.visibilityProjectCreateMsg.textContent = data.detail || "Unable to create project.";
+          return;
+        }
+        const project = await res.json();
+        els.visibilityProjectName.value = "";
+        els.visibilityProjectBrandName.value = "";
+        els.visibilityProjectBrandUrl.value = "";
+        els.visibilityProjectDefaultSchedule.value = "disabled";
+        els.visibilityProjectCreateMsg.textContent = "Project created.";
+        await loadVisibilityProjects();
+        await openVisibilityProject(project.id, "settings");
+      });
+
+      els.visibilityProjectBackBtn.addEventListener("click", async () => {
+        state.selectedVisibilityProjectId = null;
+        state.visibilityWorkspace = null;
+        state.visibilityReport = null;
+        state.visibilityReportScope = { level: "all", entityId: "all" };
+        state.visibilityProjectView = "overview";
+        await loadVisibilityProjects();
+      });
+
+      [els.visibilityNavOverview, els.visibilityNavLibrary, els.visibilityNavRuns, els.visibilityNavReports, els.visibilityNavSettings].forEach((button) => {
+        button.addEventListener("click", () => {
+          state.visibilityProjectView = button.dataset.visibilityPanelBtn;
+          renderVisibility();
+        });
+      });
+
+      els.applyVisibilityDateBtn.addEventListener("click", async () => {
+        state.visibilityDateStart = els.visibilityDateStart.value || "";
+        state.visibilityDateEnd = els.visibilityDateEnd.value || "";
+        await loadVisibilityWorkspace(true);
+      });
+
+      els.clearVisibilityDateBtn.addEventListener("click", async () => {
+        state.visibilityDateStart = "";
+        state.visibilityDateEnd = "";
+        els.visibilityDateStart.value = "";
+        els.visibilityDateEnd.value = "";
+        await loadVisibilityWorkspace(true);
+      });
+
       els.saveVisibilityProfileBtn.addEventListener("click", async () => {
+        if (!state.selectedVisibilityProjectId) return alert("Choose a project first.");
         els.saveVisibilityProfileBtn.disabled = true;
-        els.visibilityProfileMsg.textContent = "Saving tracker profile...";
-        const res = await fetch("/api/visibility/profile", {
+        els.visibilityProfileMsg.textContent = "Saving project settings...";
+        const res = await fetch(`/api/visibility/projects/${state.selectedVisibilityProjectId}`, {
           method: "PUT",
           credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            name: els.visibilityProjectSettingsName.value,
             brand_name: els.visibilityBrandName.value,
             brand_url: els.visibilityBrandUrl.value,
             default_schedule_frequency: els.visibilityDefaultSchedule.value,
@@ -3421,17 +3993,19 @@ What AI visibility tracking tools are cited most often?"></textarea>
         els.saveVisibilityProfileBtn.disabled = false;
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          els.visibilityProfileMsg.textContent = data.detail || "Unable to save tracker profile.";
+          els.visibilityProfileMsg.textContent = data.detail || "Unable to save project settings.";
           return;
         }
-        els.visibilityProfileMsg.textContent = "Tracker profile saved.";
-        await loadVisibilityOverview();
+        els.visibilityProfileMsg.textContent = "Project settings saved.";
+        await loadVisibilityWorkspace();
+        await loadVisibilityProjects();
       });
 
       els.addVisibilityCompetitorBtn.addEventListener("click", async () => {
+        if (!state.selectedVisibilityProjectId) return alert("Choose a project first.");
         const name = els.visibilityCompetitorName.value.trim();
         if (!name) return alert("Enter a competitor name.");
-        const res = await fetch("/api/visibility/competitors", {
+        const res = await fetch(`/api/visibility/projects/${state.selectedVisibilityProjectId}/competitors`, {
           method: "POST",
           credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
@@ -3446,18 +4020,19 @@ What AI visibility tracking tools are cited most often?"></textarea>
         }
         els.visibilityCompetitorName.value = "";
         els.visibilityCompetitorDomain.value = "";
-        await loadVisibilityOverview();
-        await loadVisibilityReport("all", "all");
+        await loadVisibilityWorkspace();
+        await loadVisibilityProjects();
       });
 
       els.addVisibilityTopicBtn.addEventListener("click", async () => {
+        if (!state.selectedVisibilityProjectId) return alert("Choose a project first.");
         const name = els.visibilityTopicName.value.trim();
         if (!name) return alert("Enter a topic name.");
         const res = await fetch("/api/visibility/topics", {
           method: "POST",
           credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name }),
+          body: JSON.stringify({ project_id: state.selectedVisibilityProjectId, name }),
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
@@ -3466,19 +4041,21 @@ What AI visibility tracking tools are cited most often?"></textarea>
         const topic = await res.json();
         state.selectedVisibilityTopicId = topic.id;
         els.visibilityTopicName.value = "";
-        await loadVisibilityOverview();
+        await loadVisibilityWorkspace();
+        await loadVisibilityProjects();
       });
 
       els.addVisibilitySubtopicBtn.addEventListener("click", async () => {
         const topicId = els.visibilityTopicSelect.value;
         const name = els.visibilitySubtopicName.value.trim();
+        if (!state.selectedVisibilityProjectId) return alert("Choose a project first.");
         if (!topicId) return alert("Create or choose a topic first.");
         if (!name) return alert("Enter a subtopic name.");
         const res = await fetch("/api/visibility/subtopics", {
           method: "POST",
           credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topic_id: topicId, name }),
+          body: JSON.stringify({ project_id: state.selectedVisibilityProjectId, topic_id: topicId, name }),
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
@@ -3488,7 +4065,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.selectedVisibilityTopicId = topicId;
         state.selectedVisibilitySubtopicId = subtopic.id;
         els.visibilitySubtopicName.value = "";
-        await loadVisibilityOverview();
+        await loadVisibilityWorkspace();
+        await loadVisibilityProjects();
       });
 
       els.deleteVisibilityTopicBtn.addEventListener("click", async () => {
@@ -3506,9 +4084,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.selectedVisibilityTopicId = null;
         state.selectedVisibilitySubtopicId = null;
         state.selectedVisibilityPromptListId = null;
-        state.visibilityReport = null;
-        await loadVisibilityOverview();
+        state.visibilityReportScope = { level: "all", entityId: "all" };
         await loadVisibilityReport("all", "all");
+        await loadVisibilityWorkspace();
+        await loadVisibilityProjects();
       });
 
       els.deleteVisibilitySubtopicBtn.addEventListener("click", async () => {
@@ -3525,14 +4104,15 @@ What AI visibility tracking tools are cited most often?"></textarea>
         }
         state.selectedVisibilitySubtopicId = null;
         state.selectedVisibilityPromptListId = null;
-        state.visibilityReport = null;
-        await loadVisibilityOverview();
-        await loadVisibilityReport("all", "all");
+        state.visibilityReportScope = { level: "all", entityId: "all" };
+        await loadVisibilityWorkspace();
+        await loadVisibilityProjects();
       });
 
       els.addVisibilityPromptListBtn.addEventListener("click", async () => {
         const subtopicId = els.visibilitySubtopicSelect.value;
         const name = els.visibilityPromptListName.value.trim();
+        if (!state.selectedVisibilityProjectId) return alert("Choose a project first.");
         if (!subtopicId) return alert("Create or choose a subtopic first.");
         if (!name) return alert("Enter a prompt list name.");
         const res = await fetch("/api/visibility/lists", {
@@ -3540,6 +4120,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
           credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            project_id: state.selectedVisibilityProjectId,
             subtopic_id: subtopicId,
             name,
             schedule_frequency: els.visibilityPromptListSchedule.value,
@@ -3553,7 +4134,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.selectedVisibilitySubtopicId = subtopicId;
         state.selectedVisibilityPromptListId = promptList.id;
         els.visibilityPromptListName.value = "";
-        await loadVisibilityOverview();
+        await loadVisibilityWorkspace();
+        await loadVisibilityProjects();
       });
 
       els.deleteVisibilityPromptListBtn.addEventListener("click", async () => {
@@ -3569,9 +4151,9 @@ What AI visibility tracking tools are cited most often?"></textarea>
           return alert(data.detail || "Unable to delete prompt list.");
         }
         state.selectedVisibilityPromptListId = null;
-        state.visibilityReport = null;
-        await loadVisibilityOverview();
-        await loadVisibilityReport("all", "all");
+        state.visibilityReportScope = { level: "all", entityId: "all" };
+        await loadVisibilityWorkspace();
+        await loadVisibilityProjects();
       });
 
       els.addVisibilityPromptsBtn.addEventListener("click", async () => {
@@ -3590,7 +4172,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
           return alert(data.detail || "Unable to save prompts.");
         }
         els.visibilityPromptBulk.value = "";
-        await loadVisibilityOverview();
+        await loadVisibilityWorkspace();
+        await loadVisibilityProjects();
       });
 
       els.runVisibilityPromptListBtn.addEventListener("click", async () => {
@@ -3613,7 +4196,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         const job = await res.json();
         state.currentVisibilityJobId = job.id;
         els.visibilityRunMsg.textContent = `List run queued. ${job.total_prompts} prompts will be processed.`;
-        await loadVisibilityOverview();
+        await loadVisibilityWorkspace(true);
+        await loadVisibilityProjects();
         pollVisibilityJob(job.id);
       });
 
@@ -3634,7 +4218,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
 
       (async function init() {
         await loadCurrentUser();
-        await Promise.all([loadBriefs(), loadArticles(), loadPersonalities(), loadSettings(), loadVisibilityOverview()]);
+        await Promise.all([loadBriefs(), loadArticles(), loadPersonalities(), loadSettings(), loadVisibilityProjects()]);
         updateWriterModeUI();
         renderWorkspace();
         setActiveTab("home");

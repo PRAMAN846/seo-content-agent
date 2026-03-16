@@ -256,24 +256,43 @@ class QueuedRun(BaseModel):
 class VisibilityCompetitor(BaseModel):
     id: str
     user_id: str
+    project_id: str
     name: str
     domain: str = ""
     created_at: datetime
     updated_at: datetime
 
 
-class VisibilityProfile(BaseModel):
+class VisibilityProjectSummary(BaseModel):
     id: str
     user_id: str
+    name: str = ""
     brand_name: str = ""
     brand_url: str = ""
     default_schedule_frequency: VisibilityScheduleFrequency = "disabled"
+    topic_count: int = 0
+    prompt_list_count: int = 0
+    prompt_count: int = 0
+    run_count: int = 0
+    last_run_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
     competitors: list[VisibilityCompetitor] = Field(default_factory=list)
 
 
-class VisibilityProfileUpdateRequest(BaseModel):
+class VisibilityProjectRecord(VisibilityProjectSummary):
+    pass
+
+
+class VisibilityProjectCreateRequest(BaseModel):
+    name: str = Field(min_length=1)
+    brand_name: str = ""
+    brand_url: str = ""
+    default_schedule_frequency: VisibilityScheduleFrequency = "disabled"
+
+
+class VisibilityProjectUpdateRequest(BaseModel):
+    name: str = Field(min_length=1)
     brand_name: str = ""
     brand_url: str = ""
     default_schedule_frequency: VisibilityScheduleFrequency = "disabled"
@@ -291,15 +310,18 @@ class VisibilityDeleteResponse(BaseModel):
 
 
 class VisibilityTopicCreateRequest(BaseModel):
+    project_id: str = Field(min_length=1)
     name: str = Field(min_length=1)
 
 
 class VisibilitySubtopicCreateRequest(BaseModel):
+    project_id: str = Field(min_length=1)
     topic_id: str = Field(min_length=1)
     name: str = Field(min_length=1)
 
 
 class VisibilityPromptListCreateRequest(BaseModel):
+    project_id: str = Field(min_length=1)
     subtopic_id: str = Field(min_length=1)
     name: str = Field(min_length=1)
     schedule_frequency: VisibilityScheduleFrequency = "disabled"
@@ -318,6 +340,7 @@ class VisibilityPromptBulkCreateRequest(BaseModel):
 class VisibilityPromptRecord(BaseModel):
     id: str
     user_id: str
+    project_id: str
     prompt_list_id: str
     prompt_text: str
     position: int = 0
@@ -328,6 +351,7 @@ class VisibilityPromptRecord(BaseModel):
 class VisibilityPromptListRecord(BaseModel):
     id: str
     user_id: str
+    project_id: str
     subtopic_id: str
     name: str
     schedule_frequency: VisibilityScheduleFrequency = "disabled"
@@ -341,6 +365,7 @@ class VisibilityPromptListRecord(BaseModel):
 class VisibilitySubtopicRecord(BaseModel):
     id: str
     user_id: str
+    project_id: str
     topic_id: str
     name: str
     created_at: datetime
@@ -351,6 +376,7 @@ class VisibilitySubtopicRecord(BaseModel):
 class VisibilityTopicRecord(BaseModel):
     id: str
     user_id: str
+    project_id: str
     name: str
     created_at: datetime
     updated_at: datetime
@@ -360,6 +386,7 @@ class VisibilityTopicRecord(BaseModel):
 class VisibilityPromptRunRecord(BaseModel):
     id: str
     user_id: str
+    project_id: str
     job_id: Optional[str] = None
     topic_id: str
     subtopic_id: str
@@ -383,6 +410,7 @@ class VisibilityPromptRunRecord(BaseModel):
 class VisibilityJobRecord(BaseModel):
     id: str
     user_id: str
+    project_id: str
     topic_id: str
     subtopic_id: str
     prompt_list_id: str
@@ -438,6 +466,7 @@ class VisibilityDailyMetric(BaseModel):
 
 
 class VisibilityReport(BaseModel):
+    project_id: str
     level: str
     entity_id: str
     entity_name: str
@@ -451,9 +480,13 @@ class VisibilityReport(BaseModel):
     daily_metrics: list[VisibilityDailyMetric] = Field(default_factory=list)
 
 
-class VisibilityOverviewResponse(BaseModel):
-    profile: VisibilityProfile
+class VisibilityProjectWorkspaceResponse(BaseModel):
+    project: VisibilityProjectRecord
     topics: list[VisibilityTopicRecord] = Field(default_factory=list)
     recent_jobs: list[VisibilityJobRecord] = Field(default_factory=list)
     recent_runs: list[VisibilityPromptRunRecord] = Field(default_factory=list)
     reports: dict[str, VisibilityReport] = Field(default_factory=dict)
+
+
+class VisibilityProjectsResponse(BaseModel):
+    projects: list[VisibilityProjectSummary] = Field(default_factory=list)

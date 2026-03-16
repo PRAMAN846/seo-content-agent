@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
@@ -11,9 +13,12 @@ from app.models.schemas import (
     VisibilityCompetitorCreateRequest,
     VisibilityDeleteResponse,
     VisibilityJobRecord,
-    VisibilityOverviewResponse,
-    VisibilityProfile,
-    VisibilityProfileUpdateRequest,
+    VisibilityProjectCreateRequest,
+    VisibilityProjectRecord,
+    VisibilityProjectsResponse,
+    VisibilityProjectSummary,
+    VisibilityProjectUpdateRequest,
+    VisibilityProjectWorkspaceResponse,
     VisibilityPromptBulkCreateRequest,
     VisibilityPromptListCreateRequest,
     VisibilityPromptListRecord,
@@ -27,39 +32,92 @@ from app.models.schemas import (
 )
 from app.models.store import run_store
 from app.services.visibility_tracker import (
-    build_visibility_overview,
+    build_visibility_projects,
     build_visibility_report,
+    build_visibility_workspace,
     run_visibility_prompt_list_job,
 )
 
 router = APIRouter(prefix="/api/visibility", tags=["visibility"])
 
 
-@router.get("/overview", response_model=VisibilityOverviewResponse)
-def get_visibility_overview(current_user: UserPublic = Depends(get_current_user)) -> VisibilityOverviewResponse:
-    return build_visibility_overview(current_user.id)
+def _parse_optional_date(value: Optional[str], end_of_day: bool = False) -> Optional[datetime]:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.") from exc
+    if len(value) == 10 and end_of_day:
+        return parsed.replace(hour=23, minute=59, second=59)
+    return parsed
 
 
-@router.put("/profile", response_model=VisibilityProfile)
-def update_visibility_profile(
-    payload: VisibilityProfileUpdateRequest,
+@router.get("/projects", response_model=VisibilityProjectsResponse)
+def get_visibility_projects(current_user: UserPublic = Depends(get_current_user)) -> VisibilityProjectsResponse:
+    return build_visibility_projects(current_user.id)
+
+
+@router.post("/projects", response_model=VisibilityProjectRecord)
+def create_visibility_project(
+    payload: VisibilityProjectCreateRequest,
     current_user: UserPublic = Depends(get_current_user),
-) -> VisibilityProfile:
-    return run_store.update_visibility_profile(
+) -> VisibilityProjectRecord:
+    return run_store.create_visibility_project(
         current_user.id,
+        name=payload.name.strip(),
         brand_name=payload.brand_name.strip(),
         brand_url=payload.brand_url.strip(),
         default_schedule_frequency=payload.default_schedule_frequency,
     )
 
 
-@router.post("/competitors", response_model=VisibilityCompetitor)
+@router.get("/projects/{project_id}/workspace", response_model=VisibilityProjectWorkspaceResponse)
+def get_visibility_workspace(
+    project_id: str,
+    start_date: Optional[str] = Query(default=None),
+    end_date: Optional[str] = Query(default=None),
+    current_user: UserPublic = Depends(get_current_user),
+) -> VisibilityProjectWorkspaceResponse:
+    try:
+        return build_visibility_workspace(
+            current_user.id,
+            project_id=project_id,
+            start_date=_parse_optional_date(start_date),
+            end_date=_parse_optional_date(end_date, end_of_day=True),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.put("/projects/{project_id}", response_model=VisibilityProjectRecord)
+def update_visibility_project(
+    project_id: str,
+    payload: VisibilityProjectUpdateRequest,
+    current_user: UserPublic = Depends(get_current_user),
+) -> VisibilityProjectRecord:
+    updated = run_store.update_visibility_project(
+        current_user.id,
+        project_id,
+        name=payload.name.strip(),
+        brand_name=payload.brand_name.strip(),
+        brand_url=payload.brand_url.strip(),
+        default_schedule_frequency=payload.default_schedule_frequency,
+    )
+    if not updated:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return updated
+
+
+@router.post("/projects/{project_id}/competitors", response_model=VisibilityCompetitor)
 def create_visibility_competitor(
+    project_id: str,
     payload: VisibilityCompetitorCreateRequest,
     current_user: UserPublic = Depends(get_current_user),
 ) -> VisibilityCompetitor:
     return run_store.create_visibility_competitor(
         current_user.id,
+        project_id=project_id,
         name=payload.name.strip(),
         domain=payload.domain.strip(),
     )
@@ -70,7 +128,7 @@ def create_visibility_topic(
     payload: VisibilityTopicCreateRequest,
     current_user: UserPublic = Depends(get_current_user),
 ) -> VisibilityTopicRecord:
-    return run_store.create_visibility_topic(current_user.id, name=payload.name.strip())
+    return run_store.create_visibility_topic(current_user.id, project_id=payload.project_id, name=payload.name.strip())
 
 
 @router.post("/subtopics", response_model=VisibilitySubtopicRecord)
@@ -80,6 +138,7 @@ def create_visibility_subtopic(
 ) -> VisibilitySubtopicRecord:
     return run_store.create_visibility_subtopic(
         current_user.id,
+        project_id=payload.project_id,
         topic_id=payload.topic_id,
         name=payload.name.strip(),
     )
@@ -92,6 +151,7 @@ def create_visibility_prompt_list(
 ) -> VisibilityPromptListRecord:
     return run_store.create_visibility_prompt_list(
         current_user.id,
+        project_id=payload.project_id,
         subtopic_id=payload.subtopic_id,
         name=payload.name.strip(),
         schedule_frequency=payload.schedule_frequency,
@@ -103,8 +163,12 @@ def create_visibility_prompts(
     payload: VisibilityPromptBulkCreateRequest,
     current_user: UserPublic = Depends(get_current_user),
 ) -> list[VisibilityPromptRecord]:
+    prompt_list = run_store.get_visibility_prompt_list(current_user.id, payload.prompt_list_id)
+    if not prompt_list:
+        raise HTTPException(status_code=404, detail="Prompt list not found")
     created = run_store.create_visibility_prompts(
         current_user.id,
+        project_id=prompt_list.project_id,
         prompt_list_id=payload.prompt_list_id,
         prompts=[item.strip() for item in payload.prompts if item.strip()],
     )
@@ -128,6 +192,7 @@ async def run_visibility_prompt_list(
 
     job = run_store.create_visibility_job(
         current_user.id,
+        project_id=context["project_id"],
         topic_id=context["topic_id"],
         subtopic_id=context["subtopic_id"],
         prompt_list_id=prompt_list_id,
@@ -151,11 +216,21 @@ def get_visibility_job(job_id: str, current_user: UserPublic = Depends(get_curre
 
 @router.get("/reports", response_model=VisibilityReport)
 def get_visibility_report(
+    project_id: str = Query(...),
     level: str = Query(default="all"),
     entity_id: str = Query(default="all"),
+    start_date: Optional[str] = Query(default=None),
+    end_date: Optional[str] = Query(default=None),
     current_user: UserPublic = Depends(get_current_user),
 ) -> VisibilityReport:
-    return build_visibility_report(current_user.id, level=level, entity_id=entity_id)
+    return build_visibility_report(
+        current_user.id,
+        project_id=project_id,
+        level=level,
+        entity_id=entity_id,
+        start_date=_parse_optional_date(start_date),
+        end_date=_parse_optional_date(end_date, end_of_day=True),
+    )
 
 
 @router.delete("/competitors/{competitor_id}", response_model=VisibilityDeleteResponse)

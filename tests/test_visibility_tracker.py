@@ -29,29 +29,31 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
 
     def create_tracker_stack(self) -> dict[str, str]:
-        profile = self.client.put(
-            "/api/visibility/profile",
+        project = self.client.post(
+            "/api/visibility/projects",
             json={
+                "name": "Xpaan Core",
                 "brand_name": "Xpaan",
                 "brand_url": "https://xpaan.com",
                 "default_schedule_frequency": "weekly",
             },
         )
-        self.assertEqual(profile.status_code, 200, profile.text)
+        self.assertEqual(project.status_code, 200, project.text)
+        project_id = project.json()["id"]
 
         competitor = self.client.post(
-            "/api/visibility/competitors",
+            f"/api/visibility/projects/{project_id}/competitors",
             json={"name": "Profound", "domain": "tryprofound.com"},
         )
         self.assertEqual(competitor.status_code, 200, competitor.text)
 
-        topic = self.client.post("/api/visibility/topics", json={"name": "AI visibility"})
+        topic = self.client.post("/api/visibility/topics", json={"project_id": project_id, "name": "AI visibility"})
         self.assertEqual(topic.status_code, 200, topic.text)
         topic_id = topic.json()["id"]
 
         subtopic = self.client.post(
             "/api/visibility/subtopics",
-            json={"topic_id": topic_id, "name": "Tools"},
+            json={"project_id": project_id, "topic_id": topic_id, "name": "Tools"},
         )
         self.assertEqual(subtopic.status_code, 200, subtopic.text)
         subtopic_id = subtopic.json()["id"]
@@ -59,6 +61,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         prompt_list = self.client.post(
             "/api/visibility/lists",
             json={
+                "project_id": project_id,
                 "subtopic_id": subtopic_id,
                 "name": "Commercial comparisons",
                 "schedule_frequency": "weekly",
@@ -81,6 +84,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         prompt_ids = [item["id"] for item in prompts.json()]
 
         return {
+            "project_id": project_id,
             "topic_id": topic_id,
             "subtopic_id": subtopic_id,
             "prompt_list_id": prompt_list_id,
@@ -100,15 +104,19 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.fail("Visibility job did not finish in time")
 
     def test_profile_competitor_and_hierarchy_creation(self) -> None:
-        self.create_tracker_stack()
+        ids = self.create_tracker_stack()
 
-        overview = self.client.get("/api/visibility/overview")
-        self.assertEqual(overview.status_code, 200, overview.text)
-        payload = overview.json()
+        projects = self.client.get("/api/visibility/projects")
+        self.assertEqual(projects.status_code, 200, projects.text)
+        self.assertEqual(len(projects.json()["projects"]), 1)
 
-        self.assertEqual(payload["profile"]["brand_name"], "Xpaan")
-        self.assertEqual(payload["profile"]["default_schedule_frequency"], "weekly")
-        self.assertEqual(len(payload["profile"]["competitors"]), 1)
+        workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace")
+        self.assertEqual(workspace.status_code, 200, workspace.text)
+        payload = workspace.json()
+
+        self.assertEqual(payload["project"]["brand_name"], "Xpaan")
+        self.assertEqual(payload["project"]["default_schedule_frequency"], "weekly")
+        self.assertEqual(len(payload["project"]["competitors"]), 1)
         self.assertEqual(len(payload["topics"]), 1)
         self.assertEqual(payload["topics"][0]["name"], "AI visibility")
         self.assertEqual(len(payload["topics"][0]["subtopics"]), 1)
@@ -130,13 +138,13 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(job["status"], "completed")
         self.assertEqual(job["completed_prompts"], 2)
 
-        overview = self.client.get("/api/visibility/overview").json()
-        self.assertEqual(len(overview["recent_jobs"]), 1)
-        self.assertEqual(len(overview["recent_runs"]), 2)
+        workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace").json()
+        self.assertEqual(len(workspace["recent_jobs"]), 1)
+        self.assertEqual(len(workspace["recent_runs"]), 2)
 
         report = self.client.get(
             "/api/visibility/reports",
-            params={"level": "prompt_list", "entity_id": ids["prompt_list_id"]},
+            params={"project_id": ids["project_id"], "level": "prompt_list", "entity_id": ids["prompt_list_id"]},
         )
         self.assertEqual(report.status_code, 200, report.text)
         report_payload = report.json()
@@ -155,16 +163,16 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         delete_prompt = self.client.delete(f"/api/visibility/prompts/{ids['prompt_id']}")
         self.assertEqual(delete_prompt.status_code, 200, delete_prompt.text)
 
-        overview_after_prompt_delete = self.client.get("/api/visibility/overview").json()
-        prompts_left = overview_after_prompt_delete["topics"][0]["subtopics"][0]["prompt_lists"][0]["prompts"]
+        workspace_after_prompt_delete = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace").json()
+        prompts_left = workspace_after_prompt_delete["topics"][0]["subtopics"][0]["prompt_lists"][0]["prompts"]
         self.assertEqual(len(prompts_left), 1)
 
         delete_list = self.client.delete(f"/api/visibility/lists/{ids['prompt_list_id']}")
         self.assertEqual(delete_list.status_code, 200, delete_list.text)
 
-        overview_after_list_delete = self.client.get("/api/visibility/overview").json()
-        self.assertEqual(len(overview_after_list_delete["topics"][0]["subtopics"][0]["prompt_lists"]), 0)
-        self.assertEqual(overview_after_list_delete["reports"]["all"]["total_runs"], 0)
+        workspace_after_list_delete = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace").json()
+        self.assertEqual(len(workspace_after_list_delete["topics"][0]["subtopics"][0]["prompt_lists"]), 0)
+        self.assertEqual(workspace_after_list_delete["reports"]["all"]["total_runs"], 0)
 
     def test_topic_and_competitor_deletion_cleanup_overview(self) -> None:
         ids = self.create_tracker_stack()
@@ -175,9 +183,9 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         delete_topic = self.client.delete(f"/api/visibility/topics/{ids['topic_id']}")
         self.assertEqual(delete_topic.status_code, 200, delete_topic.text)
 
-        overview = self.client.get("/api/visibility/overview").json()
-        self.assertEqual(len(overview["profile"]["competitors"]), 0)
-        self.assertEqual(len(overview["topics"]), 0)
+        workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace").json()
+        self.assertEqual(len(workspace["project"]["competitors"]), 0)
+        self.assertEqual(len(workspace["topics"]), 0)
 
 
 if __name__ == "__main__":

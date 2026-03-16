@@ -13,8 +13,9 @@ from app.models.schemas import (
     VisibilityCitationDrilldown,
     VisibilityCitationMetric,
     VisibilityDailyMetric,
-    VisibilityOverviewResponse,
-    VisibilityProfile,
+    VisibilityProjectRecord,
+    VisibilityProjectWorkspaceResponse,
+    VisibilityProjectsResponse,
     VisibilityPromptReference,
     VisibilityReport,
 )
@@ -68,8 +69,8 @@ def _dedupe(values: list[str]) -> list[str]:
     return result
 
 
-def _extract_brand_mentions(response_text: str, profile: VisibilityProfile) -> list[str]:
-    known_brands = [profile.brand_name] + [competitor.name for competitor in profile.competitors]
+def _extract_brand_mentions(response_text: str, project: VisibilityProjectRecord) -> list[str]:
+    known_brands = [project.brand_name] + [competitor.name for competitor in project.competitors]
     found: list[str] = []
     response_lower = (response_text or "").lower()
     for brand in known_brands:
@@ -79,15 +80,15 @@ def _extract_brand_mentions(response_text: str, profile: VisibilityProfile) -> l
     return _dedupe(found)
 
 
-def _extract_entities(response_text: str, profile: VisibilityProfile) -> tuple[list[str], list[str], list[str]]:
+def _extract_entities(response_text: str, project: VisibilityProjectRecord) -> tuple[list[str], list[str], list[str]]:
     urls = _extract_urls(response_text)
     domains = _extract_domains(urls)
-    brands = _extract_brand_mentions(response_text, profile)
+    brands = _extract_brand_mentions(response_text, project)
 
     if not llm_client.enabled or not response_text.strip():
         return brands, domains, urls
 
-    known_brands = [profile.brand_name] + [competitor.name for competitor in profile.competitors]
+    known_brands = [project.brand_name] + [competitor.name for competitor in project.competitors]
     instruction = (
         "Extract structured data from the assistant answer. "
         "Return strict JSON with keys brands and cited_urls. "
@@ -110,12 +111,12 @@ def _extract_entities(response_text: str, profile: VisibilityProfile) -> tuple[l
     return brands, domains, urls
 
 
-def _build_visibility_instruction(profile: VisibilityProfile) -> str:
+def _build_visibility_instruction(project: VisibilityProjectRecord) -> str:
     brand_context = ""
-    if profile.brand_name.strip():
+    if project.brand_name.strip():
         brand_context = "Tracked brand context: {} ({})".format(
-            profile.brand_name.strip(),
-            profile.brand_url.strip() or "URL not set",
+            project.brand_name.strip(),
+            project.brand_url.strip() or "URL not set",
         )
     return (
         "You are generating a user-facing AI answer for a visibility tracking system. "
@@ -135,10 +136,10 @@ async def run_visibility_prompt_list_job(job_id: str, *, force: bool = False) ->
     if job.status == "running" and not force:
         return
 
-    prompt_list = run_store.get_visibility_prompt_list(job.user_id, job.prompt_list_id)
-    profile = run_store.get_visibility_profile(job.user_id)
-    context = run_store.get_visibility_prompt_list_context(job.prompt_list_id)
-    if not prompt_list or not context:
+    prompt_list = run_store.get_visibility_prompt_list(job.user_id, job.prompt_list_id, job.project_id)
+    project = run_store.get_visibility_project(job.user_id, job.project_id)
+    context = run_store.get_visibility_prompt_list_context(job.prompt_list_id, job.project_id)
+    if not prompt_list or not context or not project:
         run_store.update_visibility_job(job_id, status="failed", stage="failed", error="Prompt list not found")
         return
     if not prompt_list.prompts:
@@ -153,12 +154,13 @@ async def run_visibility_prompt_list_job(job_id: str, *, force: bool = False) ->
             response_text = await asyncio.to_thread(
                 llm_client.complete,
                 model=job.model,
-                instruction=_build_visibility_instruction(profile),
+                instruction=_build_visibility_instruction(project),
                 input_text=prompt.prompt_text,
             )
-            brands, domains, urls = await asyncio.to_thread(_extract_entities, response_text, profile)
+            brands, domains, urls = await asyncio.to_thread(_extract_entities, response_text, project)
             run_store.create_visibility_prompt_run(
                 job.user_id,
+                project_id=job.project_id,
                 job_id=job.id,
                 topic_id=job.topic_id,
                 subtopic_id=job.subtopic_id,
@@ -178,6 +180,7 @@ async def run_visibility_prompt_list_job(job_id: str, *, force: bool = False) ->
         except Exception as exc:  # noqa: BLE001
             run_store.create_visibility_prompt_run(
                 job.user_id,
+                project_id=job.project_id,
                 job_id=job.id,
                 topic_id=job.topic_id,
                 subtopic_id=job.subtopic_id,
@@ -209,16 +212,26 @@ async def run_visibility_prompt_list_job(job_id: str, *, force: bool = False) ->
     run_store.update_visibility_job(job_id, status="completed", stage="completed", progress_percent=100)
 
 
-def build_visibility_report(user_id: str, *, level: str, entity_id: str) -> VisibilityReport:
-    profile = run_store.get_visibility_profile(user_id)
-    topics = run_store.list_visibility_topics(user_id)
+def build_visibility_report(
+    user_id: str,
+    *,
+    project_id: str,
+    level: str,
+    entity_id: str,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+) -> VisibilityReport:
+    project = run_store.get_visibility_project(user_id, project_id)
+    if not project:
+        return VisibilityReport(project_id=project_id, level=level, entity_id=entity_id, entity_name="Unknown project")
+    topics = run_store.list_visibility_topics(user_id, project_id)
     entity_name = "All tracked prompts"
     run_filters: dict[str, str] = {}
 
     if level == "topic":
         topic = next((item for item in topics if item.id == entity_id), None)
         if not topic:
-            return VisibilityReport(level=level, entity_id=entity_id, entity_name="Unknown topic")
+            return VisibilityReport(project_id=project_id, level=level, entity_id=entity_id, entity_name="Unknown topic")
         entity_name = topic.name
         run_filters["topic_id"] = entity_id
     elif level == "subtopic":
@@ -227,7 +240,7 @@ def build_visibility_report(user_id: str, *, level: str, entity_id: str) -> Visi
             None,
         )
         if not subtopic:
-            return VisibilityReport(level=level, entity_id=entity_id, entity_name="Unknown subtopic")
+            return VisibilityReport(project_id=project_id, level=level, entity_id=entity_id, entity_name="Unknown subtopic")
         entity_name = subtopic.name
         run_filters["subtopic_id"] = entity_id
     elif level == "prompt_list":
@@ -236,15 +249,15 @@ def build_visibility_report(user_id: str, *, level: str, entity_id: str) -> Visi
             None,
         )
         if not prompt_list:
-            return VisibilityReport(level=level, entity_id=entity_id, entity_name="Unknown prompt list")
+            return VisibilityReport(project_id=project_id, level=level, entity_id=entity_id, entity_name="Unknown prompt list")
         entity_name = prompt_list.name
         run_filters["prompt_list_id"] = entity_id
     else:
         level = "all"
         entity_id = "all"
 
-    runs = run_store.list_visibility_prompt_runs(user_id, limit=1000, **run_filters)
-    tracked_brands = _dedupe([profile.brand_name] + [item.name for item in profile.competitors])
+    runs = run_store.list_visibility_prompt_runs(user_id, project_id=project_id, limit=1000, start_date=start_date, end_date=end_date, **run_filters)
+    tracked_brands = _dedupe([project.brand_name] + [item.name for item in project.competitors])
     presence_counter = Counter()
     domain_counter = Counter()
     url_counter = Counter()
@@ -332,6 +345,7 @@ def build_visibility_report(user_id: str, *, level: str, entity_id: str) -> Visi
         )
 
     return VisibilityReport(
+        project_id=project_id,
         level=level,
         entity_id=entity_id,
         entity_name=entity_name,
@@ -346,14 +360,26 @@ def build_visibility_report(user_id: str, *, level: str, entity_id: str) -> Visi
     )
 
 
-def build_visibility_overview(user_id: str) -> VisibilityOverviewResponse:
-    profile = run_store.get_visibility_profile(user_id)
-    topics = run_store.list_visibility_topics(user_id)
-    recent_jobs = run_store.list_visibility_jobs(user_id, limit=12)
-    recent_runs = run_store.list_visibility_prompt_runs(user_id, limit=24)
-    reports = {"all": build_visibility_report(user_id, level="all", entity_id="all")}
-    return VisibilityOverviewResponse(
-        profile=profile,
+def build_visibility_projects(user_id: str) -> VisibilityProjectsResponse:
+    return VisibilityProjectsResponse(projects=run_store.list_visibility_projects(user_id))
+
+
+def build_visibility_workspace(
+    user_id: str,
+    *,
+    project_id: str,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+) -> VisibilityProjectWorkspaceResponse:
+    project = run_store.get_visibility_project(user_id, project_id)
+    if not project:
+        raise ValueError("Project not found")
+    topics = run_store.list_visibility_topics(user_id, project_id)
+    recent_jobs = run_store.list_visibility_jobs(user_id, project_id, limit=12, start_date=start_date, end_date=end_date)
+    recent_runs = run_store.list_visibility_prompt_runs(user_id, project_id=project_id, limit=24, start_date=start_date, end_date=end_date)
+    reports = {"all": build_visibility_report(user_id, project_id=project_id, level="all", entity_id="all", start_date=start_date, end_date=end_date)}
+    return VisibilityProjectWorkspaceResponse(
+        project=project,
         topics=topics,
         recent_jobs=recent_jobs,
         recent_runs=recent_runs,
@@ -364,17 +390,18 @@ def build_visibility_overview(user_id: str) -> VisibilityOverviewResponse:
 async def run_due_visibility_schedules() -> None:
     due_lists = run_store.list_due_visibility_prompt_lists(limit=20)
     for item in due_lists:
-        existing_jobs = run_store.list_visibility_jobs(item["user_id"], limit=30)
+        existing_jobs = run_store.list_visibility_jobs(item["user_id"], item["project_id"], limit=30)
         if any(
             job.prompt_list_id == item["id"] and job.status in {"queued", "running"}
             for job in existing_jobs
         ):
             continue
-        prompt_list = run_store.get_visibility_prompt_list(item["user_id"], item["id"])
+        prompt_list = run_store.get_visibility_prompt_list(item["user_id"], item["id"], item["project_id"])
         if not prompt_list or not prompt_list.prompts:
             continue
         job = run_store.create_visibility_job(
             item["user_id"],
+            project_id=item["project_id"],
             topic_id=item["topic_id"],
             subtopic_id=item["subtopic_id"],
             prompt_list_id=item["id"],
