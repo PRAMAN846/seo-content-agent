@@ -25,6 +25,15 @@ from app.models.schemas import (
     TopicDeleteResponse,
     UserPublic,
     UserSettings,
+    VisibilityCompetitor,
+    VisibilityJobRecord,
+    VisibilityProfile,
+    VisibilityPromptListRecord,
+    VisibilityPromptRecord,
+    VisibilityPromptRunRecord,
+    VisibilityScheduleFrequency,
+    VisibilitySubtopicRecord,
+    VisibilityTopicRecord,
 )
 
 try:
@@ -150,6 +159,130 @@ class StoreBase:
         )
 
     @staticmethod
+    def _row_to_visibility_competitor(row: Mapping[str, Any]) -> VisibilityCompetitor:
+        return VisibilityCompetitor(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            name=str(row["name"]),
+            domain=str(row["domain"] or ""),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+        )
+
+    @staticmethod
+    def _row_to_visibility_profile(
+        row: Mapping[str, Any],
+        competitors: Optional[List[VisibilityCompetitor]] = None,
+    ) -> VisibilityProfile:
+        return VisibilityProfile(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            brand_name=str(row["brand_name"] or ""),
+            brand_url=str(row["brand_url"] or ""),
+            default_schedule_frequency=str(row["default_schedule_frequency"] or "disabled"),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+            competitors=competitors or [],
+        )
+
+    @staticmethod
+    def _row_to_visibility_topic(row: Mapping[str, Any]) -> VisibilityTopicRecord:
+        return VisibilityTopicRecord(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            name=str(row["name"]),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+            subtopics=[],
+        )
+
+    @staticmethod
+    def _row_to_visibility_subtopic(row: Mapping[str, Any]) -> VisibilitySubtopicRecord:
+        return VisibilitySubtopicRecord(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            topic_id=str(row["topic_id"]),
+            name=str(row["name"]),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+            prompt_lists=[],
+        )
+
+    @staticmethod
+    def _row_to_visibility_prompt_list(row: Mapping[str, Any]) -> VisibilityPromptListRecord:
+        return VisibilityPromptListRecord(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            subtopic_id=str(row["subtopic_id"]),
+            name=str(row["name"]),
+            schedule_frequency=str(row["schedule_frequency"] or "disabled"),
+            last_run_at=StoreBase._parse_dt(row["last_run_at"]) if row["last_run_at"] else None,
+            next_run_at=StoreBase._parse_dt(row["next_run_at"]) if row["next_run_at"] else None,
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+            prompts=[],
+        )
+
+    @staticmethod
+    def _row_to_visibility_prompt(row: Mapping[str, Any]) -> VisibilityPromptRecord:
+        return VisibilityPromptRecord(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            prompt_list_id=str(row["prompt_list_id"]),
+            prompt_text=str(row["prompt_text"]),
+            position=int(row["position"] or 0),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+        )
+
+    @staticmethod
+    def _row_to_visibility_prompt_run(row: Mapping[str, Any]) -> VisibilityPromptRunRecord:
+        return VisibilityPromptRunRecord(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            job_id=str(row["job_id"]) if row["job_id"] else None,
+            topic_id=str(row["topic_id"]),
+            subtopic_id=str(row["subtopic_id"]),
+            prompt_list_id=str(row["prompt_list_id"]),
+            prompt_id=str(row["prompt_id"]),
+            prompt_text=str(row["prompt_text"]),
+            provider=str(row["provider"] or "openai"),
+            model=str(row["model"] or "gpt-5-mini"),
+            surface=str(row["surface"] or "api"),
+            run_source=str(row["run_source"] or "manual"),
+            status=str(row["status"]),
+            response_text=str(row["response_text"] or ""),
+            brands=json.loads(str(row["brands_json"] or "[]")),
+            cited_domains=json.loads(str(row["cited_domains_json"] or "[]")),
+            cited_urls=json.loads(str(row["cited_urls_json"] or "[]")),
+            error=row["error"],
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+        )
+
+    @staticmethod
+    def _row_to_visibility_job(row: Mapping[str, Any]) -> VisibilityJobRecord:
+        return VisibilityJobRecord(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            topic_id=str(row["topic_id"]),
+            subtopic_id=str(row["subtopic_id"]),
+            prompt_list_id=str(row["prompt_list_id"]),
+            provider=str(row["provider"] or "openai"),
+            model=str(row["model"] or "gpt-5-mini"),
+            surface=str(row["surface"] or "api"),
+            run_source=str(row["run_source"] or "manual"),
+            status=str(row["status"]),
+            stage=str(row["stage"]),
+            progress_percent=int(row["progress_percent"] or 0),
+            total_prompts=int(row["total_prompts"] or 0),
+            completed_prompts=int(row["completed_prompts"] or 0),
+            error=row["error"],
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+        )
+
+    @staticmethod
     def _normalize_topics(topics: List[str]) -> List[str]:
         seen = set()
         normalized: List[str] = []
@@ -159,6 +292,27 @@ class StoreBase:
                 seen.add(cleaned)
                 normalized.append(cleaned)
         return normalized
+
+    @staticmethod
+    def _normalize_schedule_frequency(value: str) -> VisibilityScheduleFrequency:
+        cleaned = (value or "disabled").strip().lower().replace("-", "_")
+        if cleaned in {"weekly", "twice_monthly", "monthly"}:
+            return cleaned  # type: ignore[return-value]
+        return "disabled"
+
+    @staticmethod
+    def _next_scheduled_run(
+        frequency: VisibilityScheduleFrequency,
+        base: Optional[datetime] = None,
+    ) -> Optional[datetime]:
+        if frequency == "disabled":
+            return None
+        anchor = base or StoreBase._utcnow()
+        if frequency == "weekly":
+            return anchor + timedelta(days=7)
+        if frequency == "twice_monthly":
+            return anchor + timedelta(days=15)
+        return anchor + timedelta(days=30)
 
 
 class SQLiteStore(StoreBase):
@@ -246,10 +400,138 @@ class SQLiteStore(StoreBase):
                     FOREIGN KEY(user_id) REFERENCES users(id)
                 );
 
+                CREATE TABLE IF NOT EXISTS visibility_profiles (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT UNIQUE NOT NULL,
+                    brand_name TEXT DEFAULT '',
+                    brand_url TEXT DEFAULT '',
+                    default_schedule_frequency TEXT DEFAULT 'disabled',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS visibility_competitors (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    domain TEXT DEFAULT '',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS visibility_topics (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS visibility_subtopics (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    topic_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(topic_id) REFERENCES visibility_topics(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS visibility_prompt_lists (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    subtopic_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    schedule_frequency TEXT DEFAULT 'disabled',
+                    last_run_at TEXT,
+                    next_run_at TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(subtopic_id) REFERENCES visibility_subtopics(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS visibility_prompts (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    prompt_list_id TEXT NOT NULL,
+                    prompt_text TEXT NOT NULL,
+                    position INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(prompt_list_id) REFERENCES visibility_prompt_lists(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS visibility_jobs (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    topic_id TEXT NOT NULL,
+                    subtopic_id TEXT NOT NULL,
+                    prompt_list_id TEXT NOT NULL,
+                    provider TEXT NOT NULL,
+                    model TEXT NOT NULL,
+                    surface TEXT NOT NULL,
+                    run_source TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    stage TEXT NOT NULL,
+                    progress_percent INTEGER NOT NULL DEFAULT 0,
+                    total_prompts INTEGER NOT NULL DEFAULT 0,
+                    completed_prompts INTEGER NOT NULL DEFAULT 0,
+                    error TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(topic_id) REFERENCES visibility_topics(id),
+                    FOREIGN KEY(subtopic_id) REFERENCES visibility_subtopics(id),
+                    FOREIGN KEY(prompt_list_id) REFERENCES visibility_prompt_lists(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS visibility_prompt_runs (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    job_id TEXT,
+                    topic_id TEXT NOT NULL,
+                    subtopic_id TEXT NOT NULL,
+                    prompt_list_id TEXT NOT NULL,
+                    prompt_id TEXT NOT NULL,
+                    prompt_text TEXT NOT NULL,
+                    provider TEXT NOT NULL,
+                    model TEXT NOT NULL,
+                    surface TEXT NOT NULL,
+                    run_source TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    response_text TEXT DEFAULT '',
+                    brands_json TEXT NOT NULL DEFAULT '[]',
+                    cited_domains_json TEXT NOT NULL DEFAULT '[]',
+                    cited_urls_json TEXT NOT NULL DEFAULT '[]',
+                    error TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(job_id) REFERENCES visibility_jobs(id),
+                    FOREIGN KEY(topic_id) REFERENCES visibility_topics(id),
+                    FOREIGN KEY(subtopic_id) REFERENCES visibility_subtopics(id),
+                    FOREIGN KEY(prompt_list_id) REFERENCES visibility_prompt_lists(id),
+                    FOREIGN KEY(prompt_id) REFERENCES visibility_prompts(id)
+                );
+
                 CREATE INDEX IF NOT EXISTS idx_runs_user_created ON runs(user_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
                 CREATE INDEX IF NOT EXISTS idx_briefs_user_created ON briefs(user_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_articles_user_created ON articles(user_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_visibility_competitors_user ON visibility_competitors(user_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_visibility_topics_user ON visibility_topics(user_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_visibility_subtopics_topic ON visibility_subtopics(topic_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_visibility_lists_subtopic ON visibility_prompt_lists(subtopic_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_visibility_prompts_list ON visibility_prompts(prompt_list_id, position ASC);
+                CREATE INDEX IF NOT EXISTS idx_visibility_jobs_user ON visibility_jobs(user_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_visibility_runs_user ON visibility_prompt_runs(user_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_visibility_lists_next_run ON visibility_prompt_lists(next_run_at);
                 """
             )
             # Lightweight migrations for existing local databases.
@@ -402,6 +684,662 @@ class SQLiteStore(StoreBase):
             self._conn.execute("UPDATE users SET {} WHERE id = ?".format(", ".join(columns)), values)
             self._conn.commit()
         return self.get_user_settings(user_id)
+
+    def get_visibility_profile(self, user_id: str) -> VisibilityProfile:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT * FROM visibility_profiles WHERE user_id = ?",
+                (user_id,),
+            ).fetchone()
+            if not row:
+                user_row = self._conn.execute(
+                    "SELECT brand_name, brand_url FROM users WHERE id = ?",
+                    (user_id,),
+                ).fetchone()
+                now = self._now_iso()
+                profile_id = str(uuid4())
+                self._conn.execute(
+                    """
+                    INSERT INTO visibility_profiles (
+                        id, user_id, brand_name, brand_url, default_schedule_frequency, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        profile_id,
+                        user_id,
+                        str(user_row["brand_name"] or "") if user_row else "",
+                        str(user_row["brand_url"] or "") if user_row else "",
+                        "disabled",
+                        now,
+                        now,
+                    ),
+                )
+                self._conn.commit()
+                row = self._conn.execute(
+                    "SELECT * FROM visibility_profiles WHERE user_id = ?",
+                    (user_id,),
+                ).fetchone()
+            competitor_rows = self._conn.execute(
+                "SELECT * FROM visibility_competitors WHERE user_id = ? ORDER BY updated_at DESC, created_at DESC",
+                (user_id,),
+            ).fetchall()
+        competitors = [self._row_to_visibility_competitor(item) for item in competitor_rows]
+        return self._row_to_visibility_profile(row, competitors)
+
+    def update_visibility_profile(
+        self,
+        user_id: str,
+        *,
+        brand_name: str,
+        brand_url: str,
+        default_schedule_frequency: str,
+    ) -> VisibilityProfile:
+        profile = self.get_visibility_profile(user_id)
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                UPDATE visibility_profiles
+                SET brand_name = ?, brand_url = ?, default_schedule_frequency = ?, updated_at = ?
+                WHERE user_id = ?
+                """,
+                (
+                    brand_name,
+                    brand_url,
+                    self._normalize_schedule_frequency(default_schedule_frequency),
+                    now,
+                    user_id,
+                ),
+            )
+            self._conn.commit()
+        return self.get_visibility_profile(user_id)
+
+    def create_visibility_competitor(self, user_id: str, *, name: str, domain: str) -> VisibilityCompetitor:
+        competitor_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO visibility_competitors (id, user_id, name, domain, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (competitor_id, user_id, name, domain, now, now),
+            )
+            self._conn.commit()
+            row = self._conn.execute(
+                "SELECT * FROM visibility_competitors WHERE id = ?",
+                (competitor_id,),
+            ).fetchone()
+        if not row:
+            raise RuntimeError("Visibility competitor creation failed unexpectedly")
+        return self._row_to_visibility_competitor(row)
+
+    def list_visibility_competitors(self, user_id: str) -> List[VisibilityCompetitor]:
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM visibility_competitors WHERE user_id = ? ORDER BY updated_at DESC, created_at DESC",
+                (user_id,),
+            ).fetchall()
+        return [self._row_to_visibility_competitor(row) for row in rows]
+
+    def create_visibility_topic(self, user_id: str, *, name: str) -> VisibilityTopicRecord:
+        topic_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                "INSERT INTO visibility_topics (id, user_id, name, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+                (topic_id, user_id, name, now, now),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM visibility_topics WHERE id = ?", (topic_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Visibility topic creation failed unexpectedly")
+        return self._row_to_visibility_topic(row)
+
+    def create_visibility_subtopic(self, user_id: str, *, topic_id: str, name: str) -> VisibilitySubtopicRecord:
+        subtopic_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO visibility_subtopics (id, user_id, topic_id, name, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (subtopic_id, user_id, topic_id, name, now, now),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM visibility_subtopics WHERE id = ?", (subtopic_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Visibility subtopic creation failed unexpectedly")
+        return self._row_to_visibility_subtopic(row)
+
+    def create_visibility_prompt_list(
+        self,
+        user_id: str,
+        *,
+        subtopic_id: str,
+        name: str,
+        schedule_frequency: str,
+    ) -> VisibilityPromptListRecord:
+        prompt_list_id = str(uuid4())
+        now = self._utcnow()
+        normalized_frequency = self._normalize_schedule_frequency(schedule_frequency)
+        next_run_at = self._next_scheduled_run(normalized_frequency, now)
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO visibility_prompt_lists (
+                    id, user_id, subtopic_id, name, schedule_frequency, last_run_at, next_run_at, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    prompt_list_id,
+                    user_id,
+                    subtopic_id,
+                    name,
+                    normalized_frequency,
+                    None,
+                    next_run_at.isoformat() if next_run_at else None,
+                    now.isoformat(),
+                    now.isoformat(),
+                ),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM visibility_prompt_lists WHERE id = ?", (prompt_list_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Visibility prompt list creation failed unexpectedly")
+        return self._row_to_visibility_prompt_list(row)
+
+    def create_visibility_prompts(
+        self,
+        user_id: str,
+        *,
+        prompt_list_id: str,
+        prompts: List[str],
+    ) -> List[VisibilityPromptRecord]:
+        created_ids: List[str] = []
+        with self._lock:
+            position_row = self._conn.execute(
+                "SELECT COALESCE(MAX(position), 0) AS max_position FROM visibility_prompts WHERE prompt_list_id = ?",
+                (prompt_list_id,),
+            ).fetchone()
+            next_position = int(position_row["max_position"] or 0) + 1 if position_row else 1
+            for prompt_text in prompts:
+                clean = prompt_text.strip()
+                if not clean:
+                    continue
+                prompt_id = str(uuid4())
+                now = self._now_iso()
+                self._conn.execute(
+                    """
+                    INSERT INTO visibility_prompts (
+                        id, user_id, prompt_list_id, prompt_text, position, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (prompt_id, user_id, prompt_list_id, clean, next_position, now, now),
+                )
+                created_ids.append(prompt_id)
+                next_position += 1
+            self._conn.commit()
+            if not created_ids:
+                return []
+            placeholders = ", ".join("?" for _ in created_ids)
+            rows = self._conn.execute(
+                "SELECT * FROM visibility_prompts WHERE id IN ({}) ORDER BY position ASC".format(placeholders),
+                created_ids,
+            ).fetchall()
+        return [self._row_to_visibility_prompt(row) for row in rows]
+
+    def get_visibility_prompt_list(self, user_id: str, prompt_list_id: str) -> Optional[VisibilityPromptListRecord]:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT * FROM visibility_prompt_lists WHERE id = ? AND user_id = ?",
+                (prompt_list_id, user_id),
+            ).fetchone()
+            if not row:
+                return None
+            prompt_rows = self._conn.execute(
+                "SELECT * FROM visibility_prompts WHERE prompt_list_id = ? ORDER BY position ASC, created_at ASC",
+                (prompt_list_id,),
+            ).fetchall()
+        prompt_list = self._row_to_visibility_prompt_list(row)
+        prompt_list.prompts = [self._row_to_visibility_prompt(item) for item in prompt_rows]
+        return prompt_list
+
+    def get_visibility_prompt_list_context(self, prompt_list_id: str) -> Optional[dict[str, Any]]:
+        with self._lock:
+            row = self._conn.execute(
+                """
+                SELECT pl.*, st.topic_id, st.name AS subtopic_name, t.name AS topic_name
+                FROM visibility_prompt_lists pl
+                JOIN visibility_subtopics st ON st.id = pl.subtopic_id
+                JOIN visibility_topics t ON t.id = st.topic_id
+                WHERE pl.id = ?
+                """,
+                (prompt_list_id,),
+            ).fetchone()
+            if not row:
+                return None
+        return {
+            "id": str(row["id"]),
+            "user_id": str(row["user_id"]),
+            "subtopic_id": str(row["subtopic_id"]),
+            "topic_id": str(row["topic_id"]),
+            "name": str(row["name"]),
+            "subtopic_name": str(row["subtopic_name"]),
+            "topic_name": str(row["topic_name"]),
+            "schedule_frequency": str(row["schedule_frequency"] or "disabled"),
+            "last_run_at": self._parse_dt(row["last_run_at"]) if row["last_run_at"] else None,
+            "next_run_at": self._parse_dt(row["next_run_at"]) if row["next_run_at"] else None,
+        }
+
+    def list_visibility_topics(self, user_id: str) -> List[VisibilityTopicRecord]:
+        with self._lock:
+            topic_rows = self._conn.execute(
+                "SELECT * FROM visibility_topics WHERE user_id = ? ORDER BY updated_at DESC, created_at DESC",
+                (user_id,),
+            ).fetchall()
+            subtopic_rows = self._conn.execute(
+                "SELECT * FROM visibility_subtopics WHERE user_id = ? ORDER BY updated_at DESC, created_at DESC",
+                (user_id,),
+            ).fetchall()
+            list_rows = self._conn.execute(
+                "SELECT * FROM visibility_prompt_lists WHERE user_id = ? ORDER BY updated_at DESC, created_at DESC",
+                (user_id,),
+            ).fetchall()
+            prompt_rows = self._conn.execute(
+                "SELECT * FROM visibility_prompts WHERE user_id = ? ORDER BY position ASC, created_at ASC",
+                (user_id,),
+            ).fetchall()
+
+        topics = {row["id"]: self._row_to_visibility_topic(row) for row in topic_rows}
+        subtopics = {row["id"]: self._row_to_visibility_subtopic(row) for row in subtopic_rows}
+        prompt_lists = {row["id"]: self._row_to_visibility_prompt_list(row) for row in list_rows}
+
+        for prompt_row in prompt_rows:
+            prompt = self._row_to_visibility_prompt(prompt_row)
+            prompt_list = prompt_lists.get(prompt.prompt_list_id)
+            if prompt_list:
+                prompt_list.prompts.append(prompt)
+
+        for prompt_list in prompt_lists.values():
+            subtopic = subtopics.get(prompt_list.subtopic_id)
+            if subtopic:
+                subtopic.prompt_lists.append(prompt_list)
+
+        for subtopic in subtopics.values():
+            topic = topics.get(subtopic.topic_id)
+            if topic:
+                topic.subtopics.append(subtopic)
+
+        return list(topics.values())
+
+    def create_visibility_job(
+        self,
+        user_id: str,
+        *,
+        topic_id: str,
+        subtopic_id: str,
+        prompt_list_id: str,
+        provider: str,
+        model: str,
+        surface: str,
+        run_source: str,
+        total_prompts: int,
+    ) -> VisibilityJobRecord:
+        job_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO visibility_jobs (
+                    id, user_id, topic_id, subtopic_id, prompt_list_id, provider, model, surface, run_source,
+                    status, stage, progress_percent, total_prompts, completed_prompts, error, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    job_id,
+                    user_id,
+                    topic_id,
+                    subtopic_id,
+                    prompt_list_id,
+                    provider,
+                    model,
+                    surface,
+                    run_source,
+                    "queued",
+                    "queued",
+                    0,
+                    total_prompts,
+                    0,
+                    None,
+                    now,
+                    now,
+                ),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM visibility_jobs WHERE id = ?", (job_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Visibility job creation failed unexpectedly")
+        return self._row_to_visibility_job(row)
+
+    def get_visibility_job(self, user_id: str, job_id: str) -> Optional[VisibilityJobRecord]:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT * FROM visibility_jobs WHERE id = ? AND user_id = ?",
+                (job_id, user_id),
+            ).fetchone()
+        return self._row_to_visibility_job(row) if row else None
+
+    def get_visibility_job_by_id(self, job_id: str) -> Optional[VisibilityJobRecord]:
+        with self._lock:
+            row = self._conn.execute("SELECT * FROM visibility_jobs WHERE id = ?", (job_id,)).fetchone()
+        return self._row_to_visibility_job(row) if row else None
+
+    def list_visibility_jobs(self, user_id: str, limit: int = 20) -> List[VisibilityJobRecord]:
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM visibility_jobs WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",
+                (user_id, limit),
+            ).fetchall()
+        return [self._row_to_visibility_job(row) for row in rows]
+
+    def update_visibility_job(self, job_id: str, **kwargs: Any) -> Optional[VisibilityJobRecord]:
+        allowed = {
+            "status",
+            "stage",
+            "progress_percent",
+            "completed_prompts",
+            "total_prompts",
+            "error",
+        }
+        updates = dict((k, v) for (k, v) in kwargs.items() if k in allowed)
+        if not updates:
+            return self.get_visibility_job_by_id(job_id)
+        columns = []
+        values: List[Any] = []
+        for key, value in updates.items():
+            columns.append("{} = ?".format(key))
+            values.append(value)
+        columns.append("updated_at = ?")
+        values.append(self._now_iso())
+        values.append(job_id)
+        with self._lock:
+            self._conn.execute(
+                "UPDATE visibility_jobs SET {} WHERE id = ?".format(", ".join(columns)),
+                values,
+            )
+            self._conn.commit()
+        return self.get_visibility_job_by_id(job_id)
+
+    def create_visibility_prompt_run(
+        self,
+        user_id: str,
+        *,
+        topic_id: str,
+        subtopic_id: str,
+        prompt_list_id: str,
+        prompt_id: str,
+        prompt_text: str,
+        provider: str,
+        model: str,
+        surface: str,
+        run_source: str,
+        status: str,
+        response_text: str = "",
+        brands: Optional[List[str]] = None,
+        cited_domains: Optional[List[str]] = None,
+        cited_urls: Optional[List[str]] = None,
+        error: Optional[str] = None,
+        job_id: Optional[str] = None,
+    ) -> VisibilityPromptRunRecord:
+        run_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            if job_id:
+                existing = self._conn.execute(
+                    """
+                    SELECT * FROM visibility_prompt_runs
+                    WHERE user_id = ? AND job_id = ? AND prompt_id = ?
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                    """,
+                    (user_id, job_id, prompt_id),
+                ).fetchone()
+                if existing:
+                    return self._row_to_visibility_prompt_run(existing)
+            self._conn.execute(
+                """
+                INSERT INTO visibility_prompt_runs (
+                    id, user_id, job_id, topic_id, subtopic_id, prompt_list_id, prompt_id, prompt_text,
+                    provider, model, surface, run_source, status, response_text, brands_json,
+                    cited_domains_json, cited_urls_json, error, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    run_id,
+                    user_id,
+                    job_id,
+                    topic_id,
+                    subtopic_id,
+                    prompt_list_id,
+                    prompt_id,
+                    prompt_text,
+                    provider,
+                    model,
+                    surface,
+                    run_source,
+                    status,
+                    response_text,
+                    json.dumps(brands or []),
+                    json.dumps(cited_domains or []),
+                    json.dumps(cited_urls or []),
+                    error,
+                    now,
+                    now,
+                ),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM visibility_prompt_runs WHERE id = ?", (run_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Visibility prompt run creation failed unexpectedly")
+        return self._row_to_visibility_prompt_run(row)
+
+    def list_visibility_prompt_runs(
+        self,
+        user_id: str,
+        *,
+        limit: int = 200,
+        topic_id: Optional[str] = None,
+        subtopic_id: Optional[str] = None,
+        prompt_list_id: Optional[str] = None,
+        prompt_id: Optional[str] = None,
+        job_id: Optional[str] = None,
+    ) -> List[VisibilityPromptRunRecord]:
+        query = "SELECT * FROM visibility_prompt_runs WHERE user_id = ?"
+        params: List[Any] = [user_id]
+        if topic_id:
+            query += " AND topic_id = ?"
+            params.append(topic_id)
+        if subtopic_id:
+            query += " AND subtopic_id = ?"
+            params.append(subtopic_id)
+        if prompt_list_id:
+            query += " AND prompt_list_id = ?"
+            params.append(prompt_list_id)
+        if prompt_id:
+            query += " AND prompt_id = ?"
+            params.append(prompt_id)
+        if job_id:
+            query += " AND job_id = ?"
+            params.append(job_id)
+        query += " ORDER BY created_at DESC LIMIT ?"
+        params.append(limit)
+        with self._lock:
+            rows = self._conn.execute(query, params).fetchall()
+        return [self._row_to_visibility_prompt_run(row) for row in rows]
+
+    def list_due_visibility_prompt_lists(self, as_of: Optional[datetime] = None, limit: int = 25) -> List[dict[str, Any]]:
+        due_at = (as_of or self._utcnow()).isoformat()
+        with self._lock:
+            rows = self._conn.execute(
+                """
+                SELECT pl.*, st.topic_id
+                FROM visibility_prompt_lists pl
+                JOIN visibility_subtopics st ON st.id = pl.subtopic_id
+                WHERE pl.schedule_frequency != 'disabled'
+                  AND pl.next_run_at IS NOT NULL
+                  AND pl.next_run_at <= ?
+                ORDER BY pl.next_run_at ASC
+                LIMIT ?
+                """,
+                (due_at, limit),
+            ).fetchall()
+        return [
+            {
+                "id": str(row["id"]),
+                "user_id": str(row["user_id"]),
+                "subtopic_id": str(row["subtopic_id"]),
+                "topic_id": str(row["topic_id"]),
+                "schedule_frequency": str(row["schedule_frequency"] or "disabled"),
+            }
+            for row in rows
+        ]
+
+    def mark_visibility_prompt_list_run(
+        self,
+        prompt_list_id: str,
+        *,
+        frequency: str,
+        run_at: Optional[datetime] = None,
+    ) -> Optional[VisibilityPromptListRecord]:
+        executed_at = run_at or self._utcnow()
+        normalized_frequency = self._normalize_schedule_frequency(frequency)
+        next_run_at = self._next_scheduled_run(normalized_frequency, executed_at)
+        with self._lock:
+            self._conn.execute(
+                """
+                UPDATE visibility_prompt_lists
+                SET last_run_at = ?, next_run_at = ?, updated_at = ?
+                WHERE id = ?
+                """,
+                (
+                    executed_at.isoformat(),
+                    next_run_at.isoformat() if next_run_at else None,
+                    executed_at.isoformat(),
+                    prompt_list_id,
+                ),
+            )
+            self._conn.commit()
+            row = self._conn.execute(
+                "SELECT * FROM visibility_prompt_lists WHERE id = ?",
+                (prompt_list_id,),
+            ).fetchone()
+        return self._row_to_visibility_prompt_list(row) if row else None
+
+    def delete_visibility_competitor(self, user_id: str, competitor_id: str) -> bool:
+        with self._lock:
+            cur = self._conn.execute(
+                "DELETE FROM visibility_competitors WHERE id = ? AND user_id = ?",
+                (competitor_id, user_id),
+            )
+            self._conn.commit()
+        return cur.rowcount > 0
+
+    def delete_visibility_prompt(self, user_id: str, prompt_id: str) -> bool:
+        with self._lock:
+            cur = self._conn.execute(
+                "DELETE FROM visibility_prompts WHERE id = ? AND user_id = ?",
+                (prompt_id, user_id),
+            )
+            self._conn.execute(
+                "DELETE FROM visibility_prompt_runs WHERE prompt_id = ? AND user_id = ?",
+                (prompt_id, user_id),
+            )
+            self._conn.commit()
+        return cur.rowcount > 0
+
+    def delete_visibility_prompt_list(self, user_id: str, prompt_list_id: str) -> bool:
+        with self._lock:
+            prompt_rows = self._conn.execute(
+                "SELECT id FROM visibility_prompts WHERE prompt_list_id = ? AND user_id = ?",
+                (prompt_list_id, user_id),
+            ).fetchall()
+            prompt_ids = [str(row["id"]) for row in prompt_rows]
+            if prompt_ids:
+                placeholders = ", ".join("?" for _ in prompt_ids)
+                self._conn.execute(
+                    "DELETE FROM visibility_prompt_runs WHERE prompt_id IN ({}) AND user_id = ?".format(placeholders),
+                    prompt_ids + [user_id],
+                )
+            self._conn.execute(
+                "DELETE FROM visibility_prompt_runs WHERE prompt_list_id = ? AND user_id = ?",
+                (prompt_list_id, user_id),
+            )
+            self._conn.execute(
+                "DELETE FROM visibility_jobs WHERE prompt_list_id = ? AND user_id = ?",
+                (prompt_list_id, user_id),
+            )
+            self._conn.execute(
+                "DELETE FROM visibility_prompts WHERE prompt_list_id = ? AND user_id = ?",
+                (prompt_list_id, user_id),
+            )
+            cur = self._conn.execute(
+                "DELETE FROM visibility_prompt_lists WHERE id = ? AND user_id = ?",
+                (prompt_list_id, user_id),
+            )
+            self._conn.commit()
+        return cur.rowcount > 0
+
+    def delete_visibility_subtopic(self, user_id: str, subtopic_id: str) -> bool:
+        with self._lock:
+            list_rows = self._conn.execute(
+                "SELECT id FROM visibility_prompt_lists WHERE subtopic_id = ? AND user_id = ?",
+                (subtopic_id, user_id),
+            ).fetchall()
+        deleted_any = False
+        for row in list_rows:
+            deleted_any = self.delete_visibility_prompt_list(user_id, str(row["id"])) or deleted_any
+        with self._lock:
+            self._conn.execute(
+                "DELETE FROM visibility_prompt_runs WHERE subtopic_id = ? AND user_id = ?",
+                (subtopic_id, user_id),
+            )
+            self._conn.execute(
+                "DELETE FROM visibility_jobs WHERE subtopic_id = ? AND user_id = ?",
+                (subtopic_id, user_id),
+            )
+            cur = self._conn.execute(
+                "DELETE FROM visibility_subtopics WHERE id = ? AND user_id = ?",
+                (subtopic_id, user_id),
+            )
+            self._conn.commit()
+        return cur.rowcount > 0 or deleted_any
+
+    def delete_visibility_topic(self, user_id: str, topic_id: str) -> bool:
+        with self._lock:
+            subtopic_rows = self._conn.execute(
+                "SELECT id FROM visibility_subtopics WHERE topic_id = ? AND user_id = ?",
+                (topic_id, user_id),
+            ).fetchall()
+        deleted_any = False
+        for row in subtopic_rows:
+            deleted_any = self.delete_visibility_subtopic(user_id, str(row["id"])) or deleted_any
+        with self._lock:
+            self._conn.execute(
+                "DELETE FROM visibility_prompt_runs WHERE topic_id = ? AND user_id = ?",
+                (topic_id, user_id),
+            )
+            self._conn.execute(
+                "DELETE FROM visibility_jobs WHERE topic_id = ? AND user_id = ?",
+                (topic_id, user_id),
+            )
+            cur = self._conn.execute(
+                "DELETE FROM visibility_topics WHERE id = ? AND user_id = ?",
+                (topic_id, user_id),
+            )
+            self._conn.commit()
+        return cur.rowcount > 0 or deleted_any
 
     def create_run(self, user_id: str, payload: RunCreateRequest) -> RunRecord:
         record_id = str(uuid4())
@@ -714,10 +1652,143 @@ class PostgresStore(StoreBase):
                     )
                     """
                 )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS visibility_profiles (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT UNIQUE NOT NULL REFERENCES users(id),
+                        brand_name TEXT DEFAULT '',
+                        brand_url TEXT DEFAULT '',
+                        default_schedule_frequency TEXT DEFAULT 'disabled',
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS visibility_competitors (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        name TEXT NOT NULL,
+                        domain TEXT DEFAULT '',
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS visibility_topics (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        name TEXT NOT NULL,
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS visibility_subtopics (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        topic_id TEXT NOT NULL REFERENCES visibility_topics(id),
+                        name TEXT NOT NULL,
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS visibility_prompt_lists (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        subtopic_id TEXT NOT NULL REFERENCES visibility_subtopics(id),
+                        name TEXT NOT NULL,
+                        schedule_frequency TEXT DEFAULT 'disabled',
+                        last_run_at TIMESTAMPTZ,
+                        next_run_at TIMESTAMPTZ,
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS visibility_prompts (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        prompt_list_id TEXT NOT NULL REFERENCES visibility_prompt_lists(id),
+                        prompt_text TEXT NOT NULL,
+                        position INTEGER NOT NULL DEFAULT 0,
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS visibility_jobs (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        topic_id TEXT NOT NULL REFERENCES visibility_topics(id),
+                        subtopic_id TEXT NOT NULL REFERENCES visibility_subtopics(id),
+                        prompt_list_id TEXT NOT NULL REFERENCES visibility_prompt_lists(id),
+                        provider TEXT NOT NULL,
+                        model TEXT NOT NULL,
+                        surface TEXT NOT NULL,
+                        run_source TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        stage TEXT NOT NULL,
+                        progress_percent INTEGER NOT NULL DEFAULT 0,
+                        total_prompts INTEGER NOT NULL DEFAULT 0,
+                        completed_prompts INTEGER NOT NULL DEFAULT 0,
+                        error TEXT,
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS visibility_prompt_runs (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        job_id TEXT REFERENCES visibility_jobs(id),
+                        topic_id TEXT NOT NULL REFERENCES visibility_topics(id),
+                        subtopic_id TEXT NOT NULL REFERENCES visibility_subtopics(id),
+                        prompt_list_id TEXT NOT NULL REFERENCES visibility_prompt_lists(id),
+                        prompt_id TEXT NOT NULL REFERENCES visibility_prompts(id),
+                        prompt_text TEXT NOT NULL,
+                        provider TEXT NOT NULL,
+                        model TEXT NOT NULL,
+                        surface TEXT NOT NULL,
+                        run_source TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        response_text TEXT DEFAULT '',
+                        brands_json TEXT NOT NULL DEFAULT '[]',
+                        cited_domains_json TEXT NOT NULL DEFAULT '[]',
+                        cited_urls_json TEXT NOT NULL DEFAULT '[]',
+                        error TEXT,
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_runs_user_created ON runs(user_id, created_at DESC)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_briefs_user_created ON briefs(user_id, created_at DESC)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_articles_user_created ON articles(user_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_competitors_user ON visibility_competitors(user_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_topics_user ON visibility_topics(user_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_subtopics_topic ON visibility_subtopics(topic_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_lists_subtopic ON visibility_prompt_lists(subtopic_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_prompts_list ON visibility_prompts(prompt_list_id, position ASC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_jobs_user ON visibility_jobs(user_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_runs_user ON visibility_prompt_runs(user_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_lists_next_run ON visibility_prompt_lists(next_run_at)")
             conn.commit()
 
     def create_user(self, email: str, password: str) -> UserPublic:
@@ -858,6 +1929,695 @@ class PostgresStore(StoreBase):
                 cur.execute("UPDATE users SET {} WHERE id = %s".format(", ".join(columns)), values)
             conn.commit()
         return self.get_user_settings(user_id)
+
+    def get_visibility_profile(self, user_id: str) -> VisibilityProfile:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM visibility_profiles WHERE user_id = %s", (user_id,))
+                row = cur.fetchone()
+                if not row:
+                    cur.execute("SELECT brand_name, brand_url FROM users WHERE id = %s", (user_id,))
+                    user_row = cur.fetchone()
+                    now = self._utcnow()
+                    profile_id = str(uuid4())
+                    cur.execute(
+                        """
+                        INSERT INTO visibility_profiles (
+                            id, user_id, brand_name, brand_url, default_schedule_frequency, created_at, updated_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        """,
+                        (
+                            profile_id,
+                            user_id,
+                            str(user_row["brand_name"] or "") if user_row else "",
+                            str(user_row["brand_url"] or "") if user_row else "",
+                            "disabled",
+                            now,
+                            now,
+                        ),
+                    )
+                    conn.commit()
+                    cur.execute("SELECT * FROM visibility_profiles WHERE user_id = %s", (user_id,))
+                    row = cur.fetchone()
+                cur.execute(
+                    "SELECT * FROM visibility_competitors WHERE user_id = %s ORDER BY updated_at DESC, created_at DESC",
+                    (user_id,),
+                )
+                competitor_rows = cur.fetchall()
+        competitors = [self._row_to_visibility_competitor(item) for item in competitor_rows]
+        return self._row_to_visibility_profile(row, competitors)
+
+    def update_visibility_profile(
+        self,
+        user_id: str,
+        *,
+        brand_name: str,
+        brand_url: str,
+        default_schedule_frequency: str,
+    ) -> VisibilityProfile:
+        self.get_visibility_profile(user_id)
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE visibility_profiles
+                    SET brand_name = %s, brand_url = %s, default_schedule_frequency = %s, updated_at = %s
+                    WHERE user_id = %s
+                    """,
+                    (
+                        brand_name,
+                        brand_url,
+                        self._normalize_schedule_frequency(default_schedule_frequency),
+                        self._utcnow(),
+                        user_id,
+                    ),
+                )
+            conn.commit()
+        return self.get_visibility_profile(user_id)
+
+    def create_visibility_competitor(self, user_id: str, *, name: str, domain: str) -> VisibilityCompetitor:
+        competitor_id = str(uuid4())
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO visibility_competitors (id, user_id, name, domain, created_at, updated_at)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    """,
+                    (competitor_id, user_id, name, domain, now, now),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM visibility_competitors WHERE id = %s", (competitor_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Visibility competitor creation failed unexpectedly")
+        return self._row_to_visibility_competitor(row)
+
+    def list_visibility_competitors(self, user_id: str) -> List[VisibilityCompetitor]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    "SELECT * FROM visibility_competitors WHERE user_id = %s ORDER BY updated_at DESC, created_at DESC",
+                    (user_id,),
+                )
+                rows = cur.fetchall()
+        return [self._row_to_visibility_competitor(row) for row in rows]
+
+    def create_visibility_topic(self, user_id: str, *, name: str) -> VisibilityTopicRecord:
+        topic_id = str(uuid4())
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO visibility_topics (id, user_id, name, created_at, updated_at) VALUES (%s, %s, %s, %s, %s)",
+                    (topic_id, user_id, name, now, now),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM visibility_topics WHERE id = %s", (topic_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Visibility topic creation failed unexpectedly")
+        return self._row_to_visibility_topic(row)
+
+    def create_visibility_subtopic(self, user_id: str, *, topic_id: str, name: str) -> VisibilitySubtopicRecord:
+        subtopic_id = str(uuid4())
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO visibility_subtopics (id, user_id, topic_id, name, created_at, updated_at)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    """,
+                    (subtopic_id, user_id, topic_id, name, now, now),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM visibility_subtopics WHERE id = %s", (subtopic_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Visibility subtopic creation failed unexpectedly")
+        return self._row_to_visibility_subtopic(row)
+
+    def create_visibility_prompt_list(
+        self,
+        user_id: str,
+        *,
+        subtopic_id: str,
+        name: str,
+        schedule_frequency: str,
+    ) -> VisibilityPromptListRecord:
+        prompt_list_id = str(uuid4())
+        now = self._utcnow()
+        normalized_frequency = self._normalize_schedule_frequency(schedule_frequency)
+        next_run_at = self._next_scheduled_run(normalized_frequency, now)
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO visibility_prompt_lists (
+                        id, user_id, subtopic_id, name, schedule_frequency, last_run_at, next_run_at, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        prompt_list_id,
+                        user_id,
+                        subtopic_id,
+                        name,
+                        normalized_frequency,
+                        None,
+                        next_run_at,
+                        now,
+                        now,
+                    ),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM visibility_prompt_lists WHERE id = %s", (prompt_list_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Visibility prompt list creation failed unexpectedly")
+        return self._row_to_visibility_prompt_list(row)
+
+    def create_visibility_prompts(
+        self,
+        user_id: str,
+        *,
+        prompt_list_id: str,
+        prompts: List[str],
+    ) -> List[VisibilityPromptRecord]:
+        created_ids: List[str] = []
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    "SELECT COALESCE(MAX(position), 0) AS max_position FROM visibility_prompts WHERE prompt_list_id = %s",
+                    (prompt_list_id,),
+                )
+                position_row = cur.fetchone()
+                next_position = int(position_row["max_position"] or 0) + 1 if position_row else 1
+                now = self._utcnow()
+                for prompt_text in prompts:
+                    clean = prompt_text.strip()
+                    if not clean:
+                        continue
+                    prompt_id = str(uuid4())
+                    cur.execute(
+                        """
+                        INSERT INTO visibility_prompts (
+                            id, user_id, prompt_list_id, prompt_text, position, created_at, updated_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        """,
+                        (prompt_id, user_id, prompt_list_id, clean, next_position, now, now),
+                    )
+                    created_ids.append(prompt_id)
+                    next_position += 1
+            conn.commit()
+        if not created_ids:
+            return []
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    "SELECT * FROM visibility_prompts WHERE id = ANY(%s) ORDER BY position ASC, created_at ASC",
+                    (created_ids,),
+                )
+                rows = cur.fetchall()
+        return [self._row_to_visibility_prompt(row) for row in rows]
+
+    def get_visibility_prompt_list(self, user_id: str, prompt_list_id: str) -> Optional[VisibilityPromptListRecord]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    "SELECT * FROM visibility_prompt_lists WHERE id = %s AND user_id = %s",
+                    (prompt_list_id, user_id),
+                )
+                row = cur.fetchone()
+                if not row:
+                    return None
+                cur.execute(
+                    "SELECT * FROM visibility_prompts WHERE prompt_list_id = %s ORDER BY position ASC, created_at ASC",
+                    (prompt_list_id,),
+                )
+                prompt_rows = cur.fetchall()
+        prompt_list = self._row_to_visibility_prompt_list(row)
+        prompt_list.prompts = [self._row_to_visibility_prompt(item) for item in prompt_rows]
+        return prompt_list
+
+    def get_visibility_prompt_list_context(self, prompt_list_id: str) -> Optional[dict[str, Any]]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT pl.*, st.topic_id, st.name AS subtopic_name, t.name AS topic_name
+                    FROM visibility_prompt_lists pl
+                    JOIN visibility_subtopics st ON st.id = pl.subtopic_id
+                    JOIN visibility_topics t ON t.id = st.topic_id
+                    WHERE pl.id = %s
+                    """,
+                    (prompt_list_id,),
+                )
+                row = cur.fetchone()
+        if not row:
+            return None
+        return {
+            "id": str(row["id"]),
+            "user_id": str(row["user_id"]),
+            "subtopic_id": str(row["subtopic_id"]),
+            "topic_id": str(row["topic_id"]),
+            "name": str(row["name"]),
+            "subtopic_name": str(row["subtopic_name"]),
+            "topic_name": str(row["topic_name"]),
+            "schedule_frequency": str(row["schedule_frequency"] or "disabled"),
+            "last_run_at": self._parse_dt(row["last_run_at"]) if row["last_run_at"] else None,
+            "next_run_at": self._parse_dt(row["next_run_at"]) if row["next_run_at"] else None,
+        }
+
+    def list_visibility_topics(self, user_id: str) -> List[VisibilityTopicRecord]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    "SELECT * FROM visibility_topics WHERE user_id = %s ORDER BY updated_at DESC, created_at DESC",
+                    (user_id,),
+                )
+                topic_rows = cur.fetchall()
+                cur.execute(
+                    "SELECT * FROM visibility_subtopics WHERE user_id = %s ORDER BY updated_at DESC, created_at DESC",
+                    (user_id,),
+                )
+                subtopic_rows = cur.fetchall()
+                cur.execute(
+                    "SELECT * FROM visibility_prompt_lists WHERE user_id = %s ORDER BY updated_at DESC, created_at DESC",
+                    (user_id,),
+                )
+                list_rows = cur.fetchall()
+                cur.execute(
+                    "SELECT * FROM visibility_prompts WHERE user_id = %s ORDER BY position ASC, created_at ASC",
+                    (user_id,),
+                )
+                prompt_rows = cur.fetchall()
+
+        topics = {row["id"]: self._row_to_visibility_topic(row) for row in topic_rows}
+        subtopics = {row["id"]: self._row_to_visibility_subtopic(row) for row in subtopic_rows}
+        prompt_lists = {row["id"]: self._row_to_visibility_prompt_list(row) for row in list_rows}
+
+        for prompt_row in prompt_rows:
+            prompt = self._row_to_visibility_prompt(prompt_row)
+            prompt_list = prompt_lists.get(prompt.prompt_list_id)
+            if prompt_list:
+                prompt_list.prompts.append(prompt)
+
+        for prompt_list in prompt_lists.values():
+            subtopic = subtopics.get(prompt_list.subtopic_id)
+            if subtopic:
+                subtopic.prompt_lists.append(prompt_list)
+
+        for subtopic in subtopics.values():
+            topic = topics.get(subtopic.topic_id)
+            if topic:
+                topic.subtopics.append(subtopic)
+
+        return list(topics.values())
+
+    def create_visibility_job(
+        self,
+        user_id: str,
+        *,
+        topic_id: str,
+        subtopic_id: str,
+        prompt_list_id: str,
+        provider: str,
+        model: str,
+        surface: str,
+        run_source: str,
+        total_prompts: int,
+    ) -> VisibilityJobRecord:
+        job_id = str(uuid4())
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO visibility_jobs (
+                        id, user_id, topic_id, subtopic_id, prompt_list_id, provider, model, surface, run_source,
+                        status, stage, progress_percent, total_prompts, completed_prompts, error, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        job_id,
+                        user_id,
+                        topic_id,
+                        subtopic_id,
+                        prompt_list_id,
+                        provider,
+                        model,
+                        surface,
+                        run_source,
+                        "queued",
+                        "queued",
+                        0,
+                        total_prompts,
+                        0,
+                        None,
+                        now,
+                        now,
+                    ),
+                )
+            conn.commit()
+        return self.get_visibility_job(user_id, job_id)  # type: ignore[return-value]
+
+    def get_visibility_job(self, user_id: str, job_id: str) -> Optional[VisibilityJobRecord]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM visibility_jobs WHERE id = %s AND user_id = %s", (job_id, user_id))
+                row = cur.fetchone()
+        return self._row_to_visibility_job(row) if row else None
+
+    def get_visibility_job_by_id(self, job_id: str) -> Optional[VisibilityJobRecord]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM visibility_jobs WHERE id = %s", (job_id,))
+                row = cur.fetchone()
+        return self._row_to_visibility_job(row) if row else None
+
+    def list_visibility_jobs(self, user_id: str, limit: int = 20) -> List[VisibilityJobRecord]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    "SELECT * FROM visibility_jobs WHERE user_id = %s ORDER BY created_at DESC LIMIT %s",
+                    (user_id, limit),
+                )
+                rows = cur.fetchall()
+        return [self._row_to_visibility_job(row) for row in rows]
+
+    def update_visibility_job(self, job_id: str, **kwargs: Any) -> Optional[VisibilityJobRecord]:
+        allowed = {
+            "status",
+            "stage",
+            "progress_percent",
+            "completed_prompts",
+            "total_prompts",
+            "error",
+        }
+        updates = dict((k, v) for (k, v) in kwargs.items() if k in allowed)
+        if not updates:
+            return self.get_visibility_job_by_id(job_id)
+        columns = []
+        values: List[Any] = []
+        for key, value in updates.items():
+            columns.append("{} = %s".format(key))
+            values.append(value)
+        columns.append("updated_at = %s")
+        values.append(self._utcnow())
+        values.append(job_id)
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("UPDATE visibility_jobs SET {} WHERE id = %s".format(", ".join(columns)), values)
+            conn.commit()
+        return self.get_visibility_job_by_id(job_id)
+
+    def create_visibility_prompt_run(
+        self,
+        user_id: str,
+        *,
+        topic_id: str,
+        subtopic_id: str,
+        prompt_list_id: str,
+        prompt_id: str,
+        prompt_text: str,
+        provider: str,
+        model: str,
+        surface: str,
+        run_source: str,
+        status: str,
+        response_text: str = "",
+        brands: Optional[List[str]] = None,
+        cited_domains: Optional[List[str]] = None,
+        cited_urls: Optional[List[str]] = None,
+        error: Optional[str] = None,
+        job_id: Optional[str] = None,
+    ) -> VisibilityPromptRunRecord:
+        run_id = str(uuid4())
+        now = self._utcnow()
+        if job_id:
+            with self._connect() as conn:
+                with conn.cursor(row_factory=dict_row) as cur:
+                    cur.execute(
+                        """
+                        SELECT * FROM visibility_prompt_runs
+                        WHERE user_id = %s AND job_id = %s AND prompt_id = %s
+                        ORDER BY created_at DESC
+                        LIMIT 1
+                        """,
+                        (user_id, job_id, prompt_id),
+                    )
+                    existing = cur.fetchone()
+            if existing:
+                return self._row_to_visibility_prompt_run(existing)
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO visibility_prompt_runs (
+                        id, user_id, job_id, topic_id, subtopic_id, prompt_list_id, prompt_id, prompt_text,
+                        provider, model, surface, run_source, status, response_text, brands_json,
+                        cited_domains_json, cited_urls_json, error, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        run_id,
+                        user_id,
+                        job_id,
+                        topic_id,
+                        subtopic_id,
+                        prompt_list_id,
+                        prompt_id,
+                        prompt_text,
+                        provider,
+                        model,
+                        surface,
+                        run_source,
+                        status,
+                        response_text,
+                        json.dumps(brands or []),
+                        json.dumps(cited_domains or []),
+                        json.dumps(cited_urls or []),
+                        error,
+                        now,
+                        now,
+                    ),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM visibility_prompt_runs WHERE id = %s", (run_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Visibility prompt run creation failed unexpectedly")
+        return self._row_to_visibility_prompt_run(row)
+
+    def list_visibility_prompt_runs(
+        self,
+        user_id: str,
+        *,
+        limit: int = 200,
+        topic_id: Optional[str] = None,
+        subtopic_id: Optional[str] = None,
+        prompt_list_id: Optional[str] = None,
+        prompt_id: Optional[str] = None,
+        job_id: Optional[str] = None,
+    ) -> List[VisibilityPromptRunRecord]:
+        query = "SELECT * FROM visibility_prompt_runs WHERE user_id = %s"
+        params: List[Any] = [user_id]
+        if topic_id:
+            query += " AND topic_id = %s"
+            params.append(topic_id)
+        if subtopic_id:
+            query += " AND subtopic_id = %s"
+            params.append(subtopic_id)
+        if prompt_list_id:
+            query += " AND prompt_list_id = %s"
+            params.append(prompt_list_id)
+        if prompt_id:
+            query += " AND prompt_id = %s"
+            params.append(prompt_id)
+        if job_id:
+            query += " AND job_id = %s"
+            params.append(job_id)
+        query += " ORDER BY created_at DESC LIMIT %s"
+        params.append(limit)
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(query, params)
+                rows = cur.fetchall()
+        return [self._row_to_visibility_prompt_run(row) for row in rows]
+
+    def list_due_visibility_prompt_lists(self, as_of: Optional[datetime] = None, limit: int = 25) -> List[dict[str, Any]]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT pl.*, st.topic_id
+                    FROM visibility_prompt_lists pl
+                    JOIN visibility_subtopics st ON st.id = pl.subtopic_id
+                    WHERE pl.schedule_frequency != 'disabled'
+                      AND pl.next_run_at IS NOT NULL
+                      AND pl.next_run_at <= %s
+                    ORDER BY pl.next_run_at ASC
+                    LIMIT %s
+                    """,
+                    (as_of or self._utcnow(), limit),
+                )
+                rows = cur.fetchall()
+        return [
+            {
+                "id": str(row["id"]),
+                "user_id": str(row["user_id"]),
+                "subtopic_id": str(row["subtopic_id"]),
+                "topic_id": str(row["topic_id"]),
+                "schedule_frequency": str(row["schedule_frequency"] or "disabled"),
+            }
+            for row in rows
+        ]
+
+    def mark_visibility_prompt_list_run(
+        self,
+        prompt_list_id: str,
+        *,
+        frequency: str,
+        run_at: Optional[datetime] = None,
+    ) -> Optional[VisibilityPromptListRecord]:
+        executed_at = run_at or self._utcnow()
+        normalized_frequency = self._normalize_schedule_frequency(frequency)
+        next_run_at = self._next_scheduled_run(normalized_frequency, executed_at)
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE visibility_prompt_lists
+                    SET last_run_at = %s, next_run_at = %s, updated_at = %s
+                    WHERE id = %s
+                    """,
+                    (executed_at, next_run_at, executed_at, prompt_list_id),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM visibility_prompt_lists WHERE id = %s", (prompt_list_id,))
+                row = cur.fetchone()
+        return self._row_to_visibility_prompt_list(row) if row else None
+
+    def delete_visibility_competitor(self, user_id: str, competitor_id: str) -> bool:
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM visibility_competitors WHERE id = %s AND user_id = %s",
+                    (competitor_id, user_id),
+                )
+                deleted = cur.rowcount > 0
+            conn.commit()
+        return deleted
+
+    def delete_visibility_prompt(self, user_id: str, prompt_id: str) -> bool:
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM visibility_prompt_runs WHERE prompt_id = %s AND user_id = %s",
+                    (prompt_id, user_id),
+                )
+                cur.execute(
+                    "DELETE FROM visibility_prompts WHERE id = %s AND user_id = %s",
+                    (prompt_id, user_id),
+                )
+                deleted = cur.rowcount > 0
+            conn.commit()
+        return deleted
+
+    def delete_visibility_prompt_list(self, user_id: str, prompt_list_id: str) -> bool:
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM visibility_prompt_runs WHERE prompt_list_id = %s AND user_id = %s",
+                    (prompt_list_id, user_id),
+                )
+                cur.execute(
+                    "DELETE FROM visibility_jobs WHERE prompt_list_id = %s AND user_id = %s",
+                    (prompt_list_id, user_id),
+                )
+                cur.execute(
+                    "DELETE FROM visibility_prompts WHERE prompt_list_id = %s AND user_id = %s",
+                    (prompt_list_id, user_id),
+                )
+                cur.execute(
+                    "DELETE FROM visibility_prompt_lists WHERE id = %s AND user_id = %s",
+                    (prompt_list_id, user_id),
+                )
+                deleted = cur.rowcount > 0
+            conn.commit()
+        return deleted
+
+    def delete_visibility_subtopic(self, user_id: str, subtopic_id: str) -> bool:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    "SELECT id FROM visibility_prompt_lists WHERE subtopic_id = %s AND user_id = %s",
+                    (subtopic_id, user_id),
+                )
+                prompt_list_rows = cur.fetchall()
+        deleted_any = False
+        for row in prompt_list_rows:
+            deleted_any = self.delete_visibility_prompt_list(user_id, str(row["id"])) or deleted_any
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM visibility_prompt_runs WHERE subtopic_id = %s AND user_id = %s",
+                    (subtopic_id, user_id),
+                )
+                cur.execute(
+                    "DELETE FROM visibility_jobs WHERE subtopic_id = %s AND user_id = %s",
+                    (subtopic_id, user_id),
+                )
+                cur.execute(
+                    "DELETE FROM visibility_subtopics WHERE id = %s AND user_id = %s",
+                    (subtopic_id, user_id),
+                )
+                deleted = cur.rowcount > 0
+            conn.commit()
+        return deleted or deleted_any
+
+    def delete_visibility_topic(self, user_id: str, topic_id: str) -> bool:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    "SELECT id FROM visibility_subtopics WHERE topic_id = %s AND user_id = %s",
+                    (topic_id, user_id),
+                )
+                subtopic_rows = cur.fetchall()
+        deleted_any = False
+        for row in subtopic_rows:
+            deleted_any = self.delete_visibility_subtopic(user_id, str(row["id"])) or deleted_any
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM visibility_prompt_runs WHERE topic_id = %s AND user_id = %s",
+                    (topic_id, user_id),
+                )
+                cur.execute(
+                    "DELETE FROM visibility_jobs WHERE topic_id = %s AND user_id = %s",
+                    (topic_id, user_id),
+                )
+                cur.execute(
+                    "DELETE FROM visibility_topics WHERE id = %s AND user_id = %s",
+                    (topic_id, user_id),
+                )
+                deleted = cur.rowcount > 0
+            conn.commit()
+        return deleted or deleted_any
 
     def create_run(self, user_id: str, payload: RunCreateRequest) -> RunRecord:
         record_id = str(uuid4())

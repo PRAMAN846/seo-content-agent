@@ -818,6 +818,122 @@
         display: none;
       }
 
+      .tracker-split {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 16px;
+      }
+
+      .tracker-tree,
+      .metric-list,
+      .mini-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .tracker-block {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        background: linear-gradient(180deg, #ffffff, #f8fafc);
+      }
+
+      .tracker-block h3 {
+        margin: 0 0 6px;
+        font-family: "Sora", sans-serif;
+        font-size: 15px;
+      }
+
+      .tracker-block p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .mini-list {
+        max-height: 380px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .mini-item {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+        background: #ffffff;
+      }
+
+      .mini-item strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .mini-item span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .metric-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 11px 12px;
+        background: #ffffff;
+      }
+
+      .metric-row strong {
+        font-size: 14px;
+      }
+
+      .metric-row span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .metric-row.clickable {
+        cursor: pointer;
+      }
+
+      .metric-row.clickable:hover {
+        border-color: #a9b8cf;
+        background: #f6f9ff;
+      }
+
+      .metric-row.active {
+        border-color: #7c91b3;
+        background: #eef4ff;
+      }
+
+      .trend-chart {
+        display: grid;
+        gap: 10px;
+      }
+
+      .trend-bar {
+        display: grid;
+        grid-template-columns: 110px 1fr 52px;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .trend-track {
+        height: 10px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e8edf6;
+      }
+
+      .trend-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2a3344, #11151d);
+      }
+
       .brief-pane {
         display: none;
       }
@@ -885,6 +1001,10 @@
         }
 
         .workspace-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .tracker-split {
           grid-template-columns: 1fr;
         }
       }
@@ -1012,6 +1132,20 @@
             <span class="nav-copy">
               <strong>Content Writing Agent</strong>
               <span>Write detailed article drafts</span>
+            </span>
+            </button>
+            <button id="tabVisibility" class="nav-btn" type="button">
+              <span class="nav-mark">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 19V9"></path>
+                  <path d="M10 19V5"></path>
+                  <path d="M16 19v-8"></path>
+                  <path d="M22 19v-4"></path>
+                </svg>
+              </span>
+            <span class="nav-copy">
+              <strong>AI Visibility Tracker</strong>
+              <span>Prompt tracking, runs, and reports</span>
             </span>
             </button>
           </div>
@@ -1355,6 +1489,207 @@
           </div>
         </section>
 
+        <section id="visibilityView" class="view">
+          <div class="summary-grid">
+            <article class="summary-card card">
+              <strong id="visibilityTopicsCount">0</strong>
+              <span>Tracker topics configured</span>
+            </article>
+            <article class="summary-card card">
+              <strong id="visibilityListsCount">0</strong>
+              <span>Prompt lists available to run</span>
+            </article>
+            <article class="summary-card card">
+              <strong id="visibilityPromptsCount">0</strong>
+              <span>Total prompts stored</span>
+            </article>
+            <article class="summary-card card">
+              <strong id="visibilityRunsCount">0</strong>
+              <span>Prompt snapshots captured</span>
+            </article>
+          </div>
+
+          <div class="tracker-split">
+            <section class="section card stack">
+              <div>
+                <h2>Tracker Profile</h2>
+                <p class="desc">Set the tracked brand and the default run cadence used when creating new prompt lists.</p>
+                <div class="field-grid">
+                  <div>
+                    <label for="visibilityBrandName">Tracked Brand Name</label>
+                    <input id="visibilityBrandName" placeholder="Xpaan Digital" />
+                  </div>
+                  <div>
+                    <label for="visibilityDefaultSchedule">Default Schedule</label>
+                    <select id="visibilityDefaultSchedule">
+                      <option value="disabled">Manual only</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="twice_monthly">Twice Monthly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+                  <div class="wide">
+                    <label for="visibilityBrandUrl">Tracked Brand URL</label>
+                    <input id="visibilityBrandUrl" placeholder="https://yourbrand.com" />
+                  </div>
+                </div>
+                <div class="row-actions">
+                  <button id="saveVisibilityProfileBtn" class="btn primary" type="button">Save Tracker Profile</button>
+                </div>
+                <p id="visibilityProfileMsg" class="helper"></p>
+              </div>
+
+              <div>
+                <h2>Competitors</h2>
+                <p class="desc">Add competitor brands and domains to compare presence and citations in reports.</p>
+                <div class="field-grid">
+                  <div>
+                    <label for="visibilityCompetitorName">Competitor Name</label>
+                    <input id="visibilityCompetitorName" placeholder="Competitor brand" />
+                  </div>
+                  <div>
+                    <label for="visibilityCompetitorDomain">Competitor Domain</label>
+                    <input id="visibilityCompetitorDomain" placeholder="competitor.com" />
+                  </div>
+                </div>
+                <div class="row-actions">
+                  <button id="addVisibilityCompetitorBtn" class="btn" type="button">Add Competitor</button>
+                </div>
+                <div id="visibilityCompetitorsList" class="mini-list"></div>
+              </div>
+            </section>
+
+            <section class="section card stack">
+              <div>
+                <h2>Hierarchy Builder</h2>
+                <p class="desc">Create a topic, break it into subtopics, then add prompt lists and prompts beneath each list.</p>
+                <div class="tracker-tree">
+                  <div class="tracker-block">
+                    <h3>Topic</h3>
+                    <p>Create your top-level theme.</p>
+                    <label for="visibilityTopicName">Topic Name</label>
+                    <input id="visibilityTopicName" placeholder="AI brand visibility" />
+                    <div class="row-actions">
+                      <button id="addVisibilityTopicBtn" class="btn" type="button">Add Topic</button>
+                      <button id="deleteVisibilityTopicBtn" class="btn" type="button">Delete Selected Topic</button>
+                    </div>
+                  </div>
+                  <div class="tracker-block">
+                    <h3>Subtopic</h3>
+                    <p>Attach a subtopic to the selected topic.</p>
+                    <label for="visibilityTopicSelect">Choose Topic</label>
+                    <select id="visibilityTopicSelect"></select>
+                    <label for="visibilitySubtopicName" style="margin-top: 12px;">Subtopic Name</label>
+                    <input id="visibilitySubtopicName" placeholder="Enterprise SEO tools" />
+                    <div class="row-actions">
+                      <button id="addVisibilitySubtopicBtn" class="btn" type="button">Add Subtopic</button>
+                      <button id="deleteVisibilitySubtopicBtn" class="btn" type="button">Delete Selected Subtopic</button>
+                    </div>
+                  </div>
+                  <div class="tracker-block">
+                    <h3>Prompt List</h3>
+                    <p>Create a saved list that can be run manually or on the configured schedule.</p>
+                    <label for="visibilitySubtopicSelect">Choose Subtopic</label>
+                    <select id="visibilitySubtopicSelect"></select>
+                    <label for="visibilityPromptListName" style="margin-top: 12px;">Prompt List Name</label>
+                    <input id="visibilityPromptListName" placeholder="Commercial comparison prompts" />
+                    <label for="visibilityPromptListSchedule" style="margin-top: 12px;">List Schedule</label>
+                    <select id="visibilityPromptListSchedule">
+                      <option value="disabled">Manual only</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="twice_monthly">Twice Monthly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                    <div class="row-actions">
+                      <button id="addVisibilityPromptListBtn" class="btn" type="button">Add Prompt List</button>
+                      <button id="deleteVisibilityPromptListBtn" class="btn" type="button">Delete Selected List</button>
+                    </div>
+                  </div>
+                  <div class="tracker-block">
+                    <h3>Prompts</h3>
+                    <p>Add one prompt per line to the selected prompt list, then run that list.</p>
+                    <label for="visibilityPromptListSelect">Choose Prompt List</label>
+                    <select id="visibilityPromptListSelect"></select>
+                    <label for="visibilityPromptBulk" style="margin-top: 12px;">Prompts</label>
+                    <textarea id="visibilityPromptBulk" placeholder="Which platforms are best for enterprise SEO teams?
+What AI visibility tracking tools are cited most often?"></textarea>
+                    <div class="row-actions">
+                      <button id="addVisibilityPromptsBtn" class="btn" type="button">Save Prompts</button>
+                      <button id="runVisibilityPromptListBtn" class="btn primary" type="button">Run Selected List</button>
+                    </div>
+                    <div id="visibilityPromptPreviewList" class="mini-list" style="margin-top: 12px;"></div>
+                    <p id="visibilityRunMsg" class="helper">Each run stores a dated snapshot per prompt. Query fanout is not captured in this MVP.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="tracker-split">
+            <section class="section card stack">
+              <div>
+                <div class="row-actions" style="margin-top: 0; justify-content: space-between;">
+                  <div>
+                    <h2 style="margin-bottom: 6px;">Reports</h2>
+                    <p class="desc" style="margin-bottom: 0;">Switch scope between all prompts, a topic, a subtopic, or a prompt list.</p>
+                  </div>
+                  <button id="refreshVisibilityReportBtn" class="btn" type="button">Refresh Report</button>
+                </div>
+                <div class="field-grid" style="margin-top: 14px;">
+                  <div>
+                    <label for="visibilityReportLevel">Report Level</label>
+                    <select id="visibilityReportLevel">
+                      <option value="all">All Data</option>
+                      <option value="topic">Topic</option>
+                      <option value="subtopic">Subtopic</option>
+                      <option value="prompt_list">Prompt List</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="visibilityReportEntity">Scope</label>
+                    <select id="visibilityReportEntity"></select>
+                  </div>
+                </div>
+              </div>
+              <div class="tracker-block">
+                <h3 id="visibilityReportTitle">All tracked prompts</h3>
+                <p id="visibilityReportMeta">No report loaded yet.</p>
+                <div id="visibilityBrandPresence" class="metric-list"></div>
+              </div>
+              <div class="tracker-block">
+                <h3>Top Cited Domains</h3>
+                <div id="visibilityTopDomains" class="metric-list"></div>
+              </div>
+              <div class="tracker-block">
+                <h3>Top Cited URLs</h3>
+                <div id="visibilityTopUrls" class="metric-list"></div>
+              </div>
+              <div class="tracker-block">
+                <h3>Daily Activity</h3>
+                <div id="visibilityDailyMetrics" class="trend-chart"></div>
+              </div>
+              <div class="tracker-block">
+                <h3 id="visibilityDrilldownTitle">Citation Drill-down</h3>
+                <p id="visibilityDrilldownMeta">Click a domain or URL above to see which prompt snapshots produced it.</p>
+                <div id="visibilityDrilldownPrompts" class="mini-list"></div>
+              </div>
+            </section>
+
+            <section class="section card stack">
+              <div>
+                <h2>Recent Jobs</h2>
+                <p class="desc">Each list run becomes a job with per-prompt snapshots stored under it.</p>
+                <div id="visibilityJobsList" class="mini-list"></div>
+              </div>
+              <div>
+                <h2>Recent Prompt Snapshots</h2>
+                <p class="desc">Review the response, tracked brands, and citations captured for each prompt.</p>
+                <div id="visibilityRunsList" class="mini-list"></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
         <section id="settingsView" class="view">
           <div class="grid-two">
             <section class="section card">
@@ -1473,6 +1808,13 @@
       const state = {
         briefs: [],
         articles: [],
+        visibilityOverview: null,
+        visibilityReport: null,
+        visibilityDrilldown: { type: "domain", value: null },
+        selectedVisibilityTopicId: null,
+        selectedVisibilitySubtopicId: null,
+        selectedVisibilityPromptListId: null,
+        currentVisibilityJobId: null,
         selectedBriefId: null,
         selectedArticleId: null,
         briefEditorDirty: false,
@@ -1508,11 +1850,13 @@
         tabWorkspace: document.getElementById("tabWorkspace"),
         tabBriefs: document.getElementById("tabBriefs"),
         tabArticles: document.getElementById("tabArticles"),
+        tabVisibility: document.getElementById("tabVisibility"),
         tabSettings: document.getElementById("tabSettings"),
         homeView: document.getElementById("homeView"),
         workspaceView: document.getElementById("workspaceView"),
         briefView: document.getElementById("briefView"),
         articleView: document.getElementById("articleView"),
+        visibilityView: document.getElementById("visibilityView"),
         settingsView: document.getElementById("settingsView"),
         homeTopicsCount: document.getElementById("homeTopicsCount"),
         homeBriefCount: document.getElementById("homeBriefCount"),
@@ -1581,6 +1925,52 @@
         articleSourceBrief: document.getElementById("articleSourceBrief"),
         articleOutput: document.getElementById("articleOutput"),
         articleExport: document.getElementById("articleExport"),
+
+        visibilityTopicsCount: document.getElementById("visibilityTopicsCount"),
+        visibilityListsCount: document.getElementById("visibilityListsCount"),
+        visibilityPromptsCount: document.getElementById("visibilityPromptsCount"),
+        visibilityRunsCount: document.getElementById("visibilityRunsCount"),
+        visibilityBrandName: document.getElementById("visibilityBrandName"),
+        visibilityBrandUrl: document.getElementById("visibilityBrandUrl"),
+        visibilityDefaultSchedule: document.getElementById("visibilityDefaultSchedule"),
+        saveVisibilityProfileBtn: document.getElementById("saveVisibilityProfileBtn"),
+        visibilityProfileMsg: document.getElementById("visibilityProfileMsg"),
+        visibilityCompetitorName: document.getElementById("visibilityCompetitorName"),
+        visibilityCompetitorDomain: document.getElementById("visibilityCompetitorDomain"),
+        addVisibilityCompetitorBtn: document.getElementById("addVisibilityCompetitorBtn"),
+        visibilityCompetitorsList: document.getElementById("visibilityCompetitorsList"),
+        visibilityTopicName: document.getElementById("visibilityTopicName"),
+        addVisibilityTopicBtn: document.getElementById("addVisibilityTopicBtn"),
+        deleteVisibilityTopicBtn: document.getElementById("deleteVisibilityTopicBtn"),
+        visibilityTopicSelect: document.getElementById("visibilityTopicSelect"),
+        visibilitySubtopicName: document.getElementById("visibilitySubtopicName"),
+        addVisibilitySubtopicBtn: document.getElementById("addVisibilitySubtopicBtn"),
+        deleteVisibilitySubtopicBtn: document.getElementById("deleteVisibilitySubtopicBtn"),
+        visibilitySubtopicSelect: document.getElementById("visibilitySubtopicSelect"),
+        visibilityPromptListName: document.getElementById("visibilityPromptListName"),
+        visibilityPromptListSchedule: document.getElementById("visibilityPromptListSchedule"),
+        addVisibilityPromptListBtn: document.getElementById("addVisibilityPromptListBtn"),
+        deleteVisibilityPromptListBtn: document.getElementById("deleteVisibilityPromptListBtn"),
+        visibilityPromptListSelect: document.getElementById("visibilityPromptListSelect"),
+        visibilityPromptBulk: document.getElementById("visibilityPromptBulk"),
+        addVisibilityPromptsBtn: document.getElementById("addVisibilityPromptsBtn"),
+        runVisibilityPromptListBtn: document.getElementById("runVisibilityPromptListBtn"),
+        visibilityPromptPreviewList: document.getElementById("visibilityPromptPreviewList"),
+        visibilityRunMsg: document.getElementById("visibilityRunMsg"),
+        visibilityReportLevel: document.getElementById("visibilityReportLevel"),
+        visibilityReportEntity: document.getElementById("visibilityReportEntity"),
+        refreshVisibilityReportBtn: document.getElementById("refreshVisibilityReportBtn"),
+        visibilityReportTitle: document.getElementById("visibilityReportTitle"),
+        visibilityReportMeta: document.getElementById("visibilityReportMeta"),
+        visibilityBrandPresence: document.getElementById("visibilityBrandPresence"),
+        visibilityTopDomains: document.getElementById("visibilityTopDomains"),
+        visibilityTopUrls: document.getElementById("visibilityTopUrls"),
+        visibilityDailyMetrics: document.getElementById("visibilityDailyMetrics"),
+        visibilityDrilldownTitle: document.getElementById("visibilityDrilldownTitle"),
+        visibilityDrilldownMeta: document.getElementById("visibilityDrilldownMeta"),
+        visibilityDrilldownPrompts: document.getElementById("visibilityDrilldownPrompts"),
+        visibilityJobsList: document.getElementById("visibilityJobsList"),
+        visibilityRunsList: document.getElementById("visibilityRunsList"),
 
         settingsName: document.getElementById("settingsName"),
         settingsBrandName: document.getElementById("settingsBrandName"),
@@ -1678,6 +2068,11 @@
             subtitle: "Write detailed content from saved briefs, custom briefs, or quick-draft mode from a query.",
             chip: "Writer Agent",
           },
+          visibility: {
+            title: "AI Visibility Tracker",
+            subtitle: "Track dated prompt runs, brand mentions, citations, and share of voice across topics, subtopics, and prompt lists.",
+            chip: "Visibility",
+          },
           settings: {
             title: "Account Settings",
             subtitle: "Manage your profile, brand defaults, prompt controls, and future integrations from one place.",
@@ -1689,12 +2084,14 @@
         els.tabWorkspace.classList.toggle("active", kind === "workspace");
         els.tabBriefs.classList.toggle("active", kind === "briefs");
         els.tabArticles.classList.toggle("active", kind === "articles");
+        els.tabVisibility.classList.toggle("active", kind === "visibility");
         els.tabSettings.classList.toggle("active", kind === "settings");
 
         els.homeView.classList.toggle("active", kind === "home");
         els.workspaceView.classList.toggle("active", kind === "workspace");
         els.briefView.classList.toggle("active", kind === "briefs");
         els.articleView.classList.toggle("active", kind === "articles");
+        els.visibilityView.classList.toggle("active", kind === "visibility");
         els.settingsView.classList.toggle("active", kind === "settings");
 
         els.viewTitle.textContent = views[kind].title;
@@ -2044,6 +2441,373 @@
         renderProfile();
       }
 
+      function collectVisibilityCounts(topics) {
+        let subtopics = 0;
+        let lists = 0;
+        let prompts = 0;
+        (topics || []).forEach((topic) => {
+          subtopics += (topic.subtopics || []).length;
+          (topic.subtopics || []).forEach((subtopic) => {
+            lists += (subtopic.prompt_lists || []).length;
+            (subtopic.prompt_lists || []).forEach((promptList) => {
+              prompts += (promptList.prompts || []).length;
+            });
+          });
+        });
+        return { topics: (topics || []).length, subtopics, lists, prompts };
+      }
+
+      function ensureVisibilitySelections() {
+        const topics = state.visibilityOverview ? state.visibilityOverview.topics || [] : [];
+        if (!topics.length) {
+          state.selectedVisibilityTopicId = null;
+          state.selectedVisibilitySubtopicId = null;
+          state.selectedVisibilityPromptListId = null;
+          return;
+        }
+        if (!state.selectedVisibilityTopicId || !topics.some((topic) => topic.id === state.selectedVisibilityTopicId)) {
+          state.selectedVisibilityTopicId = topics[0].id;
+        }
+        const topic = topics.find((item) => item.id === state.selectedVisibilityTopicId);
+        const subtopics = topic ? topic.subtopics || [] : [];
+        if (!subtopics.length) {
+          state.selectedVisibilitySubtopicId = null;
+          state.selectedVisibilityPromptListId = null;
+          return;
+        }
+        if (!state.selectedVisibilitySubtopicId || !subtopics.some((subtopic) => subtopic.id === state.selectedVisibilitySubtopicId)) {
+          state.selectedVisibilitySubtopicId = subtopics[0].id;
+        }
+        const subtopic = subtopics.find((item) => item.id === state.selectedVisibilitySubtopicId);
+        const promptLists = subtopic ? subtopic.prompt_lists || [] : [];
+        if (!promptLists.length) {
+          state.selectedVisibilityPromptListId = null;
+          return;
+        }
+        if (!state.selectedVisibilityPromptListId || !promptLists.some((promptList) => promptList.id === state.selectedVisibilityPromptListId)) {
+          state.selectedVisibilityPromptListId = promptLists[0].id;
+        }
+      }
+
+      function selectedVisibilityTopic() {
+        return state.visibilityOverview
+          ? (state.visibilityOverview.topics || []).find((topic) => topic.id === state.selectedVisibilityTopicId) || null
+          : null;
+      }
+
+      function selectedVisibilitySubtopic() {
+        const topic = selectedVisibilityTopic();
+        return topic
+          ? (topic.subtopics || []).find((subtopic) => subtopic.id === state.selectedVisibilitySubtopicId) || null
+          : null;
+      }
+
+      function selectedVisibilityPromptList() {
+        const subtopic = selectedVisibilitySubtopic();
+        return subtopic
+          ? (subtopic.prompt_lists || []).find((promptList) => promptList.id === state.selectedVisibilityPromptListId) || null
+          : null;
+      }
+
+      function renderVisibilityMetricRows(container, items, emptyText, formatter) {
+        container.innerHTML = "";
+        if (!items || !items.length) {
+          container.innerHTML = `<div class="mini-item"><span>${emptyText}</span></div>`;
+          return;
+        }
+        items.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "metric-row";
+          row.innerHTML = formatter(item);
+          container.appendChild(row);
+        });
+      }
+
+      function currentVisibilityDrilldown(report) {
+        if (!report) return null;
+        const type = state.visibilityDrilldown.type || "domain";
+        const list = type === "url" ? report.url_drilldown || [] : report.domain_drilldown || [];
+        if (!list.length) return null;
+        const current = list.find((item) => item.value === state.visibilityDrilldown.value);
+        return current || list[0];
+      }
+
+      function renderVisibility() {
+        const overview = state.visibilityOverview;
+        if (!overview) return;
+
+        ensureVisibilitySelections();
+
+        const counts = collectVisibilityCounts(overview.topics || []);
+        els.visibilityTopicsCount.textContent = String(counts.topics);
+        els.visibilityListsCount.textContent = String(counts.lists);
+        els.visibilityPromptsCount.textContent = String(counts.prompts);
+        els.visibilityRunsCount.textContent = String((overview.reports && overview.reports.all ? overview.reports.all.total_runs : 0));
+
+        const profile = overview.profile || {};
+        els.visibilityBrandName.value = profile.brand_name || "";
+        els.visibilityBrandUrl.value = profile.brand_url || "";
+        els.visibilityDefaultSchedule.value = profile.default_schedule_frequency || "disabled";
+        els.visibilityPromptListSchedule.value = profile.default_schedule_frequency || "disabled";
+
+        els.visibilityCompetitorsList.innerHTML = "";
+        if (!(profile.competitors || []).length) {
+          els.visibilityCompetitorsList.innerHTML = '<div class="mini-item"><span>No competitors added yet.</span></div>';
+        } else {
+          profile.competitors.forEach((competitor) => {
+            const item = document.createElement("div");
+            item.className = "mini-item";
+            item.innerHTML = `
+              <strong>${competitor.name}</strong>
+              <span>${competitor.domain || "Domain not set"}</span>
+              <div class="row-actions">
+                <button class="btn" type="button" data-delete-visibility-competitor="${competitor.id}">Delete</button>
+              </div>
+            `;
+            els.visibilityCompetitorsList.appendChild(item);
+          });
+          els.visibilityCompetitorsList.querySelectorAll("[data-delete-visibility-competitor]").forEach((button) => {
+            button.addEventListener("click", async () => {
+              if (!window.confirm("Delete this competitor?")) return;
+              const res = await fetch(`/api/visibility/competitors/${button.dataset.deleteVisibilityCompetitor}`, {
+                method: "DELETE",
+                credentials: "same-origin",
+              });
+              if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                alert(data.detail || "Unable to delete competitor.");
+                return;
+              }
+              await loadVisibilityOverview();
+              await loadVisibilityReport("all", "all");
+            });
+          });
+        }
+
+        const topics = overview.topics || [];
+        els.visibilityTopicSelect.innerHTML = topics.length
+          ? topics.map((topic) => `<option value="${topic.id}">${topic.name}</option>`).join("")
+          : '<option value="">No topics yet</option>';
+        if (state.selectedVisibilityTopicId && topics.some((topic) => topic.id === state.selectedVisibilityTopicId)) {
+          els.visibilityTopicSelect.value = state.selectedVisibilityTopicId;
+        }
+
+        const subtopics = selectedVisibilityTopic() ? selectedVisibilityTopic().subtopics || [] : [];
+        els.visibilitySubtopicSelect.innerHTML = subtopics.length
+          ? subtopics.map((subtopic) => `<option value="${subtopic.id}">${subtopic.name}</option>`).join("")
+          : '<option value="">No subtopics yet</option>';
+        if (state.selectedVisibilitySubtopicId && subtopics.some((subtopic) => subtopic.id === state.selectedVisibilitySubtopicId)) {
+          els.visibilitySubtopicSelect.value = state.selectedVisibilitySubtopicId;
+        }
+
+        const promptLists = selectedVisibilitySubtopic() ? selectedVisibilitySubtopic().prompt_lists || [] : [];
+        els.visibilityPromptListSelect.innerHTML = promptLists.length
+          ? promptLists.map((promptList) => `<option value="${promptList.id}">${promptList.name}</option>`).join("")
+          : '<option value="">No prompt lists yet</option>';
+        if (state.selectedVisibilityPromptListId && promptLists.some((promptList) => promptList.id === state.selectedVisibilityPromptListId)) {
+          els.visibilityPromptListSelect.value = state.selectedVisibilityPromptListId;
+        }
+        const selectedPromptList = selectedVisibilityPromptList();
+        els.visibilityPromptPreviewList.innerHTML = "";
+        if (!selectedPromptList || !(selectedPromptList.prompts || []).length) {
+          els.visibilityPromptPreviewList.innerHTML = '<div class="mini-item"><span>No prompts in the selected list yet.</span></div>';
+        } else {
+          selectedPromptList.prompts.forEach((prompt) => {
+            const item = document.createElement("div");
+            item.className = "mini-item";
+            item.innerHTML = `
+              <strong>${prompt.prompt_text}</strong>
+              <span>Prompt #${prompt.position}</span>
+              <div class="row-actions">
+                <button class="btn" type="button" data-delete-visibility-prompt="${prompt.id}">Delete</button>
+              </div>
+            `;
+            els.visibilityPromptPreviewList.appendChild(item);
+          });
+          els.visibilityPromptPreviewList.querySelectorAll("[data-delete-visibility-prompt]").forEach((button) => {
+            button.addEventListener("click", async () => {
+              if (!window.confirm("Delete this prompt and its stored snapshots?")) return;
+              const res = await fetch(`/api/visibility/prompts/${button.dataset.deleteVisibilityPrompt}`, {
+                method: "DELETE",
+                credentials: "same-origin",
+              });
+              if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                alert(data.detail || "Unable to delete prompt.");
+                return;
+              }
+              await loadVisibilityOverview();
+              const reportValue = els.visibilityReportEntity.value || "all";
+              if (reportValue === "all") {
+                state.visibilityReport = state.visibilityOverview ? state.visibilityOverview.reports.all : null;
+                renderVisibility();
+              } else {
+                const [level, entityId] = reportValue.split(":");
+                await loadVisibilityReport(level, entityId);
+              }
+            });
+          });
+        }
+
+        const reportOptions = ['<option value="all">All tracked prompts</option>'];
+        topics.forEach((topic) => {
+          reportOptions.push(`<option value="topic:${topic.id}">Topic: ${topic.name}</option>`);
+          (topic.subtopics || []).forEach((subtopic) => {
+            reportOptions.push(`<option value="subtopic:${subtopic.id}">Subtopic: ${subtopic.name}</option>`);
+            (subtopic.prompt_lists || []).forEach((promptList) => {
+              reportOptions.push(`<option value="prompt_list:${promptList.id}">Prompt List: ${promptList.name}</option>`);
+            });
+          });
+        });
+        els.visibilityReportEntity.innerHTML = reportOptions.join("");
+        const currentReportValue = state.visibilityReport && state.visibilityReport.level !== "all"
+          ? `${state.visibilityReport.level}:${state.visibilityReport.entity_id}`
+          : "all";
+        if (Array.from(els.visibilityReportEntity.options).some((option) => option.value === currentReportValue)) {
+          els.visibilityReportEntity.value = currentReportValue;
+        }
+        els.visibilityReportLevel.value = currentReportValue === "all" ? "all" : currentReportValue.split(":")[0];
+
+        const report = state.visibilityReport || overview.reports.all;
+        els.visibilityReportTitle.textContent = report ? report.entity_name : "All tracked prompts";
+        els.visibilityReportMeta.textContent = report
+          ? `${report.total_runs} prompt snapshots in this view`
+          : "No report loaded yet.";
+
+        renderVisibilityMetricRows(
+          els.visibilityBrandPresence,
+          report ? report.brand_presence || [] : [],
+          "No brand mentions recorded yet.",
+          (item) => `
+            <div>
+              <strong>${item.brand}</strong>
+              <span>Share of voice ${(Number(item.share_of_voice || 0) * 100).toFixed(1)}%</span>
+            </div>
+            <strong>${item.prompt_mentions}</strong>
+          `,
+        );
+        renderVisibilityMetricRows(
+          els.visibilityTopDomains,
+          report ? report.top_domains || [] : [],
+          "No cited domains yet.",
+          (item) => `
+            <div>
+              <strong>${item.value}</strong>
+              <span>Domain citations</span>
+            </div>
+            <strong>${item.count}</strong>
+          `,
+        );
+        Array.from(els.visibilityTopDomains.children).forEach((row, index) => {
+          const item = report && report.top_domains ? report.top_domains[index] : null;
+          if (!item) return;
+          row.classList.add("clickable");
+          const active = state.visibilityDrilldown.type === "domain" && currentVisibilityDrilldown(report) && currentVisibilityDrilldown(report).value === item.value;
+          row.classList.toggle("active", Boolean(active));
+          row.addEventListener("click", () => {
+            state.visibilityDrilldown = { type: "domain", value: item.value };
+            renderVisibility();
+          });
+        });
+        renderVisibilityMetricRows(
+          els.visibilityTopUrls,
+          report ? report.top_urls || [] : [],
+          "No cited URLs yet.",
+          (item) => `
+            <div>
+              <strong>${item.value}</strong>
+              <span>URL citations</span>
+            </div>
+            <strong>${item.count}</strong>
+          `,
+        );
+        Array.from(els.visibilityTopUrls.children).forEach((row, index) => {
+          const item = report && report.top_urls ? report.top_urls[index] : null;
+          if (!item) return;
+          row.classList.add("clickable");
+          const active = state.visibilityDrilldown.type === "url" && currentVisibilityDrilldown(report) && currentVisibilityDrilldown(report).value === item.value;
+          row.classList.toggle("active", Boolean(active));
+          row.addEventListener("click", () => {
+            state.visibilityDrilldown = { type: "url", value: item.value };
+            renderVisibility();
+          });
+        });
+
+        els.visibilityDailyMetrics.innerHTML = "";
+        const dailyMetrics = report ? report.daily_metrics || [] : [];
+        if (!dailyMetrics.length) {
+          els.visibilityDailyMetrics.innerHTML = '<div class="mini-item"><span>No daily trend data yet.</span></div>';
+        } else {
+          const maxRuns = Math.max(...dailyMetrics.map((item) => item.run_count), 1);
+          dailyMetrics.forEach((item) => {
+            const bar = document.createElement("div");
+            bar.className = "trend-bar";
+            bar.innerHTML = `
+              <strong>${item.date}</strong>
+              <div class="trend-track"><div class="trend-fill" style="width: ${(item.run_count / maxRuns) * 100}%"></div></div>
+              <strong>${item.run_count}</strong>
+            `;
+            els.visibilityDailyMetrics.appendChild(bar);
+          });
+        }
+
+        const drilldown = currentVisibilityDrilldown(report);
+        els.visibilityDrilldownPrompts.innerHTML = "";
+        if (!drilldown) {
+          els.visibilityDrilldownTitle.textContent = "Citation Drill-down";
+          els.visibilityDrilldownMeta.textContent = "Click a domain or URL above to see which prompt snapshots produced it.";
+          els.visibilityDrilldownPrompts.innerHTML = '<div class="mini-item"><span>No drill-down data available yet.</span></div>';
+        } else {
+          els.visibilityDrilldownTitle.textContent = `${state.visibilityDrilldown.type === "url" ? "URL" : "Domain"} Drill-down`;
+          els.visibilityDrilldownMeta.textContent = `${drilldown.value} appeared in ${drilldown.count} prompt snapshots.`;
+          if (!(drilldown.prompts || []).length) {
+            els.visibilityDrilldownPrompts.innerHTML = '<div class="mini-item"><span>No prompt references found for this citation.</span></div>';
+          } else {
+            drilldown.prompts.forEach((promptRef) => {
+              const item = document.createElement("div");
+              item.className = "mini-item";
+              item.innerHTML = `
+                <strong>${promptRef.prompt_text}</strong>
+                <span>Run ${promptRef.run_id}</span>
+                <span>${formatDate(promptRef.created_at)}</span>
+              `;
+              els.visibilityDrilldownPrompts.appendChild(item);
+            });
+          }
+        }
+
+        els.visibilityJobsList.innerHTML = "";
+        if (!(overview.recent_jobs || []).length) {
+          els.visibilityJobsList.innerHTML = '<div class="mini-item"><span>No list runs yet.</span></div>';
+        } else {
+          overview.recent_jobs.forEach((job) => {
+            const item = document.createElement("div");
+            item.className = "mini-item";
+            item.innerHTML = `
+              <strong>${job.model} / ${job.run_source}</strong>
+              <span>${job.status.toUpperCase()} / ${job.completed_prompts} of ${job.total_prompts} prompts / ${formatDate(job.created_at)}</span>
+            `;
+            els.visibilityJobsList.appendChild(item);
+          });
+        }
+
+        els.visibilityRunsList.innerHTML = "";
+        if (!(overview.recent_runs || []).length) {
+          els.visibilityRunsList.innerHTML = '<div class="mini-item"><span>No prompt snapshots yet.</span></div>';
+        } else {
+          overview.recent_runs.forEach((run) => {
+            const item = document.createElement("div");
+            item.className = "mini-item";
+            item.innerHTML = `
+              <strong>${run.prompt_text}</strong>
+              <span>${run.status.toUpperCase()} / Brands: ${(run.brands || []).join(", ") || "None"} / Domains: ${(run.cited_domains || []).join(", ") || "None"}</span>
+              <span>${formatDate(run.created_at)}</span>
+            `;
+            els.visibilityRunsList.appendChild(item);
+          });
+        }
+      }
+
       function renderPersonalityOptions() {
         const renderSelect = (selectEl, presets, fallbackId) => {
           selectEl.innerHTML = presets.length
@@ -2179,6 +2943,52 @@
         renderHome();
       }
 
+      async function loadVisibilityOverview() {
+        const res = await fetch("/api/visibility/overview", { credentials: "same-origin" });
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        state.visibilityOverview = await res.json();
+        if (!state.visibilityReport && state.visibilityOverview && state.visibilityOverview.reports) {
+          state.visibilityReport = state.visibilityOverview.reports.all || null;
+        }
+        renderVisibility();
+      }
+
+      async function loadVisibilityReport(level, entityId) {
+        const params = new URLSearchParams({ level, entity_id: entityId });
+        const res = await fetch(`/api/visibility/reports?${params.toString()}`, { credentials: "same-origin" });
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        state.visibilityReport = await res.json();
+        renderVisibility();
+      }
+
+      async function pollVisibilityJob(jobId) {
+        while (true) {
+          await sleep(2200);
+          const res = await fetch(`/api/visibility/jobs/${jobId}`, { credentials: "same-origin" });
+          if (res.status === 401) return (window.location.href = "/login");
+          if (!res.ok) break;
+          const job = await res.json();
+          els.visibilityRunMsg.textContent = `List run ${job.status}. ${job.completed_prompts} of ${job.total_prompts} prompts processed.`;
+          if (["completed", "failed"].includes(job.status)) {
+            await loadVisibilityOverview();
+            const selectedValue = els.visibilityReportEntity.value || "all";
+            if (selectedValue === "all") {
+              state.visibilityReport = state.visibilityOverview ? state.visibilityOverview.reports.all : null;
+            } else {
+              const [level, entityId] = selectedValue.split(":");
+              await loadVisibilityReport(level, entityId);
+            }
+            break;
+          }
+        }
+      }
+
       async function pollBrief(briefId) {
         while (true) {
           await sleep(1800);
@@ -2295,6 +3105,7 @@
       els.tabWorkspace.addEventListener("click", () => setActiveTab("workspace"));
       els.tabBriefs.addEventListener("click", () => setActiveTab("briefs"));
       els.tabArticles.addEventListener("click", () => setActiveTab("articles"));
+      els.tabVisibility.addEventListener("click", () => setActiveTab("visibility"));
       els.tabSettings.addEventListener("click", () => setActiveTab("settings"));
       els.seeProfileBtn.addEventListener("click", () => setActiveTab("settings"));
 
@@ -2376,6 +3187,34 @@
       });
       els.settingsWriterPersonality.addEventListener("change", () => {
         updatePersonalityHelp("writer", els.settingsWriterPersonality.value);
+      });
+      els.visibilityTopicSelect.addEventListener("change", () => {
+        state.selectedVisibilityTopicId = els.visibilityTopicSelect.value || null;
+        state.selectedVisibilitySubtopicId = null;
+        state.selectedVisibilityPromptListId = null;
+        renderVisibility();
+      });
+      els.visibilitySubtopicSelect.addEventListener("change", () => {
+        state.selectedVisibilitySubtopicId = els.visibilitySubtopicSelect.value || null;
+        state.selectedVisibilityPromptListId = null;
+        renderVisibility();
+      });
+      els.visibilityPromptListSelect.addEventListener("change", () => {
+        state.selectedVisibilityPromptListId = els.visibilityPromptListSelect.value || null;
+        renderVisibility();
+      });
+      els.visibilityReportLevel.addEventListener("change", () => {
+        const level = els.visibilityReportLevel.value;
+        if (level === "all") {
+          els.visibilityReportEntity.value = "all";
+        } else {
+          const matching = Array.from(els.visibilityReportEntity.options).find((option) => option.value.startsWith(`${level}:`));
+          if (matching) els.visibilityReportEntity.value = matching.value;
+        }
+      });
+      els.visibilityReportEntity.addEventListener("change", () => {
+        const value = els.visibilityReportEntity.value || "all";
+        els.visibilityReportLevel.value = value === "all" ? "all" : value.split(":")[0];
       });
 
       els.generateBriefBtn.addEventListener("click", async () => {
@@ -2566,6 +3405,228 @@
         els.settingsSavedMsg.textContent = "Settings saved.";
       });
 
+      els.saveVisibilityProfileBtn.addEventListener("click", async () => {
+        els.saveVisibilityProfileBtn.disabled = true;
+        els.visibilityProfileMsg.textContent = "Saving tracker profile...";
+        const res = await fetch("/api/visibility/profile", {
+          method: "PUT",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            brand_name: els.visibilityBrandName.value,
+            brand_url: els.visibilityBrandUrl.value,
+            default_schedule_frequency: els.visibilityDefaultSchedule.value,
+          }),
+        });
+        els.saveVisibilityProfileBtn.disabled = false;
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          els.visibilityProfileMsg.textContent = data.detail || "Unable to save tracker profile.";
+          return;
+        }
+        els.visibilityProfileMsg.textContent = "Tracker profile saved.";
+        await loadVisibilityOverview();
+      });
+
+      els.addVisibilityCompetitorBtn.addEventListener("click", async () => {
+        const name = els.visibilityCompetitorName.value.trim();
+        if (!name) return alert("Enter a competitor name.");
+        const res = await fetch("/api/visibility/competitors", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            domain: els.visibilityCompetitorDomain.value.trim(),
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to add competitor.");
+        }
+        els.visibilityCompetitorName.value = "";
+        els.visibilityCompetitorDomain.value = "";
+        await loadVisibilityOverview();
+        await loadVisibilityReport("all", "all");
+      });
+
+      els.addVisibilityTopicBtn.addEventListener("click", async () => {
+        const name = els.visibilityTopicName.value.trim();
+        if (!name) return alert("Enter a topic name.");
+        const res = await fetch("/api/visibility/topics", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to add topic.");
+        }
+        const topic = await res.json();
+        state.selectedVisibilityTopicId = topic.id;
+        els.visibilityTopicName.value = "";
+        await loadVisibilityOverview();
+      });
+
+      els.addVisibilitySubtopicBtn.addEventListener("click", async () => {
+        const topicId = els.visibilityTopicSelect.value;
+        const name = els.visibilitySubtopicName.value.trim();
+        if (!topicId) return alert("Create or choose a topic first.");
+        if (!name) return alert("Enter a subtopic name.");
+        const res = await fetch("/api/visibility/subtopics", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic_id: topicId, name }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to add subtopic.");
+        }
+        const subtopic = await res.json();
+        state.selectedVisibilityTopicId = topicId;
+        state.selectedVisibilitySubtopicId = subtopic.id;
+        els.visibilitySubtopicName.value = "";
+        await loadVisibilityOverview();
+      });
+
+      els.deleteVisibilityTopicBtn.addEventListener("click", async () => {
+        const topicId = els.visibilityTopicSelect.value;
+        if (!topicId) return alert("Choose a topic first.");
+        if (!window.confirm("Delete this topic and all nested subtopics, lists, prompts, jobs, and prompt snapshots?")) return;
+        const res = await fetch(`/api/visibility/topics/${topicId}`, {
+          method: "DELETE",
+          credentials: "same-origin",
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to delete topic.");
+        }
+        state.selectedVisibilityTopicId = null;
+        state.selectedVisibilitySubtopicId = null;
+        state.selectedVisibilityPromptListId = null;
+        state.visibilityReport = null;
+        await loadVisibilityOverview();
+        await loadVisibilityReport("all", "all");
+      });
+
+      els.deleteVisibilitySubtopicBtn.addEventListener("click", async () => {
+        const subtopicId = els.visibilitySubtopicSelect.value;
+        if (!subtopicId) return alert("Choose a subtopic first.");
+        if (!window.confirm("Delete this subtopic and all nested lists, prompts, jobs, and snapshots?")) return;
+        const res = await fetch(`/api/visibility/subtopics/${subtopicId}`, {
+          method: "DELETE",
+          credentials: "same-origin",
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to delete subtopic.");
+        }
+        state.selectedVisibilitySubtopicId = null;
+        state.selectedVisibilityPromptListId = null;
+        state.visibilityReport = null;
+        await loadVisibilityOverview();
+        await loadVisibilityReport("all", "all");
+      });
+
+      els.addVisibilityPromptListBtn.addEventListener("click", async () => {
+        const subtopicId = els.visibilitySubtopicSelect.value;
+        const name = els.visibilityPromptListName.value.trim();
+        if (!subtopicId) return alert("Create or choose a subtopic first.");
+        if (!name) return alert("Enter a prompt list name.");
+        const res = await fetch("/api/visibility/lists", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subtopic_id: subtopicId,
+            name,
+            schedule_frequency: els.visibilityPromptListSchedule.value,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to add prompt list.");
+        }
+        const promptList = await res.json();
+        state.selectedVisibilitySubtopicId = subtopicId;
+        state.selectedVisibilityPromptListId = promptList.id;
+        els.visibilityPromptListName.value = "";
+        await loadVisibilityOverview();
+      });
+
+      els.deleteVisibilityPromptListBtn.addEventListener("click", async () => {
+        const promptListId = els.visibilityPromptListSelect.value;
+        if (!promptListId) return alert("Choose a prompt list first.");
+        if (!window.confirm("Delete this prompt list, its prompts, and all stored snapshots?")) return;
+        const res = await fetch(`/api/visibility/lists/${promptListId}`, {
+          method: "DELETE",
+          credentials: "same-origin",
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to delete prompt list.");
+        }
+        state.selectedVisibilityPromptListId = null;
+        state.visibilityReport = null;
+        await loadVisibilityOverview();
+        await loadVisibilityReport("all", "all");
+      });
+
+      els.addVisibilityPromptsBtn.addEventListener("click", async () => {
+        const promptListId = els.visibilityPromptListSelect.value;
+        const prompts = els.visibilityPromptBulk.value.split("\n").map((item) => item.trim()).filter(Boolean);
+        if (!promptListId) return alert("Create or choose a prompt list first.");
+        if (!prompts.length) return alert("Enter at least one prompt.");
+        const res = await fetch("/api/visibility/prompts/bulk", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt_list_id: promptListId, prompts }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          return alert(data.detail || "Unable to save prompts.");
+        }
+        els.visibilityPromptBulk.value = "";
+        await loadVisibilityOverview();
+      });
+
+      els.runVisibilityPromptListBtn.addEventListener("click", async () => {
+        const promptListId = els.visibilityPromptListSelect.value;
+        if (!promptListId) return alert("Choose a prompt list first.");
+        els.runVisibilityPromptListBtn.disabled = true;
+        els.visibilityRunMsg.textContent = "Starting list run...";
+        const res = await fetch(`/api/visibility/lists/${promptListId}/run`, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model: "gpt-5-mini", provider: "openai", surface: "api", run_source: "manual" }),
+        });
+        els.runVisibilityPromptListBtn.disabled = false;
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          els.visibilityRunMsg.textContent = data.detail || "Unable to start list run.";
+          return;
+        }
+        const job = await res.json();
+        state.currentVisibilityJobId = job.id;
+        els.visibilityRunMsg.textContent = `List run queued. ${job.total_prompts} prompts will be processed.`;
+        await loadVisibilityOverview();
+        pollVisibilityJob(job.id);
+      });
+
+      els.refreshVisibilityReportBtn.addEventListener("click", async () => {
+        const value = els.visibilityReportEntity.value || "all";
+        if (value === "all") {
+          await loadVisibilityReport("all", "all");
+          return;
+        }
+        const [level, entityId] = value.split(":");
+        await loadVisibilityReport(level, entityId);
+      });
+
       els.logoutBtn.addEventListener("click", async () => {
         await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
         window.location.href = "/login";
@@ -2573,7 +3634,7 @@
 
       (async function init() {
         await loadCurrentUser();
-        await Promise.all([loadBriefs(), loadArticles(), loadPersonalities(), loadSettings()]);
+        await Promise.all([loadBriefs(), loadArticles(), loadPersonalities(), loadSettings(), loadVisibilityOverview()]);
         updateWriterModeUI();
         renderWorkspace();
         setActiveTab("home");

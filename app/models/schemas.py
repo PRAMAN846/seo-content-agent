@@ -9,6 +9,9 @@ from pydantic import BaseModel, Field
 TaskStatus = Literal["queued", "running", "completed", "failed"]
 ArticleMode = Literal["from_brief", "from_custom_brief", "quick_draft"]
 PersonalityAgentType = Literal["workspace", "brief", "writer", "reviewer"]
+VisibilityScheduleFrequency = Literal["disabled", "weekly", "twice_monthly", "monthly"]
+VisibilitySurface = Literal["api", "consumer_ui"]
+VisibilityRunSource = Literal["manual", "scheduled"]
 
 
 class UrlContent(BaseModel):
@@ -248,3 +251,209 @@ class QueuedRun(BaseModel):
     seed_urls: list[str] = Field(default_factory=list)
     ai_citations_text: str = ""
     ai_overview_text: str = ""
+
+
+class VisibilityCompetitor(BaseModel):
+    id: str
+    user_id: str
+    name: str
+    domain: str = ""
+    created_at: datetime
+    updated_at: datetime
+
+
+class VisibilityProfile(BaseModel):
+    id: str
+    user_id: str
+    brand_name: str = ""
+    brand_url: str = ""
+    default_schedule_frequency: VisibilityScheduleFrequency = "disabled"
+    created_at: datetime
+    updated_at: datetime
+    competitors: list[VisibilityCompetitor] = Field(default_factory=list)
+
+
+class VisibilityProfileUpdateRequest(BaseModel):
+    brand_name: str = ""
+    brand_url: str = ""
+    default_schedule_frequency: VisibilityScheduleFrequency = "disabled"
+
+
+class VisibilityCompetitorCreateRequest(BaseModel):
+    name: str = Field(min_length=1)
+    domain: str = ""
+
+
+class VisibilityDeleteResponse(BaseModel):
+    deleted: bool = False
+    entity_type: str
+    entity_id: str
+
+
+class VisibilityTopicCreateRequest(BaseModel):
+    name: str = Field(min_length=1)
+
+
+class VisibilitySubtopicCreateRequest(BaseModel):
+    topic_id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+
+
+class VisibilityPromptListCreateRequest(BaseModel):
+    subtopic_id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    schedule_frequency: VisibilityScheduleFrequency = "disabled"
+
+
+class VisibilityPromptCreateRequest(BaseModel):
+    prompt_list_id: str = Field(min_length=1)
+    prompt_text: str = Field(min_length=3)
+
+
+class VisibilityPromptBulkCreateRequest(BaseModel):
+    prompt_list_id: str = Field(min_length=1)
+    prompts: list[str] = Field(default_factory=list, min_length=1)
+
+
+class VisibilityPromptRecord(BaseModel):
+    id: str
+    user_id: str
+    prompt_list_id: str
+    prompt_text: str
+    position: int = 0
+    created_at: datetime
+    updated_at: datetime
+
+
+class VisibilityPromptListRecord(BaseModel):
+    id: str
+    user_id: str
+    subtopic_id: str
+    name: str
+    schedule_frequency: VisibilityScheduleFrequency = "disabled"
+    last_run_at: Optional[datetime] = None
+    next_run_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+    prompts: list[VisibilityPromptRecord] = Field(default_factory=list)
+
+
+class VisibilitySubtopicRecord(BaseModel):
+    id: str
+    user_id: str
+    topic_id: str
+    name: str
+    created_at: datetime
+    updated_at: datetime
+    prompt_lists: list[VisibilityPromptListRecord] = Field(default_factory=list)
+
+
+class VisibilityTopicRecord(BaseModel):
+    id: str
+    user_id: str
+    name: str
+    created_at: datetime
+    updated_at: datetime
+    subtopics: list[VisibilitySubtopicRecord] = Field(default_factory=list)
+
+
+class VisibilityPromptRunRecord(BaseModel):
+    id: str
+    user_id: str
+    job_id: Optional[str] = None
+    topic_id: str
+    subtopic_id: str
+    prompt_list_id: str
+    prompt_id: str
+    prompt_text: str
+    provider: str = "openai"
+    model: str = "gpt-5-mini"
+    surface: VisibilitySurface = "api"
+    run_source: VisibilityRunSource = "manual"
+    status: TaskStatus
+    response_text: str = ""
+    brands: list[str] = Field(default_factory=list)
+    cited_domains: list[str] = Field(default_factory=list)
+    cited_urls: list[str] = Field(default_factory=list)
+    error: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class VisibilityJobRecord(BaseModel):
+    id: str
+    user_id: str
+    topic_id: str
+    subtopic_id: str
+    prompt_list_id: str
+    provider: str = "openai"
+    model: str = "gpt-5-mini"
+    surface: VisibilitySurface = "api"
+    run_source: VisibilityRunSource = "manual"
+    status: TaskStatus
+    stage: str = "queued"
+    progress_percent: int = Field(default=0, ge=0, le=100)
+    total_prompts: int = 0
+    completed_prompts: int = 0
+    error: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class VisibilityPromptListRunRequest(BaseModel):
+    provider: str = "openai"
+    model: str = "gpt-5-mini"
+    surface: VisibilitySurface = "api"
+    run_source: VisibilityRunSource = "manual"
+
+
+class VisibilityBrandMetric(BaseModel):
+    brand: str
+    prompt_mentions: int = 0
+    share_of_voice: float = 0.0
+
+
+class VisibilityCitationMetric(BaseModel):
+    value: str
+    count: int = 0
+
+
+class VisibilityPromptReference(BaseModel):
+    run_id: str
+    prompt_id: str
+    prompt_text: str
+    created_at: datetime
+
+
+class VisibilityCitationDrilldown(BaseModel):
+    value: str
+    count: int = 0
+    prompts: list[VisibilityPromptReference] = Field(default_factory=list)
+
+
+class VisibilityDailyMetric(BaseModel):
+    date: str
+    run_count: int = 0
+    brand_mentions: list[VisibilityBrandMetric] = Field(default_factory=list)
+
+
+class VisibilityReport(BaseModel):
+    level: str
+    entity_id: str
+    entity_name: str
+    total_runs: int = 0
+    brand_presence: list[VisibilityBrandMetric] = Field(default_factory=list)
+    top_domains: list[VisibilityCitationMetric] = Field(default_factory=list)
+    top_urls: list[VisibilityCitationMetric] = Field(default_factory=list)
+    domain_drilldown: list[VisibilityCitationDrilldown] = Field(default_factory=list)
+    url_drilldown: list[VisibilityCitationDrilldown] = Field(default_factory=list)
+    competitor_matrix: list[VisibilityBrandMetric] = Field(default_factory=list)
+    daily_metrics: list[VisibilityDailyMetric] = Field(default_factory=list)
+
+
+class VisibilityOverviewResponse(BaseModel):
+    profile: VisibilityProfile
+    topics: list[VisibilityTopicRecord] = Field(default_factory=list)
+    recent_jobs: list[VisibilityJobRecord] = Field(default_factory=list)
+    recent_runs: list[VisibilityPromptRunRecord] = Field(default_factory=list)
+    reports: dict[str, VisibilityReport] = Field(default_factory=dict)

@@ -13,6 +13,7 @@ from app.api.routes_library import router as library_router
 from app.api.routes_personalities import router as personalities_router
 from app.api.routes_runs import router as runs_router
 from app.api.routes_settings import router as settings_router
+from app.api.routes_visibility import router as visibility_router
 from app.api.routes_workspace import router as workspace_router
 from app.core.auth import get_current_user_optional
 from app.workers.scheduler import start_scheduler
@@ -26,6 +27,7 @@ app.include_router(library_router)
 app.include_router(personalities_router)
 app.include_router(settings_router)
 app.include_router(workspace_router)
+app.include_router(visibility_router)
 
 app.add_middleware(
     CORSMiddleware,

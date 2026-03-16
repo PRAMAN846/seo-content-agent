@@ -1,5 +1,5 @@
 SEO Content Agent - Project Context (Short)
-Last updated: 2026-03-14
+Last updated: 2026-03-16
 
 1) Project Goal
 Build an end-to-end SEO content writing workflow that:
@@ -16,6 +16,9 @@ The app now has three product surfaces inside one dashboard:
 - AI Workspace (conversational orchestrator)
 - SEO Brief Agent
 - Content Writer Agent
+
+Planned next product surface:
+- AI Visibility Tracker
 
 3) Confirmed UX Decisions
 - Brief approval is optional.
@@ -141,7 +144,145 @@ Important Render env vars:
 - SESSION_TTL_DAYS=30
 - DATABASE_URL=<Neon connection string>
 
-10) Next Recommended Upgrades
+10) Approved Planning Direction: AI Visibility Tracker
+- A new dashboard module named `AI Visibility Tracker` is approved for planning and should be treated as the next major product surface.
+- This module is for measuring brand visibility inside LLM answers, starting with OpenAI models first and expanding to other providers later.
+- For MVP, do not design around the ChatGPT consumer website. Design around the OpenAI API first.
+- Long term architecture should still support both:
+  - `API mode` for lower-cost, faster, more stable tracking
+  - `Consumer UI mode` later for higher-fidelity tracking closer to what end users see
+- The product should not promise exact replication of live ChatGPT/Gemini consumer responses in MVP.
+- The safer positioning is: reproducible AI visibility tracking, starting from API-based monitoring.
+
+11) Approved MVP Scope for AI Visibility Tracker
+- Core hierarchy:
+  - Brand Profile
+  - Competitors
+  - Topic
+  - Subtopic
+  - Prompt List
+  - Prompt
+  - Prompt Run Snapshot
+- Each prompt run must be stored as a dated historical record and must never overwrite earlier runs.
+- Every prompt run snapshot should store:
+  - exact prompt text sent
+  - provider / model used
+  - execution surface: `api` now, `consumer_ui` later
+  - run date and timestamp
+  - run source: manual or scheduled
+  - raw response text
+  - extracted brands mentioned
+  - cited domains
+  - cited URLs
+  - run status: success / failed
+- Reports must support rollups at:
+  - individual prompt
+  - prompt list
+  - subtopic
+  - topic
+- Reports should include:
+  - brand presence
+  - share of voice
+  - most cited domains
+  - most cited URLs
+  - click-through drill-down from a domain or URL into the prompts where it appeared
+- Competitor comparison should support:
+  - the user's brand name and domain
+  - competitor names and competitor domains
+  - comparison across list, subtopic, and topic levels
+- Date history is required from day one so the product can show time-series graphs and time-range comparisons later.
+- Reports should be filterable by date range from the beginning.
+
+12) Metric Definitions Approved for MVP
+- `Presence` = in how many prompts a brand was mentioned within the selected scope.
+- `Share of Voice` = brand mentions divided by total tracked mentions across the selected comparison set.
+- For MVP, keep this formula simple and transparent instead of adding weighted scoring.
+- Do not treat `query fanout` as guaranteed MVP data because providers may not reliably expose internal search/tool traces.
+- If fanout is shown later, mark it as provider-dependent or experimental.
+
+13) Scheduling Direction Approved
+- Automated reruns are planned and should be based on saved prompt lists.
+- Supported schedule options for the first version:
+  - weekly
+  - twice-monthly
+  - monthly
+- Avoid the label `bimonthly` in product copy because it is ambiguous.
+- Schedule defaults can be enabled from profile/settings.
+- Later, prompt-list-level override controls can be added if needed.
+- Because scheduled reporting is approved, the architecture should keep immutable prompt run snapshots with timestamps.
+
+14) Profile / Settings Direction Approved
+- The profile area should become the place where users can manage:
+  - brand details
+  - brand website
+  - competitor details
+  - default schedule settings
+  - future persona / user profile settings
+- Future persona examples discussed:
+  - HR Head
+  - CFO in startup
+  - CEO in retail
+  - Tech founder
+- Persona-based prompting is approved as a future version, not MVP.
+- The clean design is to store persona context as an optional layer added before prompt execution, with each run storing which persona was used.
+
+15) Architecture Guidance for Future Expansion
+- Even if MVP supports only one client per account in the UI, data modeling should be built with future agency support in mind.
+- Preferred long-term structure:
+  - Product Account
+  - Workspace / Client Account
+  - Brand Profile
+  - Competitors
+  - User Profiles / Personas
+  - Topics
+  - Subtopics
+  - Prompt Lists
+  - Prompts
+  - Prompt Runs
+  - Extracted Mentions / Citations
+- Important technical note:
+  - analytics for mentions, domains, URLs, and reporting should not live only inside raw JSON blobs
+  - this module should use structured tables/models from the beginning
+
+16) Product Quality Guidance for This Module
+- Matching top platforms like Profound and Gauge exactly is not realistic in MVP.
+- Comparable quality comes from four things:
+  - response fidelity
+  - prompt fidelity
+  - measurement fidelity
+  - extraction fidelity
+- Serious AI visibility tools appear to rely on actual front-end capture and prompt normalization, not only raw API calls.
+- Our recommended path:
+  - Stage 1: API-based MVP with structured reporting
+  - Stage 2: higher-fidelity consumer UI capture for ChatGPT/Gemini/Perplexity
+  - Stage 3: prompt suggestion engine, stronger entity resolution, broader provider coverage
+
+17) Costing Notes Captured for Planning
+- For OpenAI API-first MVP, `gpt-5-mini` was identified as a likely starting model due to low cost.
+- Previous planning estimate for a list of 100 prompts:
+  - without web search: roughly $0.15 to $0.30 total
+  - with web search/citation-heavy usage: roughly $1.3 to $4.5 total
+- Monthly raw AI cost for one list of 100 prompts depends on schedule frequency:
+  - weekly: roughly $5 to $18
+  - twice-monthly: roughly $2.5 to $9
+  - monthly: roughly $1.3 to $4.5
+- These are directional planning numbers only and exclude infra, retries, monitoring, storage, and future browser automation costs.
+
+18) Delivery Order Recommended
+- Build in this order:
+  - brand profile + competitors
+  - topic / subtopic / prompt list / prompt structure
+  - manual runs against OpenAI API
+  - immutable dated run snapshots
+  - extraction of brand mentions + domains + URLs
+  - reports by prompt / list / subtopic / topic
+  - competitor matrix
+  - schedule execution
+  - additional LLM providers
+  - personas
+  - agency multi-client UI
+
+19) Next Recommended Upgrades
 - Deploy the latest Phase 2 personality build to Render.
 - Verify personality selection affects:
   - AI Workspace routing style
@@ -154,6 +295,6 @@ Important Render env vars:
 - Add Stripe subscriptions and usage limits.
 - Replace placeholder SVG if final Xpaan logo asset is provided.
 
-11) Note for Future Codex Sessions
+20) Note for Future Codex Sessions
 At thread start, say:
 "Read PROJECT_CONTEXT.txt first, then continue from current state."
