@@ -934,6 +934,28 @@ class SQLiteStore(StoreBase):
             self._conn.commit()
         return self.get_visibility_project(user_id, project_id)
 
+    def delete_visibility_project(self, user_id: str, project_id: str) -> bool:
+        self._ensure_visibility_project_migration(user_id)
+        with self._lock:
+            topic_rows = self._conn.execute(
+                "SELECT id FROM visibility_topics WHERE project_id = ? AND user_id = ?",
+                (project_id, user_id),
+            ).fetchall()
+        deleted_any = False
+        for row in topic_rows:
+            deleted_any = self.delete_visibility_topic(user_id, str(row["id"])) or deleted_any
+        with self._lock:
+            self._conn.execute("DELETE FROM visibility_prompt_runs WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.execute("DELETE FROM visibility_jobs WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.execute("DELETE FROM visibility_prompts WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.execute("DELETE FROM visibility_prompt_lists WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.execute("DELETE FROM visibility_subtopics WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.execute("DELETE FROM visibility_topics WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.execute("DELETE FROM visibility_competitors WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            cur = self._conn.execute("DELETE FROM visibility_projects WHERE id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.commit()
+        return cur.rowcount > 0 or deleted_any
+
     def create_visibility_competitor(self, user_id: str, *, project_id: str, name: str, domain: str) -> VisibilityCompetitor:
         self._ensure_visibility_project_migration(user_id)
         competitor_id = str(uuid4())
@@ -2207,6 +2229,28 @@ class PostgresStore(StoreBase):
                 )
             conn.commit()
         return self.get_visibility_project(user_id, project_id)
+
+    def delete_visibility_project(self, user_id: str, project_id: str) -> bool:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT id FROM visibility_topics WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                topic_rows = cur.fetchall()
+        deleted_any = False
+        for row in topic_rows:
+            deleted_any = self.delete_visibility_topic(user_id, str(row["id"])) or deleted_any
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM visibility_prompt_runs WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM visibility_jobs WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM visibility_prompts WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM visibility_prompt_lists WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM visibility_subtopics WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM visibility_topics WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM visibility_competitors WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM visibility_projects WHERE id = %s AND user_id = %s", (project_id, user_id))
+                deleted = cur.rowcount > 0
+            conn.commit()
+        return deleted or deleted_any
 
     def create_visibility_competitor(self, user_id: str, *, project_id: str, name: str, domain: str) -> VisibilityCompetitor:
         competitor_id = str(uuid4())

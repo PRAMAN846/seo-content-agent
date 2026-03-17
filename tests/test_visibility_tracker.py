@@ -187,6 +187,19 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(len(workspace["project"]["competitors"]), 0)
         self.assertEqual(len(workspace["topics"]), 0)
 
+    def test_project_deletion_removes_workspace(self) -> None:
+        ids = self.create_tracker_stack()
+
+        delete_project = self.client.delete(f"/api/visibility/projects/{ids['project_id']}")
+        self.assertEqual(delete_project.status_code, 200, delete_project.text)
+
+        projects = self.client.get("/api/visibility/projects")
+        self.assertEqual(projects.status_code, 200, projects.text)
+        self.assertEqual(projects.json()["projects"], [])
+
+        workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace")
+        self.assertEqual(workspace.status_code, 404, workspace.text)
+
 
 if __name__ == "__main__":
     unittest.main()

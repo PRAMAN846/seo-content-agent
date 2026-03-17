@@ -830,6 +830,102 @@
         gap: 16px;
       }
 
+      .visibility-toolbar {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .visibility-toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .visibility-toolbar-actions input {
+        min-width: 240px;
+      }
+
+      .visibility-projects-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .visibility-list-head,
+      .visibility-project-row {
+        display: grid;
+        grid-template-columns: 34px minmax(220px, 1.4fr) minmax(200px, 1.2fr) 120px 170px 160px 170px;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .visibility-list-head {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0 6px 8px;
+      }
+
+      .visibility-projects-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .visibility-project-row {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 16px 18px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 248, 252, 0.96));
+        box-shadow: 0 8px 22px rgba(13, 21, 34, 0.05);
+      }
+
+      .visibility-project-row.selected {
+        border-color: #7c91b3;
+        background: linear-gradient(180deg, #ffffff, #eef4ff);
+      }
+
+      .project-main strong,
+      .project-coverage strong {
+        display: block;
+      }
+
+      .project-main span,
+      .project-coverage span,
+      .project-muted {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .project-coverage {
+        display: grid;
+        gap: 2px;
+      }
+
+      .project-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        background: #eef3fb;
+        color: #30415a;
+        padding: 7px 11px;
+        font-size: 12px;
+        font-weight: 800;
+        width: fit-content;
+      }
+
       .project-card {
         border: 1px solid var(--line);
         border-radius: 20px;
@@ -954,6 +1050,246 @@
         gap: 10px;
         justify-content: flex-end;
         flex-wrap: wrap;
+      }
+
+      .visibility-dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .chart-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .chart-surface {
+        min-height: 280px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px;
+        background: linear-gradient(180deg, #ffffff, #f8fbff);
+      }
+
+      .stacked-bars,
+      .comparison-grid,
+      .hierarchy-accordion {
+        display: grid;
+        gap: 12px;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: minmax(110px, 1fr) 1.5fr 56px;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .bar-track {
+        position: relative;
+        height: 14px;
+        border-radius: 999px;
+        background: #e6ebf3;
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2558e1, #7aa9ff);
+      }
+
+      .bar-fill.brand {
+        background: linear-gradient(90deg, #0f1728, #2558e1);
+      }
+
+      .wide-block {
+        grid-column: 1 / -1;
+      }
+
+      .heatmap-wrap {
+        overflow: auto;
+      }
+
+      .heatmap {
+        display: grid;
+        gap: 8px;
+        min-width: 720px;
+      }
+
+      .heatmap-header,
+      .heatmap-row {
+        display: grid;
+        gap: 8px;
+        align-items: stretch;
+      }
+
+      .heatmap-header {
+        grid-template-columns: minmax(220px, 1.4fr) repeat(var(--heatmap-cols, 1), minmax(96px, 1fr));
+      }
+
+      .heatmap-row {
+        grid-template-columns: minmax(220px, 1.4fr) repeat(var(--heatmap-cols, 1), minmax(96px, 1fr));
+      }
+
+      .heatmap-cell,
+      .heatmap-label {
+        border-radius: 16px;
+        padding: 14px 12px;
+        border: 1px solid var(--line);
+        background: #ffffff;
+      }
+
+      .heatmap-cell {
+        text-align: center;
+        font-weight: 800;
+      }
+
+      .comparison-card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+        background: linear-gradient(180deg, #ffffff, #f7faff);
+        display: grid;
+        gap: 14px;
+      }
+
+      .comparison-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-weight: 800;
+      }
+
+      .comparison-progress {
+        height: 16px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e7ecf4;
+        display: flex;
+      }
+
+      .comparison-progress > span:first-child {
+        background: linear-gradient(90deg, #2558e1, #80abff);
+      }
+
+      .comparison-progress > span:last-child {
+        background: linear-gradient(90deg, #ffcb47, #ffb100);
+      }
+
+      .comparison-columns {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .comparison-columns strong,
+      .comparison-columns span {
+        display: block;
+      }
+
+      .comparison-columns span {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+
+      .accordion-item {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: linear-gradient(180deg, #ffffff, #f8fbff);
+        overflow: hidden;
+      }
+
+      .accordion-item[open] {
+        border-color: #94a8c6;
+      }
+
+      .accordion-summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 16px 18px;
+      }
+
+      .accordion-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .accordion-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .accordion-summary strong,
+      .accordion-summary span {
+        display: block;
+      }
+
+      .accordion-summary span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .accordion-body {
+        border-top: 1px solid var(--line);
+        padding: 14px 18px 18px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .nested-stack {
+        display: grid;
+        gap: 10px;
+      }
+
+      .prompt-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .prompt-pill {
+        border-radius: 999px;
+        background: #eef3fb;
+        color: #263954;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 40, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        z-index: 60;
+      }
+
+      .modal-card {
+        width: min(720px, 100%);
+        border-radius: 26px;
+        background: linear-gradient(180deg, #ffffff, #f8fbff);
+        border: 1px solid rgba(124, 145, 179, 0.35);
+        box-shadow: 0 24px 60px rgba(13, 21, 34, 0.22);
+        padding: 22px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .modal-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
       }
 
       .visibility-panel {
@@ -1156,6 +1492,21 @@
 
         .project-meta-grid {
           grid-template-columns: 1fr 1fr;
+        }
+
+        .visibility-dashboard-grid,
+        .comparison-columns {
+          grid-template-columns: 1fr;
+        }
+
+        .visibility-list-head,
+        .visibility-project-row {
+          grid-template-columns: 34px 1.4fr 1fr;
+        }
+
+        .visibility-list-head span:nth-child(n+4),
+        .visibility-project-row > :nth-child(n+4):not(:last-child) {
+          display: none;
         }
       }
 
@@ -1642,61 +1993,71 @@
         <section id="visibilityView" class="view">
           <div id="visibilityProjectsScreen" class="stack">
             <section class="section card stack">
-              <div class="workspace-head-top">
+              <div class="visibility-toolbar">
                 <div>
                   <h2>Visibility Projects</h2>
-                  <p class="desc">Create one project per brand or client, then open it to manage prompts, runs, and reports.</p>
+                  <p class="desc">Manage all brands in one place, search across them, and jump straight into setup, prompts, or reporting.</p>
                 </div>
-                <div class="tracker-block project-hero">
-                  <span class="project-kicker">Workspace-ready structure</span>
-                  <strong id="visibilityProjectsSummary">0 projects</strong>
-                  <span>Projects keep brand setup, competitors, prompt hierarchies, dated runs, and reports separated cleanly.</span>
+                <div class="visibility-toolbar-actions">
+                  <input id="visibilityProjectSearch" placeholder="Search projects" />
+                  <button id="deleteSelectedVisibilityProjectsBtn" class="btn" type="button">Delete Selected</button>
+                  <button id="openVisibilityProjectModalBtn" class="btn primary" type="button">Add a Project</button>
                 </div>
               </div>
+              <div class="visibility-projects-meta">
+                <span id="visibilityProjectsSummary">0 projects</span>
+                <span id="visibilityProjectsSelectionMeta">No projects selected</span>
+              </div>
+              <div class="visibility-list-head">
+                <span></span>
+                <span>Project</span>
+                <span>Tracked Brand</span>
+                <span>Schedule</span>
+                <span>Coverage</span>
+                <span>Last Run</span>
+                <span>Actions</span>
+              </div>
+              <div id="visibilityProjectsList" class="visibility-projects-list"></div>
             </section>
+          </div>
 
-            <div class="tracker-split">
-              <section class="section card stack">
+          <div id="visibilityProjectModal" class="modal-backdrop hidden-mode">
+            <div class="modal-card">
+              <div class="modal-head">
                 <div>
-                  <h2>All Projects</h2>
-                  <p class="desc">Open a project to work inside the tracker, or jump directly into that project's settings.</p>
+                  <h3>Add a Project</h3>
+                  <p class="desc">Create the project shell first, then complete brand and competitor details from project settings.</p>
                 </div>
-                <div id="visibilityProjectsGrid" class="project-grid"></div>
-              </section>
-
-              <section class="section card stack">
+                <button id="closeVisibilityProjectModalBtn" class="btn" type="button">Close</button>
+              </div>
+              <div class="field-grid">
                 <div>
-                  <h2>Add New Project</h2>
-                  <p class="desc">Start with the client or brand name, then keep prompts, competitors, and reports inside that project.</p>
-                  <div class="field-grid">
-                    <div>
-                      <label for="visibilityProjectName">Project Name</label>
-                      <input id="visibilityProjectName" placeholder="Xpaan Digital / Core Brand" />
-                    </div>
-                    <div>
-                      <label for="visibilityProjectDefaultSchedule">Default Schedule</label>
-                      <select id="visibilityProjectDefaultSchedule">
-                        <option value="disabled">Manual only</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="twice_monthly">Twice Monthly</option>
-                        <option value="monthly">Monthly</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label for="visibilityProjectBrandName">Tracked Brand Name</label>
-                      <input id="visibilityProjectBrandName" placeholder="Xpaan Digital" />
-                    </div>
-                    <div>
-                      <label for="visibilityProjectBrandUrl">Tracked Brand URL</label>
-                      <input id="visibilityProjectBrandUrl" placeholder="https://yourbrand.com" />
-                    </div>
-                  </div>
+                  <label for="visibilityProjectName">Project Name</label>
+                  <input id="visibilityProjectName" placeholder="Xpaan Digital / Core Brand" />
                 </div>
-                <div class="row-actions">
-                  <button id="addVisibilityProjectBtn" class="btn primary" type="button">Create Project</button>
+                <div>
+                  <label for="visibilityProjectDefaultSchedule">Default Schedule</label>
+                  <select id="visibilityProjectDefaultSchedule">
+                    <option value="disabled">Manual only</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="twice_monthly">Twice Monthly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
                 </div>
-                <p id="visibilityProjectCreateMsg" class="helper"></p>
-              </section>
+                <div>
+                  <label for="visibilityProjectBrandName">Tracked Brand Name</label>
+                  <input id="visibilityProjectBrandName" placeholder="Xpaan Digital" />
+                </div>
+                <div>
+                  <label for="visibilityProjectBrandUrl">Tracked Brand URL</label>
+                  <input id="visibilityProjectBrandUrl" placeholder="https://yourbrand.com" />
+                </div>
+              </div>
+              <div class="row-actions" style="justify-content: flex-end;">
+                <button id="cancelVisibilityProjectModalBtn" class="btn" type="button">Cancel</button>
+                <button id="addVisibilityProjectBtn" class="btn primary" type="button">Create Project</button>
+              </div>
+              <p id="visibilityProjectCreateMsg" class="helper"></p>
             </div>
           </div>
 
@@ -1755,29 +2116,48 @@
                 </article>
               </div>
 
-              <div class="tracker-split">
+              <div class="visibility-dashboard-grid">
                 <section class="section card stack">
-                  <div class="tracker-block">
-                    <h3>Brand Presence Snapshot</h3>
-                    <p>Current share of voice for the selected date window.</p>
-                    <div id="visibilityOverviewBrandPresence" class="metric-list"></div>
+                  <div class="chart-head">
+                    <div>
+                      <h3>Visibility Over Time</h3>
+                      <p class="desc">Trend lines for your tracked brand and competitors across the selected date window.</p>
+                    </div>
                   </div>
-                  <div class="tracker-block">
-                    <h3>Daily Activity</h3>
-                    <p>Prompt-run volume over time.</p>
-                    <div id="visibilityOverviewDailyMetrics" class="trend-chart"></div>
-                  </div>
+                  <div id="visibilityOverviewTrendChart" class="chart-surface"></div>
                 </section>
 
                 <section class="section card stack">
-                  <div class="tracker-block">
-                    <h3>Top Cited Domains</h3>
-                    <p>Most referenced domains in this project and date range.</p>
-                    <div id="visibilityOverviewTopDomains" class="metric-list"></div>
+                  <div class="chart-head">
+                    <div>
+                      <h3>Competitor Mentions</h3>
+                      <p class="desc">How often each tracked competitor appears relative to your brand.</p>
+                    </div>
                   </div>
+                  <div id="visibilityOverviewCompetitorBars" class="stacked-bars"></div>
+                </section>
+
+                <section class="section card stack">
+                  <div class="chart-head">
+                    <div>
+                      <h3>Share of Voice</h3>
+                      <p class="desc">Bubble view of prompt mentions and share of voice.</p>
+                    </div>
+                  </div>
+                  <div id="visibilityOverviewSharePlot" class="chart-surface"></div>
+                  <div id="visibilityOverviewBrandPresence" class="metric-list"></div>
+                </section>
+
+                <section class="section card stack">
+                  <div class="chart-head">
+                    <div>
+                      <h3>Top Cited Domains</h3>
+                      <p class="desc">Most referenced sources for this project.</p>
+                    </div>
+                  </div>
+                  <div id="visibilityOverviewTopDomains" class="metric-list"></div>
                   <div>
-                    <h2>Recent Jobs</h2>
-                    <p class="desc">Recent list runs for this project.</p>
+                    <h3>Recent Jobs</h3>
                     <div id="visibilityOverviewJobsList" class="mini-list"></div>
                   </div>
                 </section>
@@ -1788,8 +2168,16 @@
               <div class="tracker-split">
                 <section class="section card stack">
                   <div>
-                    <h2>Hierarchy Builder</h2>
-                    <p class="desc">Create topics, subtopics, prompt lists, and prompts inside this project.</p>
+                    <h2>Prompts</h2>
+                    <p class="desc">Browse topics, subtopics, prompt lists, and prompts in an expandable workspace view.</p>
+                  </div>
+                  <div id="visibilityHierarchyAccordion" class="hierarchy-accordion"></div>
+                </section>
+
+                <section class="section card stack">
+                  <div>
+                    <h2>Create and Manage</h2>
+                    <p class="desc">Use the controls below to add new topics, lists, and prompts or run the currently selected prompt list.</p>
                   </div>
                   <div class="tracker-tree">
                     <div class="tracker-block">
@@ -1834,9 +2222,6 @@
                       </div>
                     </div>
                   </div>
-                </section>
-
-                <section class="section card stack">
                   <div class="tracker-block">
                     <h3>Prompts</h3>
                     <p>Add one prompt per line to the selected prompt list, then run that list.</p>
@@ -1911,22 +2296,45 @@ What AI visibility tracking tools are cited most often?"></textarea>
                   <p id="visibilityReportMeta">No report loaded yet.</p>
                   <div id="visibilityBrandPresence" class="metric-list"></div>
                 </div>
-                <div class="tracker-block">
-                  <h3>Top Cited Domains</h3>
-                  <div id="visibilityTopDomains" class="metric-list"></div>
-                </div>
-                <div class="tracker-block">
-                  <h3>Top Cited URLs</h3>
-                  <div id="visibilityTopUrls" class="metric-list"></div>
-                </div>
-                <div class="tracker-block">
-                  <h3>Daily Activity</h3>
-                  <div id="visibilityDailyMetrics" class="trend-chart"></div>
-                </div>
-                <div class="tracker-block">
-                  <h3 id="visibilityDrilldownTitle">Citation Drill-down</h3>
-                  <p id="visibilityDrilldownMeta">Click a domain or URL above to see which prompt snapshots produced it.</p>
-                  <div id="visibilityDrilldownPrompts" class="mini-list"></div>
+                <div class="visibility-dashboard-grid">
+                  <div class="tracker-block">
+                    <h3>Share of Voice Map</h3>
+                    <div id="visibilityShareBubbleChart" class="chart-surface"></div>
+                  </div>
+                  <div class="tracker-block">
+                    <h3>Visibility Trend</h3>
+                    <div id="visibilityReportTrendChart" class="chart-surface"></div>
+                  </div>
+                  <div class="tracker-block wide-block">
+                    <div class="chart-head">
+                      <div>
+                        <h3>Competitor Topics Matrix</h3>
+                        <p id="visibilityCompetitorMatrixMeta" class="desc">Compare topic-level visibility for your brand and competitors.</p>
+                      </div>
+                    </div>
+                    <div id="visibilityCompetitorMatrix" class="heatmap-wrap"></div>
+                  </div>
+                  <div class="tracker-block wide-block">
+                    <h3>Competitor Comparison Cards</h3>
+                    <div id="visibilityCompetitorComparisons" class="comparison-grid"></div>
+                  </div>
+                  <div class="tracker-block">
+                    <h3>Top Cited Domains</h3>
+                    <div id="visibilityTopDomains" class="metric-list"></div>
+                  </div>
+                  <div class="tracker-block">
+                    <h3>Top Cited URLs</h3>
+                    <div id="visibilityTopUrls" class="metric-list"></div>
+                  </div>
+                  <div class="tracker-block">
+                    <h3 id="visibilityDrilldownTitle">Citation Drill-down</h3>
+                    <p id="visibilityDrilldownMeta">Click a domain or URL above to see which prompt snapshots produced it.</p>
+                    <div id="visibilityDrilldownPrompts" class="mini-list"></div>
+                  </div>
+                  <div class="tracker-block">
+                    <h3>Daily Activity</h3>
+                    <div id="visibilityDailyMetrics" class="trend-chart"></div>
+                  </div>
                 </div>
               </section>
             </section>
@@ -2113,11 +2521,17 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityProjects: [],
         visibilityWorkspace: null,
         visibilityReport: null,
+        visibilityScopedReportsCache: {},
+        visibilityMatrixRows: [],
+        visibilityMatrixStatus: "idle",
         visibilityDrilldown: { type: "domain", value: null },
         visibilityProjectView: "overview",
         visibilityReportScope: { level: "all", entityId: "all" },
         visibilityDateStart: "",
         visibilityDateEnd: "",
+        visibilityProjectSearch: "",
+        visibilityProjectModalOpen: false,
+        selectedVisibilityProjectIds: [],
         selectedVisibilityProjectId: null,
         selectedVisibilityTopicId: null,
         selectedVisibilitySubtopicId: null,
@@ -2237,7 +2651,14 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityProjectsScreen: document.getElementById("visibilityProjectsScreen"),
         visibilityWorkspaceScreen: document.getElementById("visibilityWorkspaceScreen"),
         visibilityProjectsSummary: document.getElementById("visibilityProjectsSummary"),
-        visibilityProjectsGrid: document.getElementById("visibilityProjectsGrid"),
+        visibilityProjectsSelectionMeta: document.getElementById("visibilityProjectsSelectionMeta"),
+        visibilityProjectsList: document.getElementById("visibilityProjectsList"),
+        visibilityProjectSearch: document.getElementById("visibilityProjectSearch"),
+        openVisibilityProjectModalBtn: document.getElementById("openVisibilityProjectModalBtn"),
+        deleteSelectedVisibilityProjectsBtn: document.getElementById("deleteSelectedVisibilityProjectsBtn"),
+        visibilityProjectModal: document.getElementById("visibilityProjectModal"),
+        closeVisibilityProjectModalBtn: document.getElementById("closeVisibilityProjectModalBtn"),
+        cancelVisibilityProjectModalBtn: document.getElementById("cancelVisibilityProjectModalBtn"),
         visibilityProjectName: document.getElementById("visibilityProjectName"),
         visibilityProjectBrandName: document.getElementById("visibilityProjectBrandName"),
         visibilityProjectBrandUrl: document.getElementById("visibilityProjectBrandUrl"),
@@ -2265,10 +2686,14 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityRunsPanel: document.getElementById("visibilityRunsPanel"),
         visibilityReportsPanel: document.getElementById("visibilityReportsPanel"),
         visibilitySettingsPanel: document.getElementById("visibilitySettingsPanel"),
+        visibilityOverviewTrendChart: document.getElementById("visibilityOverviewTrendChart"),
+        visibilityOverviewCompetitorBars: document.getElementById("visibilityOverviewCompetitorBars"),
+        visibilityOverviewSharePlot: document.getElementById("visibilityOverviewSharePlot"),
         visibilityOverviewBrandPresence: document.getElementById("visibilityOverviewBrandPresence"),
         visibilityOverviewDailyMetrics: document.getElementById("visibilityOverviewDailyMetrics"),
         visibilityOverviewTopDomains: document.getElementById("visibilityOverviewTopDomains"),
         visibilityOverviewJobsList: document.getElementById("visibilityOverviewJobsList"),
+        visibilityHierarchyAccordion: document.getElementById("visibilityHierarchyAccordion"),
         visibilityProjectSettingsName: document.getElementById("visibilityProjectSettingsName"),
         visibilityBrandName: document.getElementById("visibilityBrandName"),
         visibilityBrandUrl: document.getElementById("visibilityBrandUrl"),
@@ -2303,6 +2728,11 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityReportTitle: document.getElementById("visibilityReportTitle"),
         visibilityReportMeta: document.getElementById("visibilityReportMeta"),
         visibilityBrandPresence: document.getElementById("visibilityBrandPresence"),
+        visibilityShareBubbleChart: document.getElementById("visibilityShareBubbleChart"),
+        visibilityReportTrendChart: document.getElementById("visibilityReportTrendChart"),
+        visibilityCompetitorMatrixMeta: document.getElementById("visibilityCompetitorMatrixMeta"),
+        visibilityCompetitorMatrix: document.getElementById("visibilityCompetitorMatrix"),
+        visibilityCompetitorComparisons: document.getElementById("visibilityCompetitorComparisons"),
         visibilityTopDomains: document.getElementById("visibilityTopDomains"),
         visibilityTopUrls: document.getElementById("visibilityTopUrls"),
         visibilityDailyMetrics: document.getElementById("visibilityDailyMetrics"),
@@ -2893,59 +3323,413 @@ What AI visibility tracking tools are cited most often?"></textarea>
         return current || list[0];
       }
 
-      function renderVisibilityProjects() {
-        els.visibilityProjectsSummary.textContent = `${state.visibilityProjects.length} project${state.visibilityProjects.length === 1 ? "" : "s"}`;
-        els.visibilityProjectsGrid.innerHTML = "";
+      function visibilityColor(index) {
+        return ["#2558e1", "#7b61ff", "#17b26a", "#f97316", "#0ea5e9", "#ec4899", "#f59e0b", "#64748b"][index % 8];
+      }
 
-        if (!state.visibilityProjects.length) {
-          els.visibilityProjectsGrid.innerHTML = `
+      function visibilityValueFromPresence(report, brand) {
+        const match = (report.brand_presence || []).find((item) => item.brand === brand);
+        return match ? Math.round((Number(match.share_of_voice || 0) * 100) * 10) / 10 : 0;
+      }
+
+      function visibilityCountFromPresence(report, brand) {
+        const match = (report.brand_presence || []).find((item) => item.brand === brand);
+        return match ? Number(match.prompt_mentions || 0) : 0;
+      }
+
+      function renderVisibilityLineChart(container, metrics, brands, emptyText = "No trend data yet.") {
+        container.innerHTML = "";
+        if (!metrics || !metrics.length || !brands.length) {
+          container.innerHTML = `<div class="mini-item"><span>${emptyText}</span></div>`;
+          return;
+        }
+        const width = 620;
+        const height = 250;
+        const left = 52;
+        const right = 18;
+        const top = 18;
+        const bottom = 38;
+        const innerWidth = width - left - right;
+        const innerHeight = height - top - bottom;
+        const ticks = [0, 25, 50, 75, 100];
+        const points = (brand) => metrics.map((metric, index) => {
+          const brandMatch = (metric.brand_mentions || []).find((item) => item.brand === brand);
+          const value = Math.min(100, Math.max(0, Number((brandMatch ? brandMatch.share_of_voice : 0) || 0) * 100));
+          const x = left + (index / Math.max(metrics.length - 1, 1)) * innerWidth;
+          const y = top + innerHeight - ((value / 100) * innerHeight);
+          return { x, y, value, label: metric.date };
+        });
+
+        const grid = ticks.map((tick) => {
+          const y = top + innerHeight - ((tick / 100) * innerHeight);
+          return `
+            <line x1="${left}" y1="${y}" x2="${width - right}" y2="${y}" stroke="#e7edf6" stroke-width="1" />
+            <text x="${left - 10}" y="${y + 4}" text-anchor="end" fill="#7b8799" font-size="11">${tick}%</text>
+          `;
+        }).join("");
+
+        const xLabels = metrics.map((metric, index) => {
+          const x = left + (index / Math.max(metrics.length - 1, 1)) * innerWidth;
+          return `<text x="${x}" y="${height - 10}" text-anchor="middle" fill="#7b8799" font-size="11">${metric.date.slice(5)}</text>`;
+        }).join("");
+
+        const lines = brands.map((brand, index) => {
+          const pts = points(brand);
+          const d = pts.map((point, pointIndex) => `${pointIndex === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+          const circles = pts.map((point) => `<circle cx="${point.x}" cy="${point.y}" r="4" fill="${visibilityColor(index)}" stroke="#ffffff" stroke-width="2"></circle>`).join("");
+          return `
+            <path d="${d}" fill="none" stroke="${visibilityColor(index)}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+            ${circles}
+          `;
+        }).join("");
+
+        const legend = brands.map((brand, index) => `
+          <span class="project-pill" style="background: rgba(37, 88, 225, 0.08); color: #23354d;">
+            <span style="width: 10px; height: 10px; border-radius: 999px; background: ${visibilityColor(index)}; display: inline-block;"></span>
+            ${brand}
+          </span>
+        `).join("");
+
+        container.innerHTML = `
+          <svg viewBox="0 0 ${width} ${height}" width="100%" height="250" aria-hidden="true">
+            ${grid}
+            ${lines}
+            ${xLabels}
+          </svg>
+          <div class="prompt-chip-row" style="margin-top: 12px;">${legend}</div>
+        `;
+      }
+
+      function renderVisibilityBubbleChart(container, items, emptyText = "No share of voice data yet.") {
+        container.innerHTML = "";
+        if (!items || !items.length) {
+          container.innerHTML = `<div class="mini-item"><span>${emptyText}</span></div>`;
+          return;
+        }
+        const width = 620;
+        const height = 260;
+        const left = 50;
+        const right = 18;
+        const top = 16;
+        const bottom = 42;
+        const innerWidth = width - left - right;
+        const innerHeight = height - top - bottom;
+        const maxMentions = Math.max(...items.map((item) => Number(item.prompt_mentions || 0)), 1);
+        const ticks = [0, 25, 50, 75, 100];
+        const grid = ticks.map((tick) => {
+          const y = top + innerHeight - ((tick / 100) * innerHeight);
+          return `
+            <line x1="${left}" y1="${y}" x2="${width - right}" y2="${y}" stroke="#e7edf6" stroke-width="1" />
+            <text x="${left - 10}" y="${y + 4}" text-anchor="end" fill="#7b8799" font-size="11">${tick}%</text>
+          `;
+        }).join("");
+
+        const bubbles = items.map((item, index) => {
+          const x = left + ((index + 0.5) / items.length) * innerWidth;
+          const y = top + innerHeight - (Math.min(100, Number(item.share_of_voice || 0) * 100) / 100) * innerHeight;
+          const radius = 14 + ((Number(item.prompt_mentions || 0) / maxMentions) * 18);
+          return `
+            <circle cx="${x}" cy="${y}" r="${radius}" fill="${visibilityColor(index)}" fill-opacity="0.18" stroke="${visibilityColor(index)}" stroke-width="2"></circle>
+            <text x="${x}" y="${Math.max(top + 14, y - radius - 6)}" text-anchor="middle" fill="#23354d" font-size="11">${item.brand}</text>
+            <text x="${x}" y="${y + 4}" text-anchor="middle" fill="#23354d" font-size="12" font-weight="700">${Math.round(Number(item.share_of_voice || 0) * 100)}%</text>
+          `;
+        }).join("");
+
+        const labels = items.map((item, index) => {
+          const x = left + ((index + 0.5) / items.length) * innerWidth;
+          return `<text x="${x}" y="${height - 10}" text-anchor="middle" fill="#7b8799" font-size="11">${item.prompt_mentions} mentions</text>`;
+        }).join("");
+
+        container.innerHTML = `
+          <svg viewBox="0 0 ${width} ${height}" width="100%" height="260" aria-hidden="true">
+            ${grid}
+            ${bubbles}
+            ${labels}
+          </svg>
+        `;
+      }
+
+      function renderVisibilityComparisonBars(container, items, brandName) {
+        container.innerHTML = "";
+        if (!items || !items.length) {
+          container.innerHTML = '<div class="mini-item"><span>No competitor data yet.</span></div>';
+          return;
+        }
+        const rows = items.map((item) => {
+          const cls = item.brand === brandName ? "bar-fill brand" : "bar-fill";
+          return `
+            <div class="bar-row">
+              <strong>${item.brand}</strong>
+              <div class="bar-track"><div class="${cls}" style="width: ${Math.max(4, Number(item.share_of_voice || 0) * 100)}%"></div></div>
+              <strong>${Math.round(Number(item.share_of_voice || 0) * 100)}%</strong>
+            </div>
+          `;
+        }).join("");
+        container.innerHTML = rows;
+      }
+
+      function renderVisibilityHierarchyAccordion() {
+        const topics = state.visibilityWorkspace ? state.visibilityWorkspace.topics || [] : [];
+        els.visibilityHierarchyAccordion.innerHTML = "";
+        if (!topics.length) {
+          els.visibilityHierarchyAccordion.innerHTML = '<div class="mini-item"><span>No topics yet. Add a topic to start building prompt groups.</span></div>';
+          return;
+        }
+
+        topics.forEach((topic) => {
+          const topicDetails = document.createElement("details");
+          topicDetails.className = "accordion-item";
+          topicDetails.open = state.selectedVisibilityTopicId === topic.id || !state.selectedVisibilityTopicId;
+          const topicPromptCount = (topic.subtopics || []).reduce((sum, subtopic) => {
+            return sum + (subtopic.prompt_lists || []).reduce((inner, promptList) => inner + (promptList.prompts || []).length, 0);
+          }, 0);
+          topicDetails.innerHTML = `
+            <summary class="accordion-summary">
+              <div class="accordion-meta">
+                <div>
+                  <strong>${topic.name}</strong>
+                  <span>${(topic.subtopics || []).length} subtopics / ${topicPromptCount} prompts</span>
+                </div>
+                <button class="btn" type="button" data-select-visibility-topic="${topic.id}">Select</button>
+              </div>
+            </summary>
+            <div class="accordion-body nested-stack"></div>
+          `;
+          const body = topicDetails.querySelector(".accordion-body");
+          (topic.subtopics || []).forEach((subtopic) => {
+            const subtopicDetails = document.createElement("details");
+            subtopicDetails.className = "accordion-item";
+            subtopicDetails.open = state.selectedVisibilitySubtopicId === subtopic.id;
+            const listCount = (subtopic.prompt_lists || []).length;
+            const promptCount = (subtopic.prompt_lists || []).reduce((sum, promptList) => sum + (promptList.prompts || []).length, 0);
+            subtopicDetails.innerHTML = `
+              <summary class="accordion-summary">
+                <div class="accordion-meta">
+                  <div>
+                    <strong>${subtopic.name}</strong>
+                    <span>${listCount} lists / ${promptCount} prompts</span>
+                  </div>
+                  <button class="btn" type="button" data-select-visibility-subtopic="${subtopic.id}" data-topic-parent="${topic.id}">Select</button>
+                </div>
+              </summary>
+              <div class="accordion-body nested-stack"></div>
+            `;
+            const subBody = subtopicDetails.querySelector(".accordion-body");
+            (subtopic.prompt_lists || []).forEach((promptList) => {
+              const promptListCard = document.createElement("div");
+              promptListCard.className = "tracker-block";
+              promptListCard.innerHTML = `
+                <div class="accordion-meta">
+                  <div>
+                    <strong>${promptList.name}</strong>
+                    <span>${(promptList.prompts || []).length} prompts / ${promptList.schedule_frequency.replace("_", " ")}</span>
+                  </div>
+                  <button class="btn" type="button" data-select-visibility-prompt-list="${promptList.id}" data-subtopic-parent="${subtopic.id}">Select</button>
+                </div>
+                <div class="prompt-chip-row" style="margin-top: 12px;">
+                  ${(promptList.prompts || []).map((prompt) => `<span class="prompt-pill">${prompt.prompt_text}</span>`).join("") || '<span class="project-muted">No prompts yet.</span>'}
+                </div>
+              `;
+              subBody.appendChild(promptListCard);
+            });
+            body.appendChild(subtopicDetails);
+          });
+          els.visibilityHierarchyAccordion.appendChild(topicDetails);
+        });
+
+        els.visibilityHierarchyAccordion.querySelectorAll("[data-select-visibility-topic]").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            event.preventDefault();
+            state.selectedVisibilityTopicId = button.dataset.selectVisibilityTopic;
+            state.selectedVisibilitySubtopicId = null;
+            state.selectedVisibilityPromptListId = null;
+            renderVisibility();
+          });
+        });
+        els.visibilityHierarchyAccordion.querySelectorAll("[data-select-visibility-subtopic]").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            event.preventDefault();
+            state.selectedVisibilityTopicId = button.dataset.topicParent || state.selectedVisibilityTopicId;
+            state.selectedVisibilitySubtopicId = button.dataset.selectVisibilitySubtopic;
+            state.selectedVisibilityPromptListId = null;
+            renderVisibility();
+          });
+        });
+        els.visibilityHierarchyAccordion.querySelectorAll("[data-select-visibility-prompt-list]").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            event.preventDefault();
+            state.selectedVisibilitySubtopicId = button.dataset.subtopicParent || state.selectedVisibilitySubtopicId;
+            state.selectedVisibilityPromptListId = button.dataset.selectVisibilityPromptList;
+            renderVisibility();
+          });
+        });
+      }
+
+      function renderVisibilityMatrix(project) {
+        if (!project) return;
+        const brands = [project.brand_name, ...(project.competitors || []).map((item) => item.name)].filter(Boolean);
+        els.visibilityCompetitorMatrixMeta.textContent = state.visibilityMatrixStatus === "loading"
+          ? "Loading topic and competitor visibility..."
+          : `Visibility percentage across ${state.visibilityMatrixRows.length || 0} rows for ${visibilityDateLabel()}.`;
+        if (!brands.length) {
+          els.visibilityCompetitorMatrix.innerHTML = '<div class="mini-item"><span>Add a tracked brand and competitors to build the matrix.</span></div>';
+          return;
+        }
+        if (state.visibilityMatrixStatus === "loading") {
+          els.visibilityCompetitorMatrix.innerHTML = '<div class="mini-item"><span>Loading competitor matrix...</span></div>';
+          return;
+        }
+        if (!state.visibilityMatrixRows.length) {
+          els.visibilityCompetitorMatrix.innerHTML = '<div class="mini-item"><span>No scope rows available for this report level yet.</span></div>';
+          return;
+        }
+        const header = `
+          <div class="heatmap-header" style="--heatmap-cols: ${brands.length};">
+            <div class="heatmap-label"><strong>${state.visibilityReportScope.level === "topic" ? "Subtopic" : state.visibilityReportScope.level === "subtopic" ? "Prompt List" : state.visibilityReportScope.level === "prompt_list" ? "Prompt List" : "Topic"}</strong></div>
+            ${brands.map((brand) => `<div class="heatmap-label"><strong>${brand}</strong></div>`).join("")}
+          </div>
+        `;
+        const rows = state.visibilityMatrixRows.map((row) => `
+          <div class="heatmap-row" style="--heatmap-cols: ${brands.length};">
+            <div class="heatmap-label">
+              <strong>${row.name}</strong>
+              <span>${row.report ? row.report.total_runs : 0} runs</span>
+            </div>
+            ${brands.map((brand) => {
+              const value = row.report ? visibilityValueFromPresence(row.report, brand) : 0;
+              const alpha = Math.min(0.92, Math.max(0.08, value / 100));
+              return `<div class="heatmap-cell" style="background: rgba(37, 88, 225, ${alpha}); color: ${value > 45 ? "#ffffff" : "#20324b"};">${value}%</div>`;
+            }).join("")}
+          </div>
+        `).join("");
+        els.visibilityCompetitorMatrix.innerHTML = `<div class="heatmap">${header}${rows}</div>`;
+      }
+
+      function renderVisibilityComparisonCards(project) {
+        const competitors = project && project.competitors ? project.competitors : [];
+        if (!project || !project.brand_name) {
+          els.visibilityCompetitorComparisons.innerHTML = '<div class="mini-item"><span>Set your tracked brand first.</span></div>';
+          return;
+        }
+        if (!competitors.length || !state.visibilityMatrixRows.length) {
+          els.visibilityCompetitorComparisons.innerHTML = '<div class="mini-item"><span>Add competitors and topic data to compare performance.</span></div>';
+          return;
+        }
+        els.visibilityCompetitorComparisons.innerHTML = competitors.map((competitor) => {
+          const sharedRows = state.visibilityMatrixRows.filter((row) => {
+            const brandCount = visibilityCountFromPresence(row.report || { brand_presence: [] }, project.brand_name);
+            const competitorCount = visibilityCountFromPresence(row.report || { brand_presence: [] }, competitor.name);
+            return brandCount > 0 || competitorCount > 0;
+          });
+          const brandWins = sharedRows.filter((row) => visibilityCountFromPresence(row.report || { brand_presence: [] }, project.brand_name) > visibilityCountFromPresence(row.report || { brand_presence: [] }, competitor.name));
+          const competitorWins = sharedRows.filter((row) => visibilityCountFromPresence(row.report || { brand_presence: [] }, competitor.name) > visibilityCountFromPresence(row.report || { brand_presence: [] }, project.brand_name));
+          const brandPct = sharedRows.length ? Math.round((brandWins.length / sharedRows.length) * 100) : 0;
+          const competitorPct = Math.max(0, 100 - brandPct);
+          return `
+            <article class="comparison-card">
+              <div class="comparison-head">
+                <span>${project.brand_name}</span>
+                <span>vs</span>
+                <span>${competitor.name}</span>
+              </div>
+              <div>
+                <strong>${project.brand_name} appears higher for ${brandPct}% of shared rows</strong>
+                <span class="project-muted">${sharedRows.length} shared rows</span>
+              </div>
+              <div class="comparison-progress">
+                <span style="width: ${brandPct}%"></span>
+                <span style="width: ${competitorPct}%"></span>
+              </div>
+              <div class="comparison-columns">
+                <div>
+                  <span>${project.brand_name} leads in</span>
+                  ${brandWins.length ? brandWins.slice(0, 4).map((row) => `<strong>${row.name}</strong>`).join("") : "<strong>No significant leads</strong>"}
+                </div>
+                <div>
+                  <span>${competitor.name} leads in</span>
+                  ${competitorWins.length ? competitorWins.slice(0, 4).map((row) => `<strong>${row.name}</strong>`).join("") : "<strong>No significant leads</strong>"}
+                </div>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      function renderVisibilityProjects() {
+        els.visibilityProjectSearch.value = state.visibilityProjectSearch;
+        const filteredProjects = state.visibilityProjects.filter((project) => {
+          const haystack = `${project.name} ${project.brand_name} ${project.brand_url}`.toLowerCase();
+          return haystack.includes((state.visibilityProjectSearch || "").trim().toLowerCase());
+        });
+        state.selectedVisibilityProjectIds = state.selectedVisibilityProjectIds.filter((projectId) => state.visibilityProjects.some((project) => project.id === projectId));
+        els.visibilityProjectsSummary.textContent = `${filteredProjects.length} of ${state.visibilityProjects.length} projects`;
+        els.visibilityProjectsSelectionMeta.textContent = state.selectedVisibilityProjectIds.length
+          ? `${state.selectedVisibilityProjectIds.length} selected`
+          : "No projects selected";
+        els.deleteSelectedVisibilityProjectsBtn.disabled = state.selectedVisibilityProjectIds.length === 0;
+        els.visibilityProjectModal.classList.toggle("hidden-mode", !state.visibilityProjectModalOpen);
+        els.visibilityProjectsList.innerHTML = "";
+
+        if (!filteredProjects.length) {
+          els.visibilityProjectsList.innerHTML = `
             <div class="project-empty">
-              <strong>No visibility projects yet.</strong>
-              <p>Create your first project to start tracking prompts, runs, citations, and competitor presence.</p>
+              <strong>No matching projects.</strong>
+              <p>${state.visibilityProjects.length ? "Try another search term or clear the filter." : "Create your first project to start tracking prompts, runs, citations, and competitor visibility."}</p>
             </div>
           `;
           return;
         }
 
-        state.visibilityProjects.forEach((project) => {
-          const card = document.createElement("article");
-          card.className = "project-card";
-          card.innerHTML = `
-            <span class="project-kicker">${project.default_schedule_frequency === "disabled" ? "Manual only" : project.default_schedule_frequency.replace("_", " ")}</span>
-            <h3>${project.name || project.brand_name || "Untitled Project"}</h3>
-            <p>${project.brand_name || "Brand name not set"}${project.brand_url ? ` / ${project.brand_url}` : ""}</p>
-            <div class="project-meta-grid">
-              <div>
-                <strong>${project.prompt_list_count}</strong>
-                <span>Prompt lists</span>
-              </div>
-              <div>
-                <strong>${project.run_count}</strong>
-                <span>Snapshots</span>
-              </div>
-              <div>
-                <strong>${project.topic_count}</strong>
-                <span>Topics</span>
-              </div>
-              <div>
-                <strong>${project.last_run_at ? formatDate(project.last_run_at) : "No runs yet"}</strong>
-                <span>Last run</span>
-              </div>
+        filteredProjects.forEach((project) => {
+          const selected = state.selectedVisibilityProjectIds.includes(project.id);
+          const row = document.createElement("div");
+          row.className = `visibility-project-row${selected ? " selected" : ""}`;
+          row.innerHTML = `
+            <label class="topic-checkbox">
+              <input type="checkbox" data-select-visibility-project="${project.id}" ${selected ? "checked" : ""} />
+            </label>
+            <div class="project-main">
+              <strong>${project.name || project.brand_name || "Untitled Project"}</strong>
+              <span>${project.topic_count} topics / ${project.prompt_list_count} lists / ${project.prompt_count} prompts</span>
+            </div>
+            <div class="project-main">
+              <strong>${project.brand_name || "Brand not set"}</strong>
+              <span>${project.brand_url || "URL not set"}</span>
+            </div>
+            <div><span class="project-pill">${project.default_schedule_frequency.replace("_", " ")}</span></div>
+            <div class="project-coverage">
+              <strong>${project.run_count} snapshots</strong>
+              <span>${project.competitors.length} competitors tracked</span>
+            </div>
+            <div class="project-main">
+              <strong>${project.last_run_at ? formatDate(project.last_run_at) : "No runs yet"}</strong>
+              <span>${project.last_run_at ? "Latest snapshot" : "Waiting for first run"}</span>
             </div>
             <div class="project-actions">
-              <button class="btn primary" type="button" data-open-visibility-project="${project.id}">Open Project</button>
+              <button class="btn primary" type="button" data-open-visibility-project="${project.id}">Open</button>
               <button class="btn" type="button" data-open-visibility-settings="${project.id}">Settings</button>
             </div>
           `;
-          els.visibilityProjectsGrid.appendChild(card);
+          els.visibilityProjectsList.appendChild(row);
         });
 
-        els.visibilityProjectsGrid.querySelectorAll("[data-open-visibility-project]").forEach((button) => {
+        els.visibilityProjectsList.querySelectorAll("[data-select-visibility-project]").forEach((checkbox) => {
+          checkbox.addEventListener("change", () => {
+            const projectId = checkbox.dataset.selectVisibilityProject;
+            if (checkbox.checked) {
+              if (!state.selectedVisibilityProjectIds.includes(projectId)) state.selectedVisibilityProjectIds.push(projectId);
+            } else {
+              state.selectedVisibilityProjectIds = state.selectedVisibilityProjectIds.filter((id) => id !== projectId);
+            }
+            renderVisibilityProjects();
+          });
+        });
+        els.visibilityProjectsList.querySelectorAll("[data-open-visibility-project]").forEach((button) => {
           button.addEventListener("click", async () => {
             await openVisibilityProject(button.dataset.openVisibilityProject, "overview");
           });
         });
-        els.visibilityProjectsGrid.querySelectorAll("[data-open-visibility-settings]").forEach((button) => {
+        els.visibilityProjectsList.querySelectorAll("[data-open-visibility-settings]").forEach((button) => {
           button.addEventListener("click", async () => {
             await openVisibilityProject(button.dataset.openVisibilitySettings, "settings");
           });
@@ -2967,6 +3751,11 @@ What AI visibility tracking tools are cited most often?"></textarea>
 
         ensureVisibilitySelections();
 
+        const brands = [project.brand_name, ...(project.competitors || []).map((item) => item.name)].filter(Boolean);
+        const allReport = workspace.reports && workspace.reports.all ? workspace.reports.all : null;
+        const report = state.visibilityReport || allReport;
+        const counts = collectVisibilityCounts(workspace.topics || []);
+
         els.visibilityDateStart.value = state.visibilityDateStart;
         els.visibilityDateEnd.value = state.visibilityDateEnd;
         els.visibilityWorkspaceProjectName.textContent = project.name || project.brand_name || "Untitled Project";
@@ -2986,16 +3775,9 @@ What AI visibility tracking tools are cited most often?"></textarea>
           reports: els.visibilityReportsPanel,
           settings: els.visibilitySettingsPanel,
         };
-        Object.entries(navButtons).forEach(([key, button]) => {
-          button.classList.toggle("active", state.visibilityProjectView === key);
-        });
-        Object.entries(panels).forEach(([key, panel]) => {
-          panel.classList.toggle("active", state.visibilityProjectView === key);
-        });
+        Object.entries(navButtons).forEach(([key, button]) => button.classList.toggle("active", state.visibilityProjectView === key));
+        Object.entries(panels).forEach(([key, panel]) => panel.classList.toggle("active", state.visibilityProjectView === key));
 
-        const allReport = workspace.reports && workspace.reports.all ? workspace.reports.all : null;
-        const report = state.visibilityReport || allReport;
-        const counts = collectVisibilityCounts(workspace.topics || []);
         els.visibilityTopicsCount.textContent = String(counts.topics);
         els.visibilityListsCount.textContent = String(counts.lists);
         els.visibilityPromptsCount.textContent = String(counts.prompts);
@@ -3037,7 +3819,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
               }
               state.visibilityReportScope = { level: "all", entityId: "all" };
               state.visibilityReport = null;
-              await loadVisibilityWorkspace();
+              await loadVisibilityWorkspace(true);
               await loadVisibilityProjects();
             });
           });
@@ -3066,6 +3848,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         if (state.selectedVisibilityPromptListId && promptLists.some((promptList) => promptList.id === state.selectedVisibilityPromptListId)) {
           els.visibilityPromptListSelect.value = state.selectedVisibilityPromptListId;
         }
+
+        renderVisibilityHierarchyAccordion();
 
         const selectedPromptList = selectedVisibilityPromptList();
         els.visibilityPromptPreviewList.innerHTML = "";
@@ -3098,7 +3882,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
               }
               state.visibilityReportScope = { level: "all", entityId: "all" };
               state.visibilityReport = null;
-              await loadVisibilityWorkspace();
+              await loadVisibilityWorkspace(true);
               await loadVisibilityProjects();
             });
           });
@@ -3158,6 +3942,14 @@ What AI visibility tracking tools are cited most often?"></textarea>
         renderVisibilityMetricRows(els.visibilityOverviewTopDomains, allReport ? allReport.top_domains || [] : [], "No cited domains yet.", domainFormatter);
         renderVisibilityMetricRows(els.visibilityTopUrls, report ? report.top_urls || [] : [], "No cited URLs yet.", urlFormatter);
 
+        renderVisibilityLineChart(els.visibilityOverviewTrendChart, allReport ? allReport.daily_metrics || [] : [], brands);
+        renderVisibilityLineChart(els.visibilityReportTrendChart, report ? report.daily_metrics || [] : [], brands);
+        renderVisibilityBubbleChart(els.visibilityOverviewSharePlot, allReport ? allReport.brand_presence || [] : []);
+        renderVisibilityBubbleChart(els.visibilityShareBubbleChart, report ? report.brand_presence || [] : []);
+        renderVisibilityComparisonBars(els.visibilityOverviewCompetitorBars, allReport ? allReport.brand_presence || [] : [], project.brand_name);
+        renderVisibilityMatrix(project);
+        renderVisibilityComparisonCards(project);
+
         Array.from(els.visibilityTopDomains.children).forEach((row, index) => {
           const item = report && report.top_domains ? report.top_domains[index] : null;
           if (!item) return;
@@ -3181,7 +3973,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
           });
         });
 
-        const renderDailyChart = (container, metrics) => {
+        const renderDailyBars = (container, metrics) => {
           container.innerHTML = "";
           if (!metrics.length) {
             container.innerHTML = '<div class="mini-item"><span>No daily trend data yet.</span></div>';
@@ -3199,8 +3991,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
             container.appendChild(bar);
           });
         };
-        renderDailyChart(els.visibilityDailyMetrics, report ? report.daily_metrics || [] : []);
-        renderDailyChart(els.visibilityOverviewDailyMetrics, allReport ? allReport.daily_metrics || [] : []);
+        renderDailyBars(els.visibilityDailyMetrics, report ? report.daily_metrics || [] : []);
+        renderDailyBars(els.visibilityOverviewDailyMetrics, allReport ? allReport.daily_metrics || [] : []);
 
         const drilldown = currentVisibilityDrilldown(report);
         els.visibilityDrilldownPrompts.innerHTML = "";
@@ -3417,11 +4209,81 @@ What AI visibility tracking tools are cited most often?"></textarea>
         renderVisibility();
       }
 
+      function visibilityMatrixTargets() {
+        if (!state.visibilityWorkspace) return [];
+        if (state.visibilityReportScope.level === "topic") {
+          const topic = (state.visibilityWorkspace.topics || []).find((item) => item.id === state.visibilityReportScope.entityId);
+          return topic ? (topic.subtopics || []).map((item) => ({ level: "subtopic", id: item.id, name: item.name })) : [];
+        }
+        if (state.visibilityReportScope.level === "subtopic") {
+          for (const topic of state.visibilityWorkspace.topics || []) {
+            const subtopic = (topic.subtopics || []).find((item) => item.id === state.visibilityReportScope.entityId);
+            if (subtopic) {
+              return (subtopic.prompt_lists || []).map((item) => ({ level: "prompt_list", id: item.id, name: item.name }));
+            }
+          }
+          return [];
+        }
+        if (state.visibilityReportScope.level === "prompt_list") {
+          for (const topic of state.visibilityWorkspace.topics || []) {
+            for (const subtopic of topic.subtopics || []) {
+              const promptList = (subtopic.prompt_lists || []).find((item) => item.id === state.visibilityReportScope.entityId);
+              if (promptList) return [{ level: "prompt_list", id: promptList.id, name: promptList.name }];
+            }
+          }
+          return [];
+        }
+        return (state.visibilityWorkspace.topics || []).map((item) => ({ level: "topic", id: item.id, name: item.name }));
+      }
+
+      function visibilityScopedReportCacheKey(level, entityId) {
+        return [state.selectedVisibilityProjectId, state.visibilityDateStart, state.visibilityDateEnd, level, entityId].join("|");
+      }
+
+      async function fetchVisibilityScopedReport(level, entityId) {
+        const cacheKey = visibilityScopedReportCacheKey(level, entityId);
+        if (state.visibilityScopedReportsCache[cacheKey]) {
+          return state.visibilityScopedReportsCache[cacheKey];
+        }
+        const params = visibilityDateParams();
+        params.set("project_id", state.selectedVisibilityProjectId);
+        params.set("level", level);
+        params.set("entity_id", entityId);
+        const res = await fetch(`/api/visibility/reports?${params.toString()}`, { credentials: "same-origin" });
+        if (!res.ok) return null;
+        const payload = await res.json();
+        state.visibilityScopedReportsCache[cacheKey] = payload;
+        return payload;
+      }
+
+      async function loadVisibilityMatrixData() {
+        if (!state.selectedVisibilityProjectId || !state.visibilityWorkspace) return;
+        const rows = visibilityMatrixTargets();
+        if (!rows.length) {
+          state.visibilityMatrixRows = [];
+          state.visibilityMatrixStatus = "empty";
+          renderVisibility();
+          return;
+        }
+        state.visibilityMatrixStatus = "loading";
+        renderVisibility();
+        const resolved = await Promise.all(rows.map(async (row) => ({
+          ...row,
+          report: await fetchVisibilityScopedReport(row.level, row.id),
+        })));
+        state.visibilityMatrixRows = resolved;
+        state.visibilityMatrixStatus = "ready";
+        renderVisibility();
+      }
+
       async function openVisibilityProject(projectId, view = "overview") {
         state.selectedVisibilityProjectId = projectId;
         state.visibilityProjectView = view;
         state.visibilityWorkspace = null;
         state.visibilityReport = null;
+        state.visibilityScopedReportsCache = {};
+        state.visibilityMatrixRows = [];
+        state.visibilityMatrixStatus = "idle";
         state.visibilityReportScope = { level: "all", entityId: "all" };
         state.visibilityDrilldown = { type: "domain", value: null };
         state.selectedVisibilityTopicId = null;
@@ -3433,6 +4295,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
 
       async function loadVisibilityWorkspace(refreshScopedReport = false) {
         if (!state.selectedVisibilityProjectId) return;
+        state.visibilityScopedReportsCache = {};
+        state.visibilityMatrixRows = [];
         const params = visibilityDateParams();
         const query = params.toString() ? `?${params.toString()}` : "";
         const res = await fetch(`/api/visibility/projects/${state.selectedVisibilityProjectId}/workspace${query}`, { credentials: "same-origin" });
@@ -3455,7 +4319,9 @@ What AI visibility tracking tools are cited most often?"></textarea>
         renderVisibility();
         if (shouldRefreshScopedReport) {
           await loadVisibilityReport(state.visibilityReportScope.level, state.visibilityReportScope.entityId);
+          return;
         }
+        await loadVisibilityMatrixData();
       }
 
       async function loadVisibilityReport(level, entityId) {
@@ -3465,6 +4331,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
             ? state.visibilityWorkspace.reports.all || null
             : null;
           renderVisibility();
+          await loadVisibilityMatrixData();
           return;
         }
         if (!state.selectedVisibilityProjectId) return;
@@ -3479,6 +4346,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
         }
         state.visibilityReport = await res.json();
         renderVisibility();
+        await loadVisibilityMatrixData();
       }
 
       async function pollVisibilityJob(jobId) {
@@ -3913,6 +4781,46 @@ What AI visibility tracking tools are cited most often?"></textarea>
         els.settingsSavedMsg.textContent = "Settings saved.";
       });
 
+      els.openVisibilityProjectModalBtn.addEventListener("click", () => {
+        state.visibilityProjectModalOpen = true;
+        els.visibilityProjectCreateMsg.textContent = "";
+        renderVisibilityProjects();
+      });
+
+      [els.closeVisibilityProjectModalBtn, els.cancelVisibilityProjectModalBtn].forEach((button) => {
+        button.addEventListener("click", () => {
+          state.visibilityProjectModalOpen = false;
+          renderVisibilityProjects();
+        });
+      });
+
+      els.visibilityProjectModal.addEventListener("click", (event) => {
+        if (event.target === els.visibilityProjectModal) {
+          state.visibilityProjectModalOpen = false;
+          renderVisibilityProjects();
+        }
+      });
+
+      els.visibilityProjectSearch.addEventListener("input", () => {
+        state.visibilityProjectSearch = els.visibilityProjectSearch.value;
+        renderVisibilityProjects();
+      });
+
+      els.deleteSelectedVisibilityProjectsBtn.addEventListener("click", async () => {
+        if (!state.selectedVisibilityProjectIds.length) return;
+        if (!window.confirm(`Delete ${state.selectedVisibilityProjectIds.length} selected project(s)? This removes all nested topics, prompts, runs, and reports for them.`)) return;
+        els.deleteSelectedVisibilityProjectsBtn.disabled = true;
+        for (const projectId of [...state.selectedVisibilityProjectIds]) {
+          await fetch(`/api/visibility/projects/${projectId}`, {
+            method: "DELETE",
+            credentials: "same-origin",
+          });
+        }
+        state.selectedVisibilityProjectIds = [];
+        els.deleteSelectedVisibilityProjectsBtn.disabled = false;
+        await loadVisibilityProjects();
+      });
+
       els.addVisibilityProjectBtn.addEventListener("click", async () => {
         const name = els.visibilityProjectName.value.trim();
         if (!name) return alert("Enter a project name.");
@@ -3941,6 +4849,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
         els.visibilityProjectBrandUrl.value = "";
         els.visibilityProjectDefaultSchedule.value = "disabled";
         els.visibilityProjectCreateMsg.textContent = "Project created.";
+        state.visibilityProjectModalOpen = false;
         await loadVisibilityProjects();
         await openVisibilityProject(project.id, "settings");
       });
@@ -3949,6 +4858,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.selectedVisibilityProjectId = null;
         state.visibilityWorkspace = null;
         state.visibilityReport = null;
+        state.visibilityMatrixRows = [];
+        state.visibilityMatrixStatus = "idle";
         state.visibilityReportScope = { level: "all", entityId: "all" };
         state.visibilityProjectView = "overview";
         await loadVisibilityProjects();
@@ -4085,7 +4996,6 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.selectedVisibilitySubtopicId = null;
         state.selectedVisibilityPromptListId = null;
         state.visibilityReportScope = { level: "all", entityId: "all" };
-        await loadVisibilityReport("all", "all");
         await loadVisibilityWorkspace();
         await loadVisibilityProjects();
       });

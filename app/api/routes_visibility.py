@@ -109,6 +109,17 @@ def update_visibility_project(
     return updated
 
 
+@router.delete("/projects/{project_id}", response_model=VisibilityDeleteResponse)
+def delete_visibility_project(
+    project_id: str,
+    current_user: UserPublic = Depends(get_current_user),
+) -> VisibilityDeleteResponse:
+    deleted = run_store.delete_visibility_project(current_user.id, project_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return VisibilityDeleteResponse(deleted=True, entity_type="project", entity_id=project_id)
+
+
 @router.post("/projects/{project_id}/competitors", response_model=VisibilityCompetitor)
 def create_visibility_competitor(
     project_id: str,
