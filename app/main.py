@@ -16,6 +16,7 @@ from app.api.routes_settings import router as settings_router
 from app.api.routes_visibility import router as visibility_router
 from app.api.routes_workspace import router as workspace_router
 from app.core.auth import get_current_user_optional
+from app.core.config import settings
 from app.workers.scheduler import start_scheduler
 
 app = FastAPI(title="SEO Content Agent")
@@ -44,7 +45,8 @@ if frontend_dir.exists():
 
 @app.on_event("startup")
 def on_startup() -> None:
-    start_scheduler()
+    if settings.enable_scheduler:
+        start_scheduler()
 
 
 @app.get("/")

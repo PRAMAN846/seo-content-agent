@@ -19,6 +19,8 @@ from app.models.schemas import (
     VisibilityProjectSummary,
     VisibilityProjectUpdateRequest,
     VisibilityProjectWorkspaceResponse,
+    VisibilityPromptGeneratorRequest,
+    VisibilityPromptGeneratorResponse,
     VisibilityPromptBulkCreateRequest,
     VisibilityPromptListCreateRequest,
     VisibilityPromptListRecord,
@@ -33,6 +35,7 @@ from app.models.schemas import (
 from app.models.store import run_store
 from app.services.visibility_tracker import (
     build_visibility_projects,
+    generate_visibility_prompt_suggestions,
     build_visibility_report,
     build_visibility_workspace,
     run_visibility_prompt_list_job,
@@ -86,6 +89,18 @@ def get_visibility_workspace(
             start_date=_parse_optional_date(start_date),
             end_date=_parse_optional_date(end_date, end_of_day=True),
         )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.post("/projects/{project_id}/prompt-generator", response_model=VisibilityPromptGeneratorResponse)
+def generate_visibility_prompts(
+    project_id: str,
+    payload: VisibilityPromptGeneratorRequest,
+    current_user: UserPublic = Depends(get_current_user),
+) -> VisibilityPromptGeneratorResponse:
+    try:
+        return generate_visibility_prompt_suggestions(current_user.id, project_id=project_id, payload=payload)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

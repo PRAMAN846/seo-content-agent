@@ -12,6 +12,7 @@ PersonalityAgentType = Literal["workspace", "brief", "writer", "reviewer"]
 VisibilityScheduleFrequency = Literal["disabled", "weekly", "twice_monthly", "monthly"]
 VisibilitySurface = Literal["api", "consumer_ui"]
 VisibilityRunSource = Literal["manual", "scheduled"]
+VisibilityPromptGeneratorProjectType = Literal["b2b_saas", "ecommerce"]
 
 
 class UrlContent(BaseModel):
@@ -344,6 +345,13 @@ class VisibilityPromptRecord(BaseModel):
     prompt_list_id: str
     prompt_text: str
     position: int = 0
+    run_count: int = 0
+    latest_run_at: Optional[datetime] = None
+    latest_status: Optional[TaskStatus] = None
+    latest_response_text: str = ""
+    latest_brands: list[str] = Field(default_factory=list)
+    latest_cited_domains: list[str] = Field(default_factory=list)
+    latest_cited_urls: list[str] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
 
@@ -450,6 +458,11 @@ class VisibilityPromptReference(BaseModel):
     run_id: str
     prompt_id: str
     prompt_text: str
+    status: Optional[TaskStatus] = None
+    response_text: str = ""
+    brands: list[str] = Field(default_factory=list)
+    cited_domains: list[str] = Field(default_factory=list)
+    cited_urls: list[str] = Field(default_factory=list)
     created_at: datetime
 
 
@@ -490,3 +503,70 @@ class VisibilityProjectWorkspaceResponse(BaseModel):
 
 class VisibilityProjectsResponse(BaseModel):
     projects: list[VisibilityProjectSummary] = Field(default_factory=list)
+
+
+class VisibilityPromptGeneratorGscRow(BaseModel):
+    query: str = Field(min_length=1)
+    impressions: float = 0.0
+    ctr: float = 0.0
+    position: float = 0.0
+
+
+class VisibilityPromptGeneratorRequest(BaseModel):
+    project_type: VisibilityPromptGeneratorProjectType
+    desired_prompt_count: int = Field(default=80, ge=50, le=150)
+    product_name: str = ""
+    category: str = ""
+    pricing_tier: str = ""
+    target_market: str = ""
+    target_market_custom: str = ""
+    role: str = ""
+    company_size: str = ""
+    industry: str = ""
+    awareness_level: str = ""
+    pain_points: list[str] = Field(default_factory=list)
+    desired_outcomes: list[str] = Field(default_factory=list)
+    fears_objections: list[str] = Field(default_factory=list)
+    buying_triggers: list[str] = Field(default_factory=list)
+    competitors: list[str] = Field(default_factory=list)
+    gsc_rows: list[VisibilityPromptGeneratorGscRow] = Field(default_factory=list)
+    price_range: str = ""
+    brand_positioning: str = ""
+    target_audience: str = ""
+    target_audience_custom: str = ""
+    age_group: str = ""
+    use_case: str = ""
+    use_case_custom: str = ""
+    intent_triggers: list[str] = Field(default_factory=list)
+    decision_factors: list[str] = Field(default_factory=list)
+    objections: list[str] = Field(default_factory=list)
+
+
+class VisibilityGeneratedPrompt(BaseModel):
+    id: str
+    prompt_text: str
+    intent_stage: str
+    prompt_type: str
+    ai_format_likely: Literal["list", "comparison", "explanation"]
+    priority_score: int = Field(default=0, ge=0, le=100)
+
+
+class VisibilityPromptGeneratorIntentGroup(BaseModel):
+    intent_stage: str
+    prompt_count: int = 0
+    prompts: list[VisibilityGeneratedPrompt] = Field(default_factory=list)
+
+
+class VisibilityPromptGeneratorTypeSummary(BaseModel):
+    prompt_type: str
+    prompt_count: int = 0
+
+
+class VisibilityPromptGeneratorResponse(BaseModel):
+    project_id: str
+    project_type: VisibilityPromptGeneratorProjectType
+    requested_prompt_count: int
+    generated_prompt_count: int
+    prompts: list[VisibilityGeneratedPrompt] = Field(default_factory=list)
+    intent_groups: list[VisibilityPromptGeneratorIntentGroup] = Field(default_factory=list)
+    type_summary: list[VisibilityPromptGeneratorTypeSummary] = Field(default_factory=list)

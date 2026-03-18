@@ -85,6 +85,7 @@ ANALYST_MODEL=gpt-5-mini
 WRITER_MODEL=gpt-5
 ORCHESTRATOR_MODEL=gpt-5-mini
 COOKIE_SECURE=false
+ENABLE_SCHEDULER=false
 ```
 
 Start server:
@@ -95,6 +96,29 @@ python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 Open:
 - `http://127.0.0.1:8000`
+
+### Local preview with production-like data
+
+If you want to test UI changes locally with the same accounts/projects as production, do not point your laptop at the live production database by default. Instead:
+
+1. Create a staging database by cloning production.
+2. Put that connection string in `DATABASE_URL`.
+3. Keep `COOKIE_SECURE=false` locally.
+4. Set `ENABLE_SCHEDULER=false` so local preview does not trigger scheduled runs.
+
+Example:
+
+```bash
+export DATABASE_URL="your_staging_or_prod_clone_db_url"
+export COOKIE_SECURE=false
+export ENABLE_SCHEDULER=false
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Notes:
+- `DATABASE_URL` takes priority over `APP_DB_PATH`.
+- You will still log in through `localhost`; browser sessions do not carry over from production.
+- If you point local directly at production, any edits, deletions, or runs from your local machine will affect production data.
 
 ## Deploy on Render with Neon
 

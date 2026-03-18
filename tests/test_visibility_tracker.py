@@ -6,6 +6,8 @@ import tempfile
 import time
 import unittest
 import uuid
+from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
 os.environ["OPENAI_API_KEY"] = ""
 os.environ["COOKIE_SECURE"] = "false"
@@ -141,6 +143,10 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace").json()
         self.assertEqual(len(workspace["recent_jobs"]), 1)
         self.assertEqual(len(workspace["recent_runs"]), 2)
+        prompt_payload = workspace["topics"][0]["subtopics"][0]["prompt_lists"][0]["prompts"][0]
+        self.assertEqual(prompt_payload["run_count"], 1)
+        self.assertIsNotNone(prompt_payload["latest_run_at"])
+        self.assertEqual(prompt_payload["latest_status"], "completed")
 
         report = self.client.get(
             "/api/visibility/reports",
@@ -151,6 +157,169 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(report_payload["total_runs"], 2)
         self.assertTrue(any(item["brand"] == "Xpaan" for item in report_payload["brand_presence"]))
         self.assertGreaterEqual(len(report_payload["daily_metrics"]), 1)
+        if report_payload["domain_drilldown"]:
+            prompt_ref = report_payload["domain_drilldown"][0]["prompts"][0]
+            self.assertIn("response_text", prompt_ref)
+            self.assertIn("brands", prompt_ref)
+
+    def test_prompt_summaries_and_drilldown_include_latest_response_details(self) -> None:
+        ids = self.create_tracker_stack()
+
+        with patch(
+            "app.services.visibility_tracker.llm_client.complete",
+            return_value=(
+                "Xpaan is a strong option for AI visibility tracking.\n\n"
+                "Citations:\n"
+                "https://xpaan.com/features\n"
+                "https://example.com/research"
+            ),
+        ):
+            run_response = self.client.post(
+                f"/api/visibility/lists/{ids['prompt_list_id']}/run",
+                json={"provider": "openai", "model": "gpt-5-mini", "surface": "api", "run_source": "manual"},
+            )
+            self.assertEqual(run_response.status_code, 200, run_response.text)
+            self.wait_for_job(run_response.json()["id"])
+
+        workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace").json()
+        prompt_payload = workspace["topics"][0]["subtopics"][0]["prompt_lists"][0]["prompts"][0]
+        self.assertEqual(prompt_payload["run_count"], 1)
+        self.assertEqual(prompt_payload["latest_status"], "completed")
+        self.assertIn("Xpaan", prompt_payload["latest_brands"])
+        self.assertIn("xpaan.com", prompt_payload["latest_cited_domains"])
+        self.assertIn("https://xpaan.com/features", prompt_payload["latest_cited_urls"])
+        self.assertIn("Citations", prompt_payload["latest_response_text"])
+
+        report = self.client.get(
+            "/api/visibility/reports",
+            params={"project_id": ids["project_id"], "level": "prompt_list", "entity_id": ids["prompt_list_id"]},
+        )
+        self.assertEqual(report.status_code, 200, report.text)
+        report_payload = report.json()
+        self.assertGreaterEqual(len(report_payload["domain_drilldown"]), 1)
+        prompt_ref = report_payload["domain_drilldown"][0]["prompts"][0]
+        self.assertEqual(prompt_ref["status"], "completed")
+        self.assertIn("Xpaan", prompt_ref["brands"])
+        self.assertIn("xpaan.com", prompt_ref["cited_domains"])
+        self.assertIn("https://xpaan.com/features", prompt_ref["cited_urls"])
+        self.assertIn("Citations", prompt_ref["response_text"])
+
+    def test_workspace_date_filter_resets_prompt_latest_run_outside_range(self) -> None:
+        ids = self.create_tracker_stack()
+
+        run_response = self.client.post(
+            f"/api/visibility/lists/{ids['prompt_list_id']}/run",
+            json={"provider": "openai", "model": "gpt-5-mini", "surface": "api", "run_source": "manual"},
+        )
+        self.assertEqual(run_response.status_code, 200, run_response.text)
+        self.wait_for_job(run_response.json()["id"])
+
+        future_day = (datetime.now(timezone.utc) + timedelta(days=30)).date().isoformat()
+        workspace = self.client.get(
+            f"/api/visibility/projects/{ids['project_id']}/workspace",
+            params={"start_date": future_day, "end_date": future_day},
+        )
+        self.assertEqual(workspace.status_code, 200, workspace.text)
+        payload = workspace.json()
+        self.assertEqual(payload["reports"]["all"]["total_runs"], 0)
+        prompt_payload = payload["topics"][0]["subtopics"][0]["prompt_lists"][0]["prompts"][0]
+        self.assertEqual(prompt_payload["run_count"], 0)
+        self.assertIsNone(prompt_payload["latest_run_at"])
+        self.assertEqual(prompt_payload["latest_response_text"], "")
+
+    def test_bulk_prompt_add_appends_to_existing_prompt_list(self) -> None:
+        ids = self.create_tracker_stack()
+
+        add_more = self.client.post(
+            "/api/visibility/prompts/bulk",
+            json={
+                "prompt_list_id": ids["prompt_list_id"],
+                "prompts": [
+                    "How visible is Xpaan in AI answer engines for enterprise SEO?",
+                    "Which sources cite Xpaan most often for AI visibility?",
+                ],
+            },
+        )
+        self.assertEqual(add_more.status_code, 200, add_more.text)
+        added_prompts = add_more.json()
+        self.assertEqual(len(added_prompts), 2)
+        self.assertEqual(added_prompts[0]["position"], 3)
+        self.assertEqual(added_prompts[1]["position"], 4)
+
+        workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace")
+        self.assertEqual(workspace.status_code, 200, workspace.text)
+        prompt_items = workspace.json()["topics"][0]["subtopics"][0]["prompt_lists"][0]["prompts"]
+        self.assertEqual(len(prompt_items), 4)
+        self.assertEqual(prompt_items[-1]["prompt_text"], "Which sources cite Xpaan most often for AI visibility?")
+
+    def test_b2b_prompt_generator_returns_grouped_structured_prompts(self) -> None:
+        ids = self.create_tracker_stack()
+
+        response = self.client.post(
+            f"/api/visibility/projects/{ids['project_id']}/prompt-generator",
+            json={
+                "project_type": "b2b_saas",
+                "desired_prompt_count": 60,
+                "product_name": "Xpaan",
+                "category": "AI visibility software",
+                "pricing_tier": "premium",
+                "target_market": "global",
+                "role": "Marketing Head",
+                "company_size": "51-200",
+                "industry": "SaaS",
+                "awareness_level": "comparing",
+                "pain_points": ["measuring AI brand mentions", "tracking cited domains"],
+                "desired_outcomes": ["better share of voice reporting", "stronger brand visibility"],
+                "fears_objections": ["unclear ROI", "slow team adoption"],
+                "buying_triggers": ["launching in new markets", "competitive pressure"],
+                "competitors": ["Profound", "Gauge"],
+                "gsc_rows": [
+                    {"query": "ai visibility tools", "impressions": 420, "ctr": 1.2, "position": 7},
+                ],
+            },
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertEqual(payload["generated_prompt_count"], 60)
+        self.assertEqual(payload["requested_prompt_count"], 60)
+        self.assertGreaterEqual(len(payload["intent_groups"]), 3)
+        self.assertTrue(any(prompt["prompt_type"] == "comparison" for prompt in payload["prompts"]))
+        self.assertTrue(any("Xpaan vs Profound" in prompt["prompt_text"] for prompt in payload["prompts"]))
+
+    def test_ecommerce_prompt_generator_returns_comparison_and_validation_prompts(self) -> None:
+        ids = self.create_tracker_stack()
+
+        response = self.client.post(
+            f"/api/visibility/projects/{ids['project_id']}/prompt-generator",
+            json={
+                "project_type": "ecommerce",
+                "desired_prompt_count": 50,
+                "product_name": "Xpaan Fit",
+                "category": "running shoes",
+                "price_range": "mid_range",
+                "brand_positioning": "premium",
+                "target_audience": "custom",
+                "target_audience_custom": "urban runners",
+                "age_group": "25-34",
+                "use_case": "custom",
+                "use_case_custom": "marathon training",
+                "awareness_level": "comparing",
+                "intent_triggers": ["upgrade", "replacement"],
+                "decision_factors": ["comfort", "design", "brand trust"],
+                "objections": ["is it worth it", "does it actually help performance"],
+                "competitors": ["Nike", "Adidas"],
+                "gsc_rows": [
+                    {"query": "best running shoes for marathon training", "impressions": 300, "ctr": 2.0, "position": 9},
+                ],
+            },
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertEqual(payload["generated_prompt_count"], 50)
+        self.assertTrue(any(group["intent_stage"] == "comparison" for group in payload["intent_groups"]))
+        self.assertTrue(any(group["intent_stage"] == "validation" for group in payload["intent_groups"]))
+        self.assertTrue(any("Xpaan Fit vs Nike" in prompt["prompt_text"] for prompt in payload["prompts"]))
+        self.assertTrue(any(prompt["ai_format_likely"] == "comparison" for prompt in payload["prompts"]))
 
     def test_prompt_and_prompt_list_deletion_remove_snapshots(self) -> None:
         ids = self.create_tracker_stack()

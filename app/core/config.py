@@ -21,6 +21,7 @@ class Settings:
     app_port: int = int(os.getenv("APP_PORT", "8000"))
     session_ttl_days: int = int(os.getenv("SESSION_TTL_DAYS", "30"))
     cookie_secure: bool = os.getenv("COOKIE_SECURE", "true").lower() == "true"
+    enable_scheduler: bool = os.getenv("ENABLE_SCHEDULER", "true").lower() == "true"
 
 
 settings = Settings()
