@@ -849,6 +849,13 @@
         min-width: 240px;
       }
 
+      .visibility-toolbar-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
       .visibility-projects-meta {
         display: flex;
         align-items: center;
@@ -906,6 +913,14 @@
         color: var(--muted);
         font-size: 12px;
         line-height: 1.45;
+      }
+
+      .project-inline-meta {
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
       }
 
       .project-coverage {
@@ -1195,6 +1210,157 @@
         color: var(--muted);
         font-size: 12px;
         margin-bottom: 8px;
+      }
+
+      .prompt-table-head {
+        display: grid;
+        grid-template-columns: minmax(260px, 1.8fr) 130px 110px 130px 150px 150px;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0 10px 8px;
+      }
+
+      .prompt-explorer {
+        display: grid;
+        gap: 12px;
+      }
+
+      .prompt-node {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: linear-gradient(180deg, #ffffff, #f8fbff);
+        overflow: hidden;
+        box-shadow: 0 10px 28px rgba(15, 23, 40, 0.05);
+      }
+
+      .prompt-node[open] {
+        border-color: #9ab0d2;
+      }
+
+      .prompt-node-row,
+      .prompt-leaf-row {
+        display: grid;
+        grid-template-columns: minmax(260px, 1.8fr) 130px 110px 130px 150px 150px;
+        gap: 14px;
+        align-items: center;
+        padding: 16px 18px;
+      }
+
+      .prompt-node-row {
+        list-style: none;
+        cursor: pointer;
+      }
+
+      .prompt-node-row::-webkit-details-marker {
+        display: none;
+      }
+
+      .prompt-node-row:hover,
+      .prompt-leaf-row:hover {
+        background: rgba(37, 88, 225, 0.03);
+      }
+
+      .prompt-node-children {
+        border-top: 1px solid var(--line);
+        display: grid;
+        gap: 10px;
+        padding: 10px;
+        background: linear-gradient(180deg, rgba(240, 245, 255, 0.5), rgba(255, 255, 255, 0.8));
+      }
+
+      .prompt-node-children .prompt-node,
+      .prompt-node-children .prompt-leaf {
+        border-radius: 16px;
+        background: #ffffff;
+      }
+
+      .prompt-node-children.depth-subtopic {
+        padding-left: 18px;
+      }
+
+      .prompt-node-children.depth-list {
+        padding-left: 26px;
+      }
+
+      .prompt-name-cell {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .prompt-name-copy {
+        min-width: 0;
+      }
+
+      .prompt-name-copy strong,
+      .prompt-name-copy span {
+        display: block;
+      }
+
+      .prompt-name-copy span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .prompt-expander {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #30415a;
+        background: #ffffff;
+        font-size: 14px;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+
+      .prompt-node[open] > summary .prompt-expander {
+        background: #eef4ff;
+        border-color: #9ab0d2;
+      }
+
+      .prompt-node.depth-subtopic > summary,
+      .prompt-node.depth-subtopic > .prompt-leaf-row {
+        padding-left: 26px;
+      }
+
+      .prompt-leaf.depth-list > .prompt-leaf-row {
+        padding-left: 34px;
+      }
+
+      .prompt-stat {
+        color: #1e2b3f;
+        font-weight: 800;
+      }
+
+      .prompt-cell-muted {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .prompt-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .workspace-meta-inline {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
       }
 
       .accordion-item {
@@ -1512,6 +1678,12 @@
         .visibility-project-row > :nth-child(n+4):not(:last-child) {
           display: none;
         }
+
+        .prompt-table-head,
+        .prompt-node-row,
+        .prompt-leaf-row {
+          grid-template-columns: minmax(220px, 1.6fr) 110px 100px 120px 130px 120px;
+        }
       }
 
       @media (max-width: 960px) {
@@ -1542,6 +1714,20 @@
         .topbar-head {
           flex-direction: column;
         }
+
+        .prompt-table-head {
+          display: none;
+        }
+
+        .prompt-node-row,
+        .prompt-leaf-row {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .prompt-actions {
+          justify-content: flex-start;
+        }
       }
 
       @keyframes reveal {
@@ -1558,8 +1744,8 @@
   </head>
   <body>
     <div class="orbs"></div>
-    <div id="appShell" class="app">
-      <aside class="sidebar card">
+    <div id="appShell" class="app sidebar-collapsed">
+      <aside id="sidebarShell" class="sidebar card">
         <div class="sidebar-head">
           <div class="brand-wrap">
             <div class="logo-panel">
@@ -2169,24 +2355,64 @@
             </section>
 
             <section id="visibilityLibraryPanel" class="visibility-panel">
+              <section class="section card stack">
+                <div class="visibility-toolbar">
+                  <div>
+                    <h2>Prompts</h2>
+                    <p class="desc">Explore the hierarchy in an expandable table and jump into creation or updates without leaving the screen.</p>
+                  </div>
+                  <div class="visibility-toolbar-actions">
+                    <div class="visibility-toolbar-meta">
+                      <span id="visibilityPromptRangeChip" class="project-pill">All time</span>
+                    </div>
+                    <select disabled>
+                      <option>All Models</option>
+                    </select>
+                    <select disabled>
+                      <option>All Brands</option>
+                    </select>
+                    <button id="visibilityQuickCreateTopicBtn" class="btn" type="button">Create Topic</button>
+                    <button id="visibilityQuickCreateSubtopicBtn" class="btn" type="button">Create Subtopic</button>
+                    <button id="visibilityQuickCreatePromptListBtn" class="btn" type="button">Create Prompt List</button>
+                    <button id="visibilityBulkActionsBtn" class="btn" type="button" disabled>Bulk Actions</button>
+                  </div>
+                </div>
+
+                <div class="summary-grid">
+                  <article class="summary-card card">
+                    <strong id="visibilityPromptTopicsMetric">0</strong>
+                    <span>Topics</span>
+                  </article>
+                  <article class="summary-card card">
+                    <strong id="visibilityPromptPromptsMetric">0</strong>
+                    <span>Prompts</span>
+                  </article>
+                  <article class="summary-card card">
+                    <strong id="visibilityPromptResponsesMetric">0</strong>
+                    <span>Responses</span>
+                  </article>
+                </div>
+
+                <div class="prompt-table-head">
+                  <span>Hierarchy</span>
+                  <span>Children</span>
+                  <span>Prompts</span>
+                  <span>Schedule</span>
+                  <span>Last Run</span>
+                  <span>Actions</span>
+                </div>
+                <div id="visibilityPromptExplorer" class="prompt-explorer"></div>
+              </section>
+
               <div class="tracker-split">
                 <section class="section card stack">
                   <div>
-                    <h2>Prompts</h2>
-                    <p class="desc">Browse topics, subtopics, prompt lists, and prompts in an expandable workspace view.</p>
-                  </div>
-                  <div id="visibilityHierarchyAccordion" class="hierarchy-accordion"></div>
-                </section>
-
-                <section class="section card stack">
-                  <div>
                     <h2>Create and Manage</h2>
-                    <p class="desc">Use the controls below to add new topics, lists, and prompts or run the currently selected prompt list.</p>
+                    <p class="desc">Create topics, subtopics, and prompt lists for the selected hierarchy item.</p>
                   </div>
                   <div class="tracker-tree">
                     <div class="tracker-block">
                       <h3>Topic</h3>
-                      <p>Create the top-level reporting bucket.</p>
                       <label for="visibilityTopicName">Topic Name</label>
                       <input id="visibilityTopicName" placeholder="AI brand visibility" />
                       <div class="row-actions">
@@ -2196,7 +2422,6 @@
                     </div>
                     <div class="tracker-block">
                       <h3>Subtopic</h3>
-                      <p>Attach a subtopic to the selected topic.</p>
                       <label for="visibilityTopicSelect">Choose Topic</label>
                       <select id="visibilityTopicSelect"></select>
                       <label for="visibilitySubtopicName" style="margin-top: 12px;">Subtopic Name</label>
@@ -2208,7 +2433,6 @@
                     </div>
                     <div class="tracker-block">
                       <h3>Prompt List</h3>
-                      <p>Create a saved list that can be run manually or on the configured schedule.</p>
                       <label for="visibilitySubtopicSelect">Choose Subtopic</label>
                       <select id="visibilitySubtopicSelect"></select>
                       <label for="visibilityPromptListName" style="margin-top: 12px;">Prompt List Name</label>
@@ -2226,6 +2450,9 @@
                       </div>
                     </div>
                   </div>
+                </section>
+
+                <section class="section card stack">
                   <div class="tracker-block">
                     <h3>Prompts</h3>
                     <p>Add one prompt per line to the selected prompt list, then run that list.</p>
@@ -2557,12 +2784,14 @@ What AI visibility tracking tools are cited most often?"></textarea>
         workspaceMessages: [],
         workspaceArtifact: null,
         workspacePanel: null,
+        sidebarPinned: false,
       };
 
       const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
       const els = {
         appShell: document.getElementById("appShell"),
+        sidebarShell: document.getElementById("sidebarShell"),
         sidebarToggle: document.getElementById("sidebarToggle"),
         profileInitial: document.getElementById("profileInitial"),
         profileName: document.getElementById("profileName"),
@@ -2697,7 +2926,15 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityOverviewDailyMetrics: document.getElementById("visibilityOverviewDailyMetrics"),
         visibilityOverviewTopDomains: document.getElementById("visibilityOverviewTopDomains"),
         visibilityOverviewJobsList: document.getElementById("visibilityOverviewJobsList"),
-        visibilityHierarchyAccordion: document.getElementById("visibilityHierarchyAccordion"),
+        visibilityPromptRangeChip: document.getElementById("visibilityPromptRangeChip"),
+        visibilityQuickCreateTopicBtn: document.getElementById("visibilityQuickCreateTopicBtn"),
+        visibilityQuickCreateSubtopicBtn: document.getElementById("visibilityQuickCreateSubtopicBtn"),
+        visibilityQuickCreatePromptListBtn: document.getElementById("visibilityQuickCreatePromptListBtn"),
+        visibilityBulkActionsBtn: document.getElementById("visibilityBulkActionsBtn"),
+        visibilityPromptTopicsMetric: document.getElementById("visibilityPromptTopicsMetric"),
+        visibilityPromptPromptsMetric: document.getElementById("visibilityPromptPromptsMetric"),
+        visibilityPromptResponsesMetric: document.getElementById("visibilityPromptResponsesMetric"),
+        visibilityPromptExplorer: document.getElementById("visibilityPromptExplorer"),
         visibilityProjectSettingsName: document.getElementById("visibilityProjectSettingsName"),
         visibilityBrandName: document.getElementById("visibilityBrandName"),
         visibilityBrandUrl: document.getElementById("visibilityBrandUrl"),
@@ -3245,6 +3482,14 @@ What AI visibility tracking tools are cited most often?"></textarea>
         return params;
       }
 
+      function setSidebarExpanded(expanded) {
+        if (window.innerWidth <= 960) {
+          els.appShell.classList.remove("sidebar-collapsed");
+          return;
+        }
+        els.appShell.classList.toggle("sidebar-collapsed", !expanded);
+      }
+
       function activeVisibilityProject() {
         if (state.visibilityWorkspace && state.visibilityWorkspace.project && state.visibilityWorkspace.project.id === state.selectedVisibilityProjectId) {
           return state.visibilityWorkspace.project;
@@ -3302,6 +3547,216 @@ What AI visibility tracking tools are cited most often?"></textarea>
         return subtopic
           ? (subtopic.prompt_lists || []).find((promptList) => promptList.id === state.selectedVisibilityPromptListId) || null
           : null;
+      }
+
+      function visibilityFormatSchedule(value) {
+        if (!value) return "Manual only";
+        if (value === "disabled") return "Manual only";
+        return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+      }
+
+      function latestVisibilityTimestamp(values) {
+        return (values || []).filter(Boolean).reduce((latest, value) => {
+          if (!latest) return value;
+          return new Date(value).getTime() > new Date(latest).getTime() ? value : latest;
+        }, null);
+      }
+
+      function visibilityTopicPromptCount(topic) {
+        return (topic.subtopics || []).reduce((sum, subtopic) => {
+          return sum + (subtopic.prompt_lists || []).reduce((inner, promptList) => inner + (promptList.prompts || []).length, 0);
+        }, 0);
+      }
+
+      function visibilitySubtopicPromptCount(subtopic) {
+        return (subtopic.prompt_lists || []).reduce((sum, promptList) => sum + (promptList.prompts || []).length, 0);
+      }
+
+      function visibilityTopicLastRun(topic) {
+        return latestVisibilityTimestamp((topic.subtopics || []).flatMap((subtopic) => {
+          return (subtopic.prompt_lists || []).map((promptList) => promptList.last_run_at);
+        }));
+      }
+
+      function visibilitySubtopicLastRun(subtopic) {
+        return latestVisibilityTimestamp((subtopic.prompt_lists || []).map((promptList) => promptList.last_run_at));
+      }
+
+      function renderVisibilityPromptExplorer() {
+        const topics = state.visibilityWorkspace ? state.visibilityWorkspace.topics || [] : [];
+        els.visibilityPromptExplorer.innerHTML = "";
+        if (!topics.length) {
+          els.visibilityPromptExplorer.innerHTML = '<div class="mini-item"><span>No topics yet. Add a topic to start building your prompt hierarchy.</span></div>';
+          return;
+        }
+
+        const buildActionButtons = (actions) => `
+          <div class="prompt-actions">
+            ${actions.join("")}
+          </div>
+        `;
+
+        const buildNodeRow = (config) => `
+          <div class="prompt-name-cell">
+            <span class="prompt-expander">${config.expandable ? "⌄" : "•"}</span>
+            <div class="prompt-name-copy">
+              <strong>${config.name}</strong>
+              <span>${config.meta}</span>
+            </div>
+          </div>
+          <div>
+            <strong class="prompt-stat">${config.childrenLabel}</strong>
+            <span class="prompt-cell-muted">${config.childrenMeta}</span>
+          </div>
+          <div>
+            <strong class="prompt-stat">${config.promptCount}</strong>
+            <span class="prompt-cell-muted">saved prompts</span>
+          </div>
+          <div>
+            <strong class="prompt-stat">${config.schedule}</strong>
+            <span class="prompt-cell-muted">${config.scheduleMeta}</span>
+          </div>
+          <div>
+            <strong class="prompt-stat">${config.lastRun}</strong>
+            <span class="prompt-cell-muted">${config.lastRunMeta}</span>
+          </div>
+          ${buildActionButtons(config.actions)}
+        `;
+
+        const attachSelectionHandlers = (root) => {
+          root.querySelectorAll("[data-select-visibility-topic]").forEach((button) => {
+            button.addEventListener("click", (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              state.selectedVisibilityTopicId = button.dataset.selectVisibilityTopic;
+              state.selectedVisibilitySubtopicId = null;
+              state.selectedVisibilityPromptListId = null;
+              renderVisibility();
+            });
+          });
+          root.querySelectorAll("[data-select-visibility-subtopic]").forEach((button) => {
+            button.addEventListener("click", (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              state.selectedVisibilityTopicId = button.dataset.topicParent || state.selectedVisibilityTopicId;
+              state.selectedVisibilitySubtopicId = button.dataset.selectVisibilitySubtopic;
+              state.selectedVisibilityPromptListId = null;
+              renderVisibility();
+            });
+          });
+          root.querySelectorAll("[data-select-visibility-prompt-list]").forEach((button) => {
+            button.addEventListener("click", (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              state.selectedVisibilityTopicId = button.dataset.topicParent || state.selectedVisibilityTopicId;
+              state.selectedVisibilitySubtopicId = button.dataset.subtopicParent || state.selectedVisibilitySubtopicId;
+              state.selectedVisibilityPromptListId = button.dataset.selectVisibilityPromptList;
+              renderVisibility();
+            });
+          });
+          root.querySelectorAll("[data-run-visibility-prompt-list]").forEach((button) => {
+            button.addEventListener("click", async (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              const promptListId = button.dataset.runVisibilityPromptList;
+              state.selectedVisibilityTopicId = button.dataset.topicParent || state.selectedVisibilityTopicId;
+              state.selectedVisibilitySubtopicId = button.dataset.subtopicParent || state.selectedVisibilitySubtopicId;
+              state.selectedVisibilityPromptListId = promptListId;
+              renderVisibility();
+              els.runVisibilityPromptListBtn.click();
+            });
+          });
+        };
+
+        topics.forEach((topic) => {
+          const topicPromptCount = visibilityTopicPromptCount(topic);
+          const topicLastRun = visibilityTopicLastRun(topic);
+          const topicNode = document.createElement("details");
+          topicNode.className = "prompt-node";
+          topicNode.open = state.selectedVisibilityTopicId === topic.id || !state.selectedVisibilityTopicId;
+          topicNode.innerHTML = `
+            <summary class="prompt-node-row">
+              ${buildNodeRow({
+                expandable: true,
+                name: topic.name,
+                meta: `${(topic.subtopics || []).length} subtopics in this topic`,
+                childrenLabel: `${(topic.subtopics || []).length}`,
+                childrenMeta: "subtopics",
+                promptCount: `${topicPromptCount}`,
+                schedule: (topic.subtopics || []).some((subtopic) => (subtopic.prompt_lists || []).some((promptList) => promptList.schedule_frequency !== "disabled")) ? "Mixed" : "Manual",
+                scheduleMeta: "topic roll-up",
+                lastRun: topicLastRun ? formatDate(topicLastRun) : "No runs yet",
+                lastRunMeta: topicLastRun ? "latest topic activity" : "waiting for first run",
+                actions: [
+                  `<button class="btn" type="button" data-select-visibility-topic="${topic.id}">Select</button>`,
+                ],
+              })}
+            </summary>
+            <div class="prompt-node-children depth-subtopic"></div>
+          `;
+
+          const topicChildren = topicNode.querySelector(".prompt-node-children");
+          (topic.subtopics || []).forEach((subtopic) => {
+            const subtopicPromptCount = visibilitySubtopicPromptCount(subtopic);
+            const subtopicLastRun = visibilitySubtopicLastRun(subtopic);
+            const subtopicNode = document.createElement("details");
+            subtopicNode.className = "prompt-node depth-subtopic";
+            subtopicNode.open = state.selectedVisibilitySubtopicId === subtopic.id;
+            subtopicNode.innerHTML = `
+              <summary class="prompt-node-row">
+                ${buildNodeRow({
+                  expandable: true,
+                  name: subtopic.name,
+                  meta: `${(subtopic.prompt_lists || []).length} prompt lists in this subtopic`,
+                  childrenLabel: `${(subtopic.prompt_lists || []).length}`,
+                  childrenMeta: "prompt lists",
+                  promptCount: `${subtopicPromptCount}`,
+                  schedule: (subtopic.prompt_lists || []).some((promptList) => promptList.schedule_frequency !== "disabled") ? "Mixed" : "Manual",
+                  scheduleMeta: "subtopic roll-up",
+                  lastRun: subtopicLastRun ? formatDate(subtopicLastRun) : "No runs yet",
+                  lastRunMeta: subtopicLastRun ? "latest subtopic activity" : "waiting for first run",
+                  actions: [
+                    `<button class="btn" type="button" data-select-visibility-subtopic="${subtopic.id}" data-topic-parent="${topic.id}">Select</button>`,
+                  ],
+                })}
+              </summary>
+              <div class="prompt-node-children depth-list"></div>
+            `;
+
+            const subtopicChildren = subtopicNode.querySelector(".prompt-node-children");
+            (subtopic.prompt_lists || []).forEach((promptList) => {
+              const promptCount = (promptList.prompts || []).length;
+              const listRow = document.createElement("div");
+              listRow.className = "prompt-node prompt-leaf depth-list";
+              listRow.innerHTML = `
+                <div class="prompt-leaf-row">
+                  ${buildNodeRow({
+                    expandable: false,
+                    name: promptList.name,
+                    meta: promptCount ? `${promptCount} prompts ready to run` : "No prompts in this list yet",
+                    childrenLabel: "0",
+                    childrenMeta: "child groups",
+                    promptCount: `${promptCount}`,
+                    schedule: visibilityFormatSchedule(promptList.schedule_frequency),
+                    scheduleMeta: "list cadence",
+                    lastRun: promptList.last_run_at ? formatDate(promptList.last_run_at) : "No runs yet",
+                    lastRunMeta: promptList.last_run_at ? "latest list snapshot" : "waiting for first run",
+                    actions: [
+                      `<button class="btn" type="button" data-select-visibility-prompt-list="${promptList.id}" data-topic-parent="${topic.id}" data-subtopic-parent="${subtopic.id}">Select</button>`,
+                      `<button class="btn primary" type="button" data-run-visibility-prompt-list="${promptList.id}" data-topic-parent="${topic.id}" data-subtopic-parent="${subtopic.id}">Run</button>`,
+                    ],
+                  })}
+                </div>
+              `;
+              subtopicChildren.appendChild(listRow);
+            });
+
+            topicChildren.appendChild(subtopicNode);
+          });
+
+          attachSelectionHandlers(topicNode);
+          els.visibilityPromptExplorer.appendChild(topicNode);
+        });
       }
 
       function renderVisibilityMetricRows(container, items, emptyText, formatter) {
@@ -3472,103 +3927,6 @@ What AI visibility tracking tools are cited most often?"></textarea>
         container.innerHTML = rows;
       }
 
-      function renderVisibilityHierarchyAccordion() {
-        const topics = state.visibilityWorkspace ? state.visibilityWorkspace.topics || [] : [];
-        els.visibilityHierarchyAccordion.innerHTML = "";
-        if (!topics.length) {
-          els.visibilityHierarchyAccordion.innerHTML = '<div class="mini-item"><span>No topics yet. Add a topic to start building prompt groups.</span></div>';
-          return;
-        }
-
-        topics.forEach((topic) => {
-          const topicDetails = document.createElement("details");
-          topicDetails.className = "accordion-item";
-          topicDetails.open = state.selectedVisibilityTopicId === topic.id || !state.selectedVisibilityTopicId;
-          const topicPromptCount = (topic.subtopics || []).reduce((sum, subtopic) => {
-            return sum + (subtopic.prompt_lists || []).reduce((inner, promptList) => inner + (promptList.prompts || []).length, 0);
-          }, 0);
-          topicDetails.innerHTML = `
-            <summary class="accordion-summary">
-              <div class="accordion-meta">
-                <div>
-                  <strong>${topic.name}</strong>
-                  <span>${(topic.subtopics || []).length} subtopics / ${topicPromptCount} prompts</span>
-                </div>
-                <button class="btn" type="button" data-select-visibility-topic="${topic.id}">Select</button>
-              </div>
-            </summary>
-            <div class="accordion-body nested-stack"></div>
-          `;
-          const body = topicDetails.querySelector(".accordion-body");
-          (topic.subtopics || []).forEach((subtopic) => {
-            const subtopicDetails = document.createElement("details");
-            subtopicDetails.className = "accordion-item";
-            subtopicDetails.open = state.selectedVisibilitySubtopicId === subtopic.id;
-            const listCount = (subtopic.prompt_lists || []).length;
-            const promptCount = (subtopic.prompt_lists || []).reduce((sum, promptList) => sum + (promptList.prompts || []).length, 0);
-            subtopicDetails.innerHTML = `
-              <summary class="accordion-summary">
-                <div class="accordion-meta">
-                  <div>
-                    <strong>${subtopic.name}</strong>
-                    <span>${listCount} lists / ${promptCount} prompts</span>
-                  </div>
-                  <button class="btn" type="button" data-select-visibility-subtopic="${subtopic.id}" data-topic-parent="${topic.id}">Select</button>
-                </div>
-              </summary>
-              <div class="accordion-body nested-stack"></div>
-            `;
-            const subBody = subtopicDetails.querySelector(".accordion-body");
-            (subtopic.prompt_lists || []).forEach((promptList) => {
-              const promptListCard = document.createElement("div");
-              promptListCard.className = "tracker-block";
-              promptListCard.innerHTML = `
-                <div class="accordion-meta">
-                  <div>
-                    <strong>${promptList.name}</strong>
-                    <span>${(promptList.prompts || []).length} prompts / ${promptList.schedule_frequency.replace("_", " ")}</span>
-                  </div>
-                  <button class="btn" type="button" data-select-visibility-prompt-list="${promptList.id}" data-subtopic-parent="${subtopic.id}">Select</button>
-                </div>
-                <div class="prompt-chip-row" style="margin-top: 12px;">
-                  ${(promptList.prompts || []).map((prompt) => `<span class="prompt-pill">${prompt.prompt_text}</span>`).join("") || '<span class="project-muted">No prompts yet.</span>'}
-                </div>
-              `;
-              subBody.appendChild(promptListCard);
-            });
-            body.appendChild(subtopicDetails);
-          });
-          els.visibilityHierarchyAccordion.appendChild(topicDetails);
-        });
-
-        els.visibilityHierarchyAccordion.querySelectorAll("[data-select-visibility-topic]").forEach((button) => {
-          button.addEventListener("click", (event) => {
-            event.preventDefault();
-            state.selectedVisibilityTopicId = button.dataset.selectVisibilityTopic;
-            state.selectedVisibilitySubtopicId = null;
-            state.selectedVisibilityPromptListId = null;
-            renderVisibility();
-          });
-        });
-        els.visibilityHierarchyAccordion.querySelectorAll("[data-select-visibility-subtopic]").forEach((button) => {
-          button.addEventListener("click", (event) => {
-            event.preventDefault();
-            state.selectedVisibilityTopicId = button.dataset.topicParent || state.selectedVisibilityTopicId;
-            state.selectedVisibilitySubtopicId = button.dataset.selectVisibilitySubtopic;
-            state.selectedVisibilityPromptListId = null;
-            renderVisibility();
-          });
-        });
-        els.visibilityHierarchyAccordion.querySelectorAll("[data-select-visibility-prompt-list]").forEach((button) => {
-          button.addEventListener("click", (event) => {
-            event.preventDefault();
-            state.selectedVisibilitySubtopicId = button.dataset.subtopicParent || state.selectedVisibilitySubtopicId;
-            state.selectedVisibilityPromptListId = button.dataset.selectVisibilityPromptList;
-            renderVisibility();
-          });
-        });
-      }
-
       function renderVisibilityMatrix(project) {
         if (!project) return;
         const brands = [project.brand_name, ...(project.competitors || []).map((item) => item.name)].filter(Boolean);
@@ -3695,6 +4053,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
             <div class="project-main">
               <strong>${project.name || project.brand_name || "Untitled Project"}</strong>
               <span>${project.topic_count} topics / ${project.prompt_list_count} lists / ${project.prompt_count} prompts</span>
+              <div class="project-inline-meta">
+                <span class="project-pill">${visibilityFormatSchedule(project.default_schedule_frequency)}</span>
+                <span class="project-muted">Last run: ${project.last_run_at ? formatDate(project.last_run_at) : "No runs yet"}</span>
+              </div>
             </div>
             <div class="project-main">
               <strong>${project.brand_name || "Brand not set"}</strong>
@@ -3759,11 +4121,19 @@ What AI visibility tracking tools are cited most often?"></textarea>
         const allReport = workspace.reports && workspace.reports.all ? workspace.reports.all : null;
         const report = state.visibilityReport || allReport;
         const counts = collectVisibilityCounts(workspace.topics || []);
+        const latestProjectRun = project.last_run_at || latestVisibilityTimestamp((workspace.recent_runs || []).map((run) => run.created_at));
 
         els.visibilityDateStart.value = state.visibilityDateStart;
         els.visibilityDateEnd.value = state.visibilityDateEnd;
         els.visibilityWorkspaceProjectName.textContent = project.name || project.brand_name || "Untitled Project";
-        els.visibilityWorkspaceProjectMeta.textContent = `${project.brand_name || "Brand name not set"}${project.brand_url ? ` / ${project.brand_url}` : ""} / ${visibilityDateLabel()}`;
+        els.visibilityWorkspaceProjectMeta.innerHTML = `
+          <span>${project.brand_name || "Brand name not set"}${project.brand_url ? ` / ${project.brand_url}` : ""}</span>
+          <span class="workspace-meta-inline">
+            <span class="project-pill">Date range: ${visibilityDateLabel()}</span>
+            <span class="project-pill">Last run: ${latestProjectRun ? formatDate(latestProjectRun) : "No runs yet"}</span>
+            <span class="project-pill">${allReport ? `${allReport.total_runs} snapshots` : "0 snapshots"}</span>
+          </span>
+        `;
 
         const navButtons = {
           overview: els.visibilityNavOverview,
@@ -3786,6 +4156,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
         els.visibilityListsCount.textContent = String(counts.lists);
         els.visibilityPromptsCount.textContent = String(counts.prompts);
         els.visibilityRunsCount.textContent = String(allReport ? allReport.total_runs : 0);
+        els.visibilityPromptRangeChip.textContent = visibilityDateLabel();
+        els.visibilityPromptTopicsMetric.textContent = String(counts.topics);
+        els.visibilityPromptPromptsMetric.textContent = String(counts.prompts);
+        els.visibilityPromptResponsesMetric.textContent = String(allReport ? allReport.total_runs : 0);
 
         els.visibilityProjectSettingsName.value = project.name || "";
         els.visibilityBrandName.value = project.brand_name || "";
@@ -3853,7 +4227,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
           els.visibilityPromptListSelect.value = state.selectedVisibilityPromptListId;
         }
 
-        renderVisibilityHierarchyAccordion();
+        renderVisibilityPromptExplorer();
 
         const selectedPromptList = selectedVisibilityPromptList();
         els.visibilityPromptPreviewList.innerHTML = "";
@@ -4490,7 +4864,24 @@ What AI visibility tracking tools are cited most often?"></textarea>
       els.seeProfileBtn.addEventListener("click", () => setActiveTab("settings"));
 
       els.sidebarToggle.addEventListener("click", () => {
-        els.appShell.classList.toggle("sidebar-collapsed");
+        state.sidebarPinned = !state.sidebarPinned;
+        setSidebarExpanded(state.sidebarPinned);
+      });
+
+      els.sidebarShell.addEventListener("mouseenter", () => {
+        if (!state.sidebarPinned) setSidebarExpanded(true);
+      });
+
+      els.sidebarShell.addEventListener("mouseleave", () => {
+        if (!state.sidebarPinned) setSidebarExpanded(false);
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth <= 960) {
+          els.appShell.classList.remove("sidebar-collapsed");
+          return;
+        }
+        setSidebarExpanded(state.sidebarPinned);
       });
 
       els.selectAllTopics.addEventListener("change", () => {
@@ -4595,6 +4986,27 @@ What AI visibility tracking tools are cited most often?"></textarea>
       els.visibilityReportEntity.addEventListener("change", () => {
         const value = els.visibilityReportEntity.value || "all";
         els.visibilityReportLevel.value = value === "all" ? "all" : value.split(":")[0];
+      });
+      els.visibilityQuickCreateTopicBtn.addEventListener("click", () => {
+        els.visibilityTopicName.focus();
+      });
+      els.visibilityQuickCreateSubtopicBtn.addEventListener("click", () => {
+        if (!els.visibilityTopicSelect.value) {
+          els.visibilityTopicName.focus();
+          return;
+        }
+        els.visibilitySubtopicName.focus();
+      });
+      els.visibilityQuickCreatePromptListBtn.addEventListener("click", () => {
+        if (!els.visibilitySubtopicSelect.value) {
+          if (!els.visibilityTopicSelect.value) {
+            els.visibilityTopicName.focus();
+            return;
+          }
+          els.visibilitySubtopicName.focus();
+          return;
+        }
+        els.visibilityPromptListName.focus();
       });
 
       els.generateBriefBtn.addEventListener("click", async () => {
@@ -5131,6 +5543,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
       });
 
       (async function init() {
+        setSidebarExpanded(state.sidebarPinned);
         await loadCurrentUser();
         await Promise.all([loadBriefs(), loadArticles(), loadPersonalities(), loadSettings(), loadVisibilityProjects()]);
         updateWriterModeUI();
