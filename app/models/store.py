@@ -1276,6 +1276,14 @@ class SQLiteStore(StoreBase):
             self._conn.commit()
         return self.get_visibility_job_by_id(job_id)
 
+    def delete_visibility_prompt_runs_for_job(self, user_id: str, job_id: str) -> None:
+        with self._lock:
+            self._conn.execute(
+                "DELETE FROM visibility_prompt_runs WHERE user_id = ? AND job_id = ?",
+                (user_id, job_id),
+            )
+            self._conn.commit()
+
     def create_visibility_prompt_run(
         self,
         user_id: str,
@@ -2484,6 +2492,15 @@ class PostgresStore(StoreBase):
                 cur.execute(f"UPDATE visibility_jobs SET {', '.join(cols)} WHERE id = %s", values)
             conn.commit()
         return self.get_visibility_job_by_id(job_id)
+
+    def delete_visibility_prompt_runs_for_job(self, user_id: str, job_id: str) -> None:
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM visibility_prompt_runs WHERE user_id = %s AND job_id = %s",
+                    (user_id, job_id),
+                )
+            conn.commit()
 
     def create_visibility_prompt_run(self, user_id: str, *, project_id: str, topic_id: str, subtopic_id: str, prompt_list_id: str, prompt_id: str, prompt_text: str, provider: str, model: str, surface: str, run_source: str, status: str, response_text: str = "", brands: Optional[List[str]] = None, cited_domains: Optional[List[str]] = None, cited_urls: Optional[List[str]] = None, error: Optional[str] = None, job_id: Optional[str] = None) -> VisibilityPromptRunRecord:
         run_id = str(uuid4())

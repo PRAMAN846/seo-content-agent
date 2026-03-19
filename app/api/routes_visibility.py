@@ -38,6 +38,7 @@ from app.services.visibility_tracker import (
     generate_visibility_prompt_suggestions,
     build_visibility_report,
     build_visibility_workspace,
+    cancel_visibility_job,
     run_visibility_prompt_list_job,
 )
 
@@ -235,6 +236,19 @@ async def run_visibility_prompt_list(
 @router.get("/jobs/{job_id}", response_model=VisibilityJobRecord)
 def get_visibility_job(job_id: str, current_user: UserPublic = Depends(get_current_user)) -> VisibilityJobRecord:
     job = run_store.get_visibility_job(current_user.id, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Visibility job not found")
+    return job
+
+
+@router.post("/jobs/{job_id}/cancel", response_model=VisibilityJobRecord)
+def cancel_visibility_job_route(job_id: str, current_user: UserPublic = Depends(get_current_user)) -> VisibilityJobRecord:
+    try:
+        job = cancel_visibility_job(current_user.id, job_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     if not job:
         raise HTTPException(status_code=404, detail="Visibility job not found")
     return job

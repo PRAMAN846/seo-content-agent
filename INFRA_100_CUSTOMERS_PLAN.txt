@@ -1,0 +1,209 @@
+AI Visibility Tracker - Recommended Infra Changes For 100 Customers
+
+Purpose
+- Save the infra and architecture changes we should remember before the product reaches roughly 100 active customers.
+- Main goal: improve reliability first, then scaling, then operational visibility.
+
+Current Stack
+- 1 FastAPI web app
+- Neon Postgres
+- OpenAI API
+- In-app scheduler / background execution
+- Render deployment
+
+What Is Fine To Keep
+- FastAPI app
+- Neon/Postgres as the main product database
+- Render as hosting platform
+- Current project / prompt / run data model direction
+
+What Will Need To Change Before Or Around 100 Customers
+
+1. Separate Web App From Background Execution
+- Keep one web service only for UI and API.
+- Move prompt execution out of the web process.
+- Add a dedicated worker service.
+
+Why
+- Prevent long prompt runs from blocking the app.
+- Keep the dashboard responsive during heavy usage.
+- Improve stability when many runs happen together.
+
+2. Add Redis As Queue / Coordination Layer
+- Use Redis only for transient infrastructure:
+  - queued job ids
+  - job state
+  - locks
+  - retries
+- Do not store prompt history or report history in Redis.
+
+Why
+- Absorb traffic spikes.
+- Support worker-based execution.
+- Improve retry and concurrency handling.
+
+3. Move Scheduler Out Of App Startup
+- Do not rely on an in-process scheduler inside the web app for production scale.
+- Use:
+  - a Render cron job, or
+  - a scheduler worker/service
+- Scheduler should enqueue due prompt lists into Redis.
+
+Why
+- More reliable scheduled runs.
+- Cleaner recovery after deploys/restarts.
+- Less risk of duplicate or missed runs.
+
+4. Keep Historical Prompt Run Data In Postgres
+- Continue storing:
+  - accounts
+  - projects
+  - prompt hierarchy
+  - jobs
+  - prompt snapshots
+  - citations
+  - extracted brands
+  - report source data
+in Neon/Postgres.
+
+Why
+- This is structured operational product data.
+- It needs joins, date filtering, drilldowns, and scoped reporting.
+- Postgres is the correct primary system for this.
+
+5. Do Not Move Core Data To BigQuery Now
+- BigQuery is not needed for current stage.
+- Only consider later if:
+  - prompt-run data becomes very large
+  - cross-customer BI / warehouse analytics become important
+  - internal benchmarking across massive datasets is needed
+
+6. Use Object Storage Only For Large Artifacts Later
+- Consider R2 or similar only if storing heavy files such as:
+  - screenshots
+  - raw HTML captures
+  - exports
+  - PDFs
+  - browser artifacts
+- Keep core structured visibility data in Postgres.
+
+7. Add Usage Limits And Plan Controls
+- Add per-account limits for:
+  - prompt count
+  - monthly runs
+  - concurrent jobs
+  - generated prompt volumes
+
+Why
+- Prevent one customer from overloading the system.
+- Protect margins and API costs.
+- Prepare for billing tiers.
+
+8. Add Concurrency Controls And Retry Logic
+- Add:
+  - rate limiting
+  - queue-based retries
+  - provider backoff
+  - failure tracking
+  - idempotent job execution where needed
+
+Why
+- OpenAI/provider calls can fail or slow down.
+- System should degrade gracefully instead of breaking.
+
+9. Improve Database Performance Before Scale Pain Starts
+- Add / verify indexes on:
+  - user_id
+  - project_id
+  - topic_id
+  - subtopic_id
+  - prompt_list_id
+  - prompt_id
+  - created_at
+- Review heavy report queries and job lookup queries.
+
+Why
+- Historical prompt snapshots will grow continuously.
+- Report screens depend heavily on date-scoped retrieval.
+
+10. Plan Data Retention And Archival
+- Keep hot operational data in Postgres.
+- Later consider:
+  - retention rules for very old raw response blobs
+  - archival of large artifacts
+  - keeping summaries queryable even if raw artifacts move elsewhere
+
+Why
+- History is a core feature.
+- Data growth must be managed without losing useful reports.
+
+11. Add Monitoring And Alerting
+- Add:
+  - Sentry or similar error tracking
+  - worker failure monitoring
+  - queue depth monitoring
+  - scheduler monitoring
+  - DB performance monitoring
+
+Why
+- Reliability becomes a product requirement at 100 customers.
+- Problems need to be visible before customers report them.
+
+12. Keep Multi-Client / Agency Architecture In Mind
+- Maintain architecture around:
+  - account
+  - project
+  - future client workspace
+- Avoid shortcuts that assume one account = one brand forever.
+
+Why
+- Agency model is already a planned direction.
+- Rework later will be expensive if ignored now.
+
+Suggested Production Layout For 100 Customers
+- Web service
+  - serves login, dashboard, settings, reports, prompt generator
+- Worker service
+  - runs prompt jobs
+  - parses output
+  - handles retries
+- Scheduler / cron service
+  - enqueues due runs
+- Redis
+  - queue + locks + transient coordination
+- Neon Postgres
+  - core app and history database
+- OpenAI API
+  - prompt execution
+- Monitoring
+  - Sentry and basic infra monitoring
+
+Recommended Milestones
+
+Stage 1: 1 to 10 customers
+- Current stack is acceptable.
+- Add backups, basic logging, and usage limits.
+
+Stage 2: 10 to 30 active customers
+- Add worker + Redis queue.
+- Start moving run execution out of the web app.
+
+Stage 3: 30 to 100 active customers
+- Add scheduler service / cron.
+- Add concurrency control, retries, monitoring, and stronger limits.
+
+Key Conclusion
+- The current architecture does not need a full rebuild.
+- But before or during the 100-customer stage, we should move from:
+  web-app-does-everything
+to:
+  web + worker + scheduler + Redis + Postgres
+
+Main Priority Order
+1. Worker
+2. Redis queue
+3. Scheduler outside web app
+4. Usage limits
+5. Monitoring
+6. DB/index review
+7. Archival strategy later if needed

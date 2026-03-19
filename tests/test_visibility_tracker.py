@@ -177,6 +177,74 @@ class VisibilityTrackerAPITest(unittest.TestCase):
             self.assertIn("response_text", prompt_ref)
             self.assertIn("brands", prompt_ref)
 
+    def test_workspace_shows_recent_job_immediately_after_run_start(self) -> None:
+        ids = self.create_tracker_stack()
+
+        run_response = self.client.post(
+            f"/api/visibility/lists/{ids['prompt_list_id']}/run",
+            json={"provider": "openai", "model": "gpt-5-mini", "surface": "api", "run_source": "manual"},
+        )
+        self.assertEqual(run_response.status_code, 200, run_response.text)
+        job_payload = run_response.json()
+
+        workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace")
+        self.assertEqual(workspace.status_code, 200, workspace.text)
+        workspace_payload = workspace.json()
+        recent_jobs = workspace_payload["recent_jobs"]
+        self.assertTrue(any(job["id"] == job_payload["id"] for job in recent_jobs))
+
+    def test_cancel_queued_job_marks_it_cancelled(self) -> None:
+        ids = self.create_tracker_stack()
+
+        with patch("app.api.routes_visibility.asyncio.create_task", side_effect=lambda coro: coro.close()):
+            run_response = self.client.post(
+                f"/api/visibility/lists/{ids['prompt_list_id']}/run",
+                json={"provider": "openai", "model": "gpt-5-mini", "surface": "api", "run_source": "manual"},
+            )
+        self.assertEqual(run_response.status_code, 200, run_response.text)
+        job_id = run_response.json()["id"]
+
+        cancel_response = self.client.post(f"/api/visibility/jobs/{job_id}/cancel")
+        self.assertEqual(cancel_response.status_code, 200, cancel_response.text)
+        self.assertEqual(cancel_response.json()["status"], "cancelled")
+
+        workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace").json()
+        self.assertEqual(workspace["reports"]["all"]["total_runs"], 0)
+        self.assertEqual(len(workspace["recent_runs"]), 0)
+
+    def test_cancel_requested_running_job_deletes_partial_runs(self) -> None:
+        ids = self.create_tracker_stack()
+
+        def slow_complete(*args, **kwargs):
+            time.sleep(0.05)
+            return "Xpaan answer\n\nCitations:\nhttps://xpaan.com"
+
+        with patch("app.api.routes_visibility.asyncio.create_task", side_effect=lambda coro: coro.close()):
+            run_response = self.client.post(
+                f"/api/visibility/lists/{ids['prompt_list_id']}/run",
+                json={"provider": "openai", "model": "gpt-5-mini", "surface": "api", "run_source": "manual"},
+            )
+        self.assertEqual(run_response.status_code, 200, run_response.text)
+        job_id = run_response.json()["id"]
+
+        async def run_and_cancel():
+            with patch("app.services.visibility_tracker.llm_client.complete", side_effect=slow_complete):
+                task = asyncio.create_task(run_visibility_prompt_list_job(job_id, force=True))
+                await asyncio.sleep(0.01)
+                cancel_response = await asyncio.to_thread(self.client.post, f"/api/visibility/jobs/{job_id}/cancel")
+                self.assertEqual(cancel_response.status_code, 200, cancel_response.text)
+                await task
+
+        asyncio.run(run_and_cancel())
+
+        job = self.client.get(f"/api/visibility/jobs/{job_id}")
+        self.assertEqual(job.status_code, 200, job.text)
+        self.assertEqual(job.json()["status"], "cancelled")
+
+        workspace = self.client.get(f"/api/visibility/projects/{ids['project_id']}/workspace").json()
+        self.assertEqual(workspace["reports"]["all"]["total_runs"], 0)
+        self.assertEqual(len(workspace["recent_runs"]), 0)
+
     def test_prompt_summaries_and_drilldown_include_latest_response_details(self) -> None:
         ids = self.create_tracker_stack()
 

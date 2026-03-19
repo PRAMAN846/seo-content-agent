@@ -1045,6 +1045,64 @@
         flex-wrap: wrap;
       }
 
+      .visibility-run-strip {
+        position: sticky;
+        top: 8px;
+        z-index: 12;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 10px 14px;
+        border: 1px solid #d7e3f5;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 14px 34px rgba(15, 23, 40, 0.08);
+        backdrop-filter: blur(10px);
+      }
+
+      .visibility-run-strip.active {
+        display: flex;
+      }
+
+      .visibility-run-strip-copy {
+        min-width: 0;
+        display: grid;
+        gap: 3px;
+      }
+
+      .visibility-run-strip-copy strong {
+        font-size: 13px;
+      }
+
+      .visibility-run-strip-copy span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .visibility-run-strip-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: min(420px, 100%);
+      }
+
+      .visibility-run-progress {
+        flex: 1;
+        height: 8px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e8edf6;
+      }
+
+      .visibility-run-progress > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2558e1, #121826);
+      }
+
       .subnav {
         display: flex;
         flex-wrap: wrap;
@@ -2509,6 +2567,17 @@
                 <button id="visibilityNavReports" class="subnav-btn" type="button" data-visibility-panel-btn="reports">Reports</button>
                 <button id="visibilityNavSettings" class="subnav-btn" type="button" data-visibility-panel-btn="settings">Settings</button>
               </div>
+              <div id="visibilityRunStrip" class="visibility-run-strip">
+                <div class="visibility-run-strip-copy">
+                  <strong id="visibilityRunStripTitle">Run in progress</strong>
+                  <span id="visibilityRunStripMeta">Queued job details will appear here.</span>
+                </div>
+                <div class="visibility-run-strip-meta">
+                  <div class="visibility-run-progress"><span id="visibilityRunStripFill" style="width: 0%;"></span></div>
+                  <button id="visibilityRunStripStopBtn" class="btn" type="button">Stop Run</button>
+                  <button id="visibilityRunStripViewBtn" class="btn" type="button">View Runs</button>
+                </div>
+              </div>
             </section>
 
             <section id="visibilityOverviewPanel" class="visibility-panel active">
@@ -3307,6 +3376,9 @@ What AI visibility tracking tools are cited most often?"></textarea>
         selectedVisibilitySubtopicId: null,
         selectedVisibilityPromptListId: null,
         currentVisibilityJobId: null,
+        visibilityJobPollTimer: null,
+        activeVisibilityJobs: [],
+        visibilityStartingPromptLists: [],
         selectedBriefId: null,
         selectedArticleId: null,
         briefEditorDirty: false,
@@ -3460,6 +3532,12 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityProjectBackBtn: document.getElementById("visibilityProjectBackBtn"),
         visibilityWorkspaceProjectName: document.getElementById("visibilityWorkspaceProjectName"),
         visibilityWorkspaceProjectMeta: document.getElementById("visibilityWorkspaceProjectMeta"),
+        visibilityRunStrip: document.getElementById("visibilityRunStrip"),
+        visibilityRunStripTitle: document.getElementById("visibilityRunStripTitle"),
+        visibilityRunStripMeta: document.getElementById("visibilityRunStripMeta"),
+        visibilityRunStripFill: document.getElementById("visibilityRunStripFill"),
+        visibilityRunStripStopBtn: document.getElementById("visibilityRunStripStopBtn"),
+        visibilityRunStripViewBtn: document.getElementById("visibilityRunStripViewBtn"),
         visibilityDateStart: document.getElementById("visibilityDateStart"),
         visibilityDateEnd: document.getElementById("visibilityDateEnd"),
         applyVisibilityDateBtn: document.getElementById("applyVisibilityDateBtn"),
@@ -4181,7 +4259,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
           alert("Choose a prompt list first.");
           return;
         }
-        els.runVisibilityPromptListBtn.disabled = true;
+        if (!state.visibilityStartingPromptLists.includes(promptListId)) {
+          state.visibilityStartingPromptLists.push(promptListId);
+        }
+        renderVisibility();
         els.visibilityRunMsg.textContent = "Starting list run...";
         const res = await fetch(`/api/visibility/lists/${promptListId}/run`, {
           method: "POST",
@@ -4189,18 +4270,20 @@ What AI visibility tracking tools are cited most often?"></textarea>
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ model: "gpt-5-mini", provider: "openai", surface: "api", run_source: "manual" }),
         });
-        els.runVisibilityPromptListBtn.disabled = false;
+        state.visibilityStartingPromptLists = state.visibilityStartingPromptLists.filter((id) => id !== promptListId);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           els.visibilityRunMsg.textContent = data.detail || "Unable to start list run.";
+          renderVisibility();
           return;
         }
         const job = await res.json();
         state.currentVisibilityJobId = job.id;
-        els.visibilityRunMsg.textContent = `List run queued. ${job.total_prompts} prompts will be processed.`;
+        setVisibilityActiveJobs([...(state.activeVisibilityJobs || []).filter((item) => item.id !== job.id), job]);
+        els.visibilityRunMsg.textContent = `Run started. ${job.total_prompts} prompts queued for processing.`;
         await loadVisibilityWorkspace(true);
         await loadVisibilityProjects();
-        pollVisibilityJob(job.id);
+        startVisibilityJobPolling();
       }
 
       function activeVisibilityProject() {
@@ -4208,6 +4291,107 @@ What AI visibility tracking tools are cited most often?"></textarea>
           return state.visibilityWorkspace.project;
         }
         return state.visibilityProjects.find((project) => project.id === state.selectedVisibilityProjectId) || null;
+      }
+
+      function stopVisibilityJobPolling() {
+        if (state.visibilityJobPollTimer) {
+          clearTimeout(state.visibilityJobPollTimer);
+          state.visibilityJobPollTimer = null;
+        }
+      }
+
+      function setVisibilityActiveJobs(jobs) {
+        state.activeVisibilityJobs = (jobs || []).filter((job) => ["queued", "running", "cancel_requested"].includes(job.status));
+      }
+
+      function renderVisibilityRunStrip() {
+        const activeJobs = state.activeVisibilityJobs || [];
+        if (!activeJobs.length) {
+          els.visibilityRunStrip.classList.remove("active");
+          els.visibilityRunStripFill.style.width = "0%";
+          els.visibilityRunStripStopBtn.disabled = false;
+          return;
+        }
+        const leadJob = [...activeJobs].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+        const progress = leadJob.total_prompts ? Math.round((Number(leadJob.completed_prompts || 0) / Number(leadJob.total_prompts || 1)) * 100) : 0;
+        const extraJobs = activeJobs.length > 1 ? ` + ${activeJobs.length - 1} more active` : "";
+        const statusLabel = leadJob.status === "queued"
+          ? "Run queued"
+          : leadJob.status === "cancel_requested"
+            ? "Stopping run"
+            : "Run in progress";
+        els.visibilityRunStripTitle.textContent = `${statusLabel}${extraJobs}`;
+        els.visibilityRunStripMeta.textContent = `${leadJob.completed_prompts || 0} of ${leadJob.total_prompts || 0} prompts processed${leadJob.model ? ` · ${leadJob.model}` : ""}`;
+        els.visibilityRunStripFill.style.width = `${Math.max(6, progress)}%`;
+        els.visibilityRunStripStopBtn.disabled = leadJob.status === "cancel_requested";
+        els.visibilityRunStrip.classList.add("active");
+      }
+
+      async function requestVisibilityJobCancel(jobId) {
+        if (!jobId) return;
+        const res = await fetch(`/api/visibility/jobs/${jobId}/cancel`, {
+          method: "POST",
+          credentials: "same-origin",
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          alert(data.detail || "Unable to stop this run.");
+          return;
+        }
+        const job = await res.json();
+        setVisibilityActiveJobs([...(state.activeVisibilityJobs || []).filter((item) => item.id !== job.id), job]);
+        els.visibilityRunMsg.textContent = job.status === "cancelled"
+          ? "Run stopped before processing started."
+          : "Stopping run after the current prompt finishes.";
+        renderVisibilityRunStrip();
+        await loadVisibilityWorkspace(true);
+        await loadVisibilityProjects();
+        if ((state.activeVisibilityJobs || []).length) startVisibilityJobPolling();
+      }
+
+      async function refreshVisibilityActiveJobs() {
+        const activeJobs = state.activeVisibilityJobs || [];
+        if (!activeJobs.length || !state.selectedVisibilityProjectId) {
+          stopVisibilityJobPolling();
+          return;
+        }
+        const refreshed = [];
+        let shouldContinue = false;
+        for (const job of activeJobs) {
+          const res = await fetch(`/api/visibility/jobs/${job.id}`, { credentials: "same-origin" });
+          if (res.status === 401) {
+            window.location.href = "/login";
+            return;
+          }
+          if (!res.ok) continue;
+          const nextJob = await res.json();
+          refreshed.push(nextJob);
+          if (["queued", "running", "cancel_requested"].includes(nextJob.status)) shouldContinue = true;
+        }
+        state.activeVisibilityJobs = refreshed.filter((job) => ["queued", "running", "cancel_requested"].includes(job.status));
+        if (refreshed.length) {
+          const leadJob = refreshed[0];
+          const statusCopy = leadJob.status === "cancel_requested" ? "cancelling" : leadJob.status;
+          els.visibilityRunMsg.textContent = `List run ${statusCopy}. ${leadJob.completed_prompts} of ${leadJob.total_prompts} prompts processed.`;
+        }
+        renderVisibilityRunStrip();
+        await loadVisibilityWorkspace(true);
+        await loadVisibilityProjects();
+        if (shouldContinue && state.selectedVisibilityProjectId) {
+          state.visibilityJobPollTimer = setTimeout(refreshVisibilityActiveJobs, 3200);
+        } else {
+          stopVisibilityJobPolling();
+        }
+      }
+
+      function startVisibilityJobPolling() {
+        stopVisibilityJobPolling();
+        if (!(state.activeVisibilityJobs || []).length) {
+          renderVisibilityRunStrip();
+          return;
+        }
+        renderVisibilityRunStrip();
+        state.visibilityJobPollTimer = setTimeout(refreshVisibilityActiveJobs, 1200);
       }
 
       function ensureVisibilitySelections() {
@@ -4260,6 +4444,41 @@ What AI visibility tracking tools are cited most often?"></textarea>
         return subtopic
           ? (subtopic.prompt_lists || []).find((promptList) => promptList.id === state.selectedVisibilityPromptListId) || null
           : null;
+      }
+
+      function visibilityPromptListJobState(promptListIds) {
+        const ids = (promptListIds || []).filter(Boolean);
+        if (!ids.length) return null;
+        const starting = (state.visibilityStartingPromptLists || []).filter((id) => ids.includes(id));
+        const mergedJobs = new Map();
+        [ ...(state.visibilityWorkspace && state.visibilityWorkspace.recent_jobs ? state.visibilityWorkspace.recent_jobs : []), ...(state.activeVisibilityJobs || [])].forEach((job) => {
+          if (!job || !job.id || !ids.includes(job.prompt_list_id) || !["queued", "running", "cancel_requested"].includes(job.status)) return;
+          mergedJobs.set(job.id, job);
+        });
+        const activeJobs = Array.from(mergedJobs.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        if (!activeJobs.length && !starting.length) return null;
+        if (!activeJobs.length && starting.length) {
+          return {
+            label: ids.length > 1 ? `Starting ${starting.length} list${starting.length > 1 ? "s" : ""}...` : "Starting...",
+            disabled: true,
+          };
+        }
+        const completed = activeJobs.reduce((sum, job) => sum + Number(job.completed_prompts || 0), 0);
+        const total = activeJobs.reduce((sum, job) => sum + Number(job.total_prompts || 0), 0);
+        const lead = activeJobs[0];
+        if (lead.status === "cancel_requested") {
+          return { label: "Stopping...", disabled: true };
+        }
+        if (lead.status === "queued") {
+          return {
+            label: ids.length > 1 ? `Queued (${activeJobs.length})` : "Queued",
+            disabled: true,
+          };
+        }
+        return {
+          label: total ? `Running (${completed}/${total})` : "Running",
+          disabled: true,
+        };
       }
 
       function parseVisibilityLines(value) {
@@ -4927,8 +5146,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
 
         const selectedListCount = state.selectedVisibilityPromptLists.length;
         const selectedTotal = state.selectedVisibilityTopics.length + state.selectedVisibilitySubtopics.length + selectedListCount;
+        const selectedListsJobState = visibilityPromptListJobState(state.selectedVisibilityPromptLists);
         els.visibilityManageSelectedBtn.disabled = selectedListCount !== 1;
-        els.visibilityRunSelectedListsBtn.disabled = selectedListCount === 0;
+        els.visibilityRunSelectedListsBtn.disabled = selectedListCount === 0 || Boolean(selectedListsJobState && selectedListsJobState.disabled);
+        els.visibilityRunSelectedListsBtn.textContent = selectedListsJobState ? selectedListsJobState.label : "Run Selected Lists";
         els.visibilityBulkDeleteBtn.disabled = selectedTotal === 0;
       }
 
@@ -5282,7 +5503,12 @@ What AI visibility tracking tools are cited most often?"></textarea>
         els.visibilityProjectsScreen.classList.toggle("hidden-mode", workspaceVisible);
         els.visibilityWorkspaceScreen.classList.toggle("hidden-mode", !workspaceVisible);
 
-        if (!workspaceVisible) return;
+        if (!workspaceVisible) {
+          setVisibilityActiveJobs([]);
+          renderVisibilityRunStrip();
+          stopVisibilityJobPolling();
+          return;
+        }
 
         const workspace = state.visibilityWorkspace;
         const project = workspace.project || activeVisibilityProject();
@@ -5309,6 +5535,13 @@ What AI visibility tracking tools are cited most often?"></textarea>
             <span class="project-pill">${allReport ? `${allReport.total_runs} snapshots` : "0 snapshots"}</span>
           </span>
         `;
+        setVisibilityActiveJobs(workspace.recent_jobs || []);
+        renderVisibilityRunStrip();
+        if ((state.activeVisibilityJobs || []).length) {
+          if (!state.visibilityJobPollTimer) startVisibilityJobPolling();
+        } else {
+          stopVisibilityJobPolling();
+        }
 
         const navButtons = {
           overview: els.visibilityNavOverview,
@@ -5414,6 +5647,9 @@ What AI visibility tracking tools are cited most often?"></textarea>
           }
 
           const selectedPromptList = selectedVisibilityPromptList();
+          const selectedPromptListJobState = selectedPromptList ? visibilityPromptListJobState([selectedPromptList.id]) : null;
+          els.runVisibilityPromptListBtn.textContent = selectedPromptListJobState ? selectedPromptListJobState.label : "Run Selected List";
+          els.runVisibilityPromptListBtn.disabled = !selectedPromptList || Boolean(selectedPromptListJobState && selectedPromptListJobState.disabled);
           els.visibilityPromptManagerMeta.textContent = selectedPromptList
             ? `Add prompts, review prompt-level data, and run ${selectedPromptList.name}.`
             : "Add prompts, review prompt-level data, and run the selected list.";
@@ -5569,18 +5805,25 @@ What AI visibility tracking tools are cited most often?"></textarea>
         renderDailyBars(els.visibilityOverviewDailyMetrics, allReport ? allReport.daily_metrics || [] : []);
 
         const drilldown = currentVisibilityDrilldown(report);
+        const drilldownFallbackPrompts = drilldown
+          ? (workspace.recent_runs || []).filter((run) => {
+              const citations = state.visibilityDrilldown.type === "url" ? (run.cited_urls || []) : (run.cited_domains || []);
+              return citations.includes(drilldown.value);
+            })
+          : [];
         els.visibilityDrilldownPrompts.innerHTML = "";
         if (!drilldown) {
           els.visibilityDrilldownTitle.textContent = "Citation Drill-down";
           els.visibilityDrilldownMeta.textContent = "Click a domain or URL above to see which prompt snapshots produced it.";
           els.visibilityDrilldownPrompts.innerHTML = '<div class="mini-item"><span>No drill-down data available yet.</span></div>';
         } else {
+          const promptRefs = (drilldown.prompts || []).length ? (drilldown.prompts || []) : drilldownFallbackPrompts;
           els.visibilityDrilldownTitle.textContent = `${state.visibilityDrilldown.type === "url" ? "URL" : "Domain"} Drill-down`;
           els.visibilityDrilldownMeta.textContent = `${drilldown.value} appeared in ${drilldown.count} prompt snapshots.`;
-          if (!(drilldown.prompts || []).length) {
+          if (!promptRefs.length) {
             els.visibilityDrilldownPrompts.innerHTML = '<div class="mini-item"><span>No prompt references found for this citation.</span></div>';
           } else {
-            drilldown.prompts.forEach((promptRef) => {
+            promptRefs.forEach((promptRef) => {
               const item = document.createElement("div");
               item.className = "mini-item";
               item.innerHTML = `
@@ -5596,7 +5839,23 @@ What AI visibility tracking tools are cited most often?"></textarea>
           }
         }
 
-        const runJobs = (workspace.recent_jobs || []).length ? (workspace.recent_jobs || []) : buildVisibilityJobFallbacks(workspace);
+        const runJobs = (() => {
+          const fallbackJobs = buildVisibilityJobFallbacks(workspace);
+          const merged = new Map();
+          fallbackJobs.forEach((job) => {
+            if (!job || !job.id || merged.has(job.id)) return;
+            merged.set(job.id, job);
+          });
+          (workspace.recent_jobs || []).forEach((job) => {
+            if (!job || !job.id) return;
+            merged.set(job.id, job);
+          });
+          (state.activeVisibilityJobs || []).forEach((job) => {
+            if (!job || !job.id) return;
+            merged.set(job.id, job);
+          });
+          return Array.from(merged.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        })();
         els.visibilityOverviewJobsList.innerHTML = "";
         els.visibilityJobsList.innerHTML = "";
         if (!runJobs.length) {
@@ -5609,11 +5868,21 @@ What AI visibility tracking tools are cited most often?"></textarea>
             item.innerHTML = `
               <strong>${job.model} / ${job.run_source}</strong>
               <span>${job.status.toUpperCase()} / ${job.completed_prompts} of ${job.total_prompts} prompts / ${formatDate(job.created_at)}</span>
+              ${["queued", "running", "cancel_requested"].includes(job.status)
+                ? `<div class="row-actions"><button class="btn" type="button" data-cancel-visibility-job="${job.id}" ${job.status === "cancel_requested" ? "disabled" : ""}>${job.status === "cancel_requested" ? "Stopping..." : "Stop Run"}</button></div>`
+                : ""}
             `;
             els.visibilityJobsList.appendChild(item);
             if (index < 6) {
               els.visibilityOverviewJobsList.appendChild(item.cloneNode(true));
             }
+          });
+          [els.visibilityJobsList, els.visibilityOverviewJobsList].forEach((container) => {
+            container.querySelectorAll("[data-cancel-visibility-job]").forEach((button) => {
+              button.addEventListener("click", async () => {
+                await requestVisibilityJobCancel(button.dataset.cancelVisibilityJob);
+              });
+            });
           });
         }
 
@@ -5862,6 +6131,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
       }
 
       async function openVisibilityProject(projectId, view = "overview") {
+        stopVisibilityJobPolling();
         state.selectedVisibilityProjectId = projectId;
         state.visibilityProjectView = view;
         state.visibilityWorkspace = null;
@@ -5878,6 +6148,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.selectedVisibilityTopics = [];
         state.selectedVisibilitySubtopics = [];
         state.selectedVisibilityPromptLists = [];
+        state.activeVisibilityJobs = [];
+        state.visibilityStartingPromptLists = [];
         resetVisibilityPromptGeneratorInputs();
         renderVisibility();
         await loadVisibilityWorkspace();
@@ -5937,22 +6209,6 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.visibilityReport = await res.json();
         renderVisibility();
         await loadVisibilityMatrixData();
-      }
-
-      async function pollVisibilityJob(jobId) {
-        while (true) {
-          await sleep(2200);
-          const res = await fetch(`/api/visibility/jobs/${jobId}`, { credentials: "same-origin" });
-          if (res.status === 401) return (window.location.href = "/login");
-          if (!res.ok) break;
-          const job = await res.json();
-          els.visibilityRunMsg.textContent = `List run ${job.status}. ${job.completed_prompts} of ${job.total_prompts} prompts processed.`;
-          if (["completed", "failed"].includes(job.status)) {
-            await loadVisibilityWorkspace(true);
-            await loadVisibilityProjects();
-            break;
-          }
-        }
       }
 
       async function pollBrief(briefId) {
@@ -6545,6 +6801,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
       });
 
       els.visibilityProjectBackBtn.addEventListener("click", async () => {
+        stopVisibilityJobPolling();
         state.selectedVisibilityProjectId = null;
         state.visibilityWorkspace = null;
         state.visibilityReport = null;
@@ -6556,7 +6813,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.selectedVisibilityTopics = [];
         state.selectedVisibilitySubtopics = [];
         state.selectedVisibilityPromptLists = [];
+        state.activeVisibilityJobs = [];
+        state.visibilityStartingPromptLists = [];
         resetVisibilityPromptGeneratorInputs();
+        renderVisibilityRunStrip();
         await loadVisibilityProjects();
       });
 
@@ -6565,6 +6825,17 @@ What AI visibility tracking tools are cited most often?"></textarea>
           state.visibilityProjectView = button.dataset.visibilityPanelBtn;
           renderVisibility();
         });
+      });
+
+      els.visibilityRunStripViewBtn.addEventListener("click", () => {
+        state.visibilityProjectView = "runs";
+        renderVisibility();
+      });
+
+      els.visibilityRunStripStopBtn.addEventListener("click", async () => {
+        const leadJob = [...(state.activeVisibilityJobs || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+        if (!leadJob) return;
+        await requestVisibilityJobCancel(leadJob.id);
       });
 
       els.applyVisibilityDateBtn.addEventListener("click", async () => {

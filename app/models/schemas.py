@@ -6,7 +6,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
 
-TaskStatus = Literal["queued", "running", "completed", "failed"]
+TaskStatus = Literal["queued", "running", "cancel_requested", "cancelled", "completed", "failed"]
 ArticleMode = Literal["from_brief", "from_custom_brief", "quick_draft"]
 PersonalityAgentType = Literal["workspace", "brief", "writer", "reviewer"]
 VisibilityScheduleFrequency = Literal["disabled", "weekly", "twice_monthly", "monthly"]

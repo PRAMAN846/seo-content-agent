@@ -420,11 +420,37 @@ def _build_visibility_instruction(project: VisibilityProjectRecord) -> str:
     )
 
 
+def cancel_visibility_job(user_id: str, job_id: str):
+    job = run_store.get_visibility_job(user_id, job_id)
+    if not job:
+        raise ValueError("Visibility job not found")
+    if job.status in {"completed", "failed", "cancelled"}:
+        raise RuntimeError("This run can no longer be stopped.")
+    if job.status == "queued":
+        return run_store.update_visibility_job(
+            job_id,
+            status="cancelled",
+            stage="cancelled",
+            progress_percent=0,
+            error="Cancelled by user",
+        )
+    return run_store.update_visibility_job(
+        job_id,
+        status="cancel_requested",
+        stage="cancelling",
+        error="Cancellation requested by user",
+    )
+
+
 async def run_visibility_prompt_list_job(job_id: str, *, force: bool = False) -> None:
     job = run_store.get_visibility_job_by_id(job_id)
     if not job:
         return
-    if job.status == "completed":
+    if job.status in {"completed", "cancelled"}:
+        return
+    if job.status == "cancel_requested":
+        run_store.delete_visibility_prompt_runs_for_job(job.user_id, job_id)
+        run_store.update_visibility_job(job_id, status="cancelled", stage="cancelled", error="Cancelled by user")
         return
     if job.status == "running" and not force:
         return
@@ -443,6 +469,18 @@ async def run_visibility_prompt_list_job(job_id: str, *, force: bool = False) ->
 
     completed = 0
     for prompt in prompt_list.prompts:
+        latest_job = run_store.get_visibility_job_by_id(job_id)
+        if latest_job and latest_job.status == "cancel_requested":
+            run_store.delete_visibility_prompt_runs_for_job(job.user_id, job_id)
+            run_store.update_visibility_job(
+                job_id,
+                status="cancelled",
+                stage="cancelled",
+                progress_percent=int((completed / max(len(prompt_list.prompts), 1)) * 100),
+                completed_prompts=completed,
+                error="Cancelled by user",
+            )
+            return
         try:
             response_text = await asyncio.to_thread(
                 llm_client.complete,
@@ -488,6 +526,18 @@ async def run_visibility_prompt_list_job(job_id: str, *, force: bool = False) ->
                 error=str(exc),
             )
         completed += 1
+        latest_job = run_store.get_visibility_job_by_id(job_id)
+        if latest_job and latest_job.status == "cancel_requested":
+            run_store.delete_visibility_prompt_runs_for_job(job.user_id, job_id)
+            run_store.update_visibility_job(
+                job_id,
+                status="cancelled",
+                stage="cancelled",
+                progress_percent=int((completed / max(len(prompt_list.prompts), 1)) * 100),
+                completed_prompts=completed,
+                error="Cancelled by user",
+            )
+            return
         progress_percent = int((completed / max(len(prompt_list.prompts), 1)) * 100)
         run_store.update_visibility_job(
             job_id,
