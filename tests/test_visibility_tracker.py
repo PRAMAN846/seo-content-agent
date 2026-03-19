@@ -30,6 +30,14 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200, response.text)
 
+    def test_public_app_config_endpoint(self) -> None:
+        response = self.client.get("/api/app-config")
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertIn("brand_name", payload)
+        self.assertIn("product_name", payload)
+        self.assertIn("visibility_only", payload)
+
     def create_tracker_stack(self) -> dict[str, str]:
         project = self.client.post(
             "/api/visibility/projects",

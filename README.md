@@ -137,6 +137,13 @@ Notes:
 - `SESSION_TTL_DAYS=30`
 - `DATABASE_URL=<your-neon-connection-string>`
 
+For a second visibility-only deployment such as `app.searchgrowthcircle.com`, also set:
+- `VISIBILITY_ONLY=true`
+- `APP_BRAND_NAME=Search Growth Circle`
+- `APP_PRODUCT_NAME=AI Visibility Tracker`
+- `APP_NAV_EYEBROW=Search Growth Circle`
+- `APP_LOGO_PATH=/frontend/assets/xpaan-logo.svg` or your own hosted logo path
+
 ### Render commands
 - Build: `pip install -r requirements.txt`
 - Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`

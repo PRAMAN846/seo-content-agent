@@ -203,10 +203,10 @@
   <body>
     <main class="frame">
       <section class="hero">
-        <img class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
-        <h1>Welcome to your SEO content workspace</h1>
-        <p>Create high-quality long-form content from competitor insights with per-user history and guided progress.</p>
-        <ul class="hero-points">
+        <img id="loginLogo" class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
+        <h1 id="loginHeroTitle">Welcome to your SEO content workspace</h1>
+        <p id="loginHeroSubtitle">Create high-quality long-form content from competitor insights with per-user history and guided progress.</p>
+        <ul id="loginHeroPoints" class="hero-points">
           <li>Personal dashboard with saved runs</li>
           <li>Live generation progress by stage</li>
           <li>Structured article output ready for publishing</li>
@@ -230,11 +230,16 @@
         </form>
 
         <div class="msg" id="message"></div>
-        <p class="footnote">Your runs and generated articles are saved to your account history.</p>
+        <p id="loginFootnote" class="footnote">Your runs and generated articles are saved to your account history.</p>
       </section>
     </main>
 
     <script>
+      const loginLogo = document.getElementById("loginLogo");
+      const loginHeroTitle = document.getElementById("loginHeroTitle");
+      const loginHeroSubtitle = document.getElementById("loginHeroSubtitle");
+      const loginHeroPoints = document.getElementById("loginHeroPoints");
+      const loginFootnote = document.getElementById("loginFootnote");
       const tabLogin = document.getElementById("tabLogin");
       const tabRegister = document.getElementById("tabRegister");
       const submitBtn = document.getElementById("submitBtn");
@@ -254,6 +259,25 @@
 
       tabLogin.addEventListener("click", () => setMode("login"));
       tabRegister.addEventListener("click", () => setMode("register"));
+
+      async function loadAppConfig() {
+        const res = await fetch("/api/app-config", { credentials: "same-origin" });
+        if (!res.ok) return null;
+        const config = await res.json();
+        document.title = `Login | ${config.product_name}`;
+        loginLogo.src = config.logo_path || "/frontend/assets/xpaan-logo.svg";
+        loginLogo.alt = config.brand_name || config.product_name;
+        if (config.visibility_only) {
+          loginHeroTitle.textContent = `Welcome to ${config.product_name}`;
+          loginHeroSubtitle.textContent = `Log in to manage projects, generate AI-native prompts, and track visibility for ${config.brand_name}.`;
+          loginHeroPoints.innerHTML = `
+            <li>Project-based AI visibility workspaces</li>
+            <li>Prompt generation for B2B and ecommerce</li>
+            <li>Runs, citations, and share-of-voice reporting</li>
+          `;
+          loginFootnote.textContent = "Your prompt libraries, prompt runs, reports, and generated prompts are saved to your account.";
+        }
+      }
 
       async function checkExistingSession() {
         const res = await fetch("/api/auth/me", { credentials: "same-origin" });
@@ -291,7 +315,10 @@
         window.location.href = "/dashboard";
       });
 
-      checkExistingSession();
+      (async function init() {
+        await loadAppConfig();
+        await checkExistingSession();
+      })();
     </script>
   </body>
 </html>

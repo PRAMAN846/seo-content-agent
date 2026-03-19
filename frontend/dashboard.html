@@ -1956,9 +1956,9 @@
         <div class="sidebar-head">
           <div class="brand-wrap">
             <div class="logo-panel">
-              <img class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
+              <img id="sidebarLogo" class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
             </div>
-            <p class="eyebrow">Content Writing Agents</p>
+            <p id="sidebarEyebrow" class="eyebrow">Content Writing Agents</p>
           </div>
           <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Toggle sidebar">
             <span class="toggle-bars"><span></span><span></span><span></span></span>
@@ -3315,6 +3315,13 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityPromptGeneratorResult: null,
         visibilityPromptGeneratorGscRows: [],
         visibilityPromptGeneratorGscFileName: "",
+        appConfig: {
+          brand_name: "Xpaan Digital",
+          product_name: "Xpaan Content Agent",
+          logo_path: "/frontend/assets/xpaan-logo.svg",
+          nav_eyebrow: "Content Writing Agents",
+          visibility_only: false,
+        },
       };
 
       const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -3323,6 +3330,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         appShell: document.getElementById("appShell"),
         sidebarShell: document.getElementById("sidebarShell"),
         sidebarToggle: document.getElementById("sidebarToggle"),
+        sidebarLogo: document.getElementById("sidebarLogo"),
+        sidebarEyebrow: document.getElementById("sidebarEyebrow"),
         profileInitial: document.getElementById("profileInitial"),
         profileName: document.getElementById("profileName"),
         profileEmail: document.getElementById("profileEmail"),
@@ -3636,6 +3645,18 @@ What AI visibility tracking tools are cited most often?"></textarea>
         return "User";
       }
 
+      function applyAppConfig() {
+        const config = state.appConfig || {};
+        document.title = `Dashboard | ${config.product_name || "Xpaan Content Agent"}`;
+        els.sidebarLogo.src = config.logo_path || "/frontend/assets/xpaan-logo.svg";
+        els.sidebarLogo.alt = config.brand_name || config.product_name || "App";
+        els.sidebarEyebrow.textContent = config.nav_eyebrow || "Content Writing Agents";
+        const visibilityOnly = Boolean(config.visibility_only);
+        [els.tabHome, els.tabWorkspace, els.tabBriefs, els.tabArticles, els.tabSettings, els.seeProfileBtn].forEach((element) => {
+          element.classList.toggle("hidden-mode", visibilityOnly);
+        });
+      }
+
       function renderProfile() {
         const name = getProfileDisplayName();
         const email = state.currentUser ? state.currentUser.email : "Signed out";
@@ -3647,6 +3668,9 @@ What AI visibility tracking tools are cited most often?"></textarea>
       }
 
       function setActiveTab(kind) {
+        if (state.appConfig && state.appConfig.visibility_only && kind !== "visibility") {
+          kind = "visibility";
+        }
         state.activeTab = kind;
 
         const views = {
@@ -5661,6 +5685,13 @@ What AI visibility tracking tools are cited most often?"></textarea>
         els.modeQuickDraft.style.display = mode === "quick_draft" ? "block" : "none";
       }
 
+      async function loadAppConfig() {
+        const res = await fetch("/api/app-config", { credentials: "same-origin" });
+        if (!res.ok) return;
+        state.appConfig = await res.json();
+        applyAppConfig();
+      }
+
       async function loadCurrentUser() {
         const res = await fetch("/api/auth/me", { credentials: "same-origin" });
         if (res.status === 401) {
@@ -6831,11 +6862,16 @@ What AI visibility tracking tools are cited most often?"></textarea>
 
       (async function init() {
         setSidebarExpanded(state.sidebarPinned);
+        await loadAppConfig();
         await loadCurrentUser();
-        await Promise.all([loadBriefs(), loadArticles(), loadPersonalities(), loadSettings(), loadVisibilityProjects()]);
+        if (state.appConfig && state.appConfig.visibility_only) {
+          await Promise.all([loadSettings(), loadVisibilityProjects()]);
+        } else {
+          await Promise.all([loadBriefs(), loadArticles(), loadPersonalities(), loadSettings(), loadVisibilityProjects()]);
+        }
         updateWriterModeUI();
         renderWorkspace();
-        setActiveTab("home");
+        setActiveTab(state.appConfig && state.appConfig.visibility_only ? "visibility" : "home");
       })();
     </script>
   </body>

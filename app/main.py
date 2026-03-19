@@ -17,6 +17,7 @@ from app.api.routes_visibility import router as visibility_router
 from app.api.routes_workspace import router as workspace_router
 from app.core.auth import get_current_user_optional
 from app.core.config import settings
+from app.models.schemas import AppPublicConfig
 from app.workers.scheduler import start_scheduler
 
 app = FastAPI(title="SEO Content Agent")
@@ -68,3 +69,14 @@ def dashboard_page(request: Request) -> Response:
     if not get_current_user_optional(request):
         return RedirectResponse("/login", status_code=302)
     return FileResponse(frontend_dir / "dashboard.html")
+
+
+@app.get("/api/app-config", response_model=AppPublicConfig)
+def app_config() -> AppPublicConfig:
+    return AppPublicConfig(
+        brand_name=settings.app_brand_name,
+        product_name=settings.app_product_name,
+        logo_path=settings.app_logo_path,
+        nav_eyebrow=settings.app_nav_eyebrow,
+        visibility_only=settings.visibility_only,
+    )

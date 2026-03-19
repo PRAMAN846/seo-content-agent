@@ -570,3 +570,11 @@ class VisibilityPromptGeneratorResponse(BaseModel):
     prompts: list[VisibilityGeneratedPrompt] = Field(default_factory=list)
     intent_groups: list[VisibilityPromptGeneratorIntentGroup] = Field(default_factory=list)
     type_summary: list[VisibilityPromptGeneratorTypeSummary] = Field(default_factory=list)
+
+
+class AppPublicConfig(BaseModel):
+    brand_name: str
+    product_name: str
+    logo_path: str
+    nav_eyebrow: str
+    visibility_only: bool = False
