@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from html import escape
 from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes_auth import router as auth_router
@@ -44,6 +45,25 @@ if frontend_dir.exists():
     app.mount("/frontend", StaticFiles(directory=str(frontend_dir)), name="frontend")
 
 
+def _app_meta_description() -> str:
+    if settings.visibility_only:
+        return (
+            f"Manage projects, generate AI-native prompts, and track AI visibility for {settings.app_brand_name}."
+        )
+    return "Create high-quality long-form content from competitor insights with per-user history and guided progress."
+
+
+def _render_frontend_html(filename: str, *, page_title: str) -> HTMLResponse:
+    html = (frontend_dir / filename).read_text(encoding="utf-8")
+    replacements = {
+        "__PAGE_TITLE__": escape(page_title),
+        "__META_DESCRIPTION__": escape(_app_meta_description()),
+    }
+    for needle, value in replacements.items():
+        html = html.replace(needle, value)
+    return HTMLResponse(content=html)
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     if settings.enable_scheduler:
@@ -61,14 +81,14 @@ def root(request: Request) -> RedirectResponse:
 def login_page(request: Request) -> Response:
     if get_current_user_optional(request):
         return RedirectResponse("/dashboard", status_code=302)
-    return FileResponse(frontend_dir / "login.html")
+    return _render_frontend_html("login.html", page_title=f"Login | {settings.app_product_name}")
 
 
 @app.get("/dashboard", response_model=None)
 def dashboard_page(request: Request) -> Response:
     if not get_current_user_optional(request):
         return RedirectResponse("/login", status_code=302)
-    return FileResponse(frontend_dir / "dashboard.html")
+    return _render_frontend_html("dashboard.html", page_title=f"Dashboard | {settings.app_product_name}")
 
 
 @app.get("/api/app-config", response_model=AppPublicConfig)

@@ -38,6 +38,13 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertIn("product_name", payload)
         self.assertIn("visibility_only", payload)
 
+    def test_login_page_renders_server_side_title_and_meta(self) -> None:
+        client = TestClient(app)
+        response = client.get("/login")
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertIn("<title>Login | Xpaan Content Agent</title>", response.text)
+        self.assertIn('meta property="og:title" content="Login | Xpaan Content Agent"', response.text)
+
     def create_tracker_stack(self) -> dict[str, str]:
         project = self.client.post(
             "/api/visibility/projects",
