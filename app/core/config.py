@@ -22,6 +22,7 @@ class Settings:
     app_brand_name: str = os.getenv("APP_BRAND_NAME", "Xpaan Digital")
     app_product_name: str = os.getenv("APP_PRODUCT_NAME", "Xpaan Content Agent")
     app_logo_path: str = os.getenv("APP_LOGO_PATH", "/frontend/assets/xpaan-logo.svg")
+    app_wordmark_text: str = os.getenv("APP_WORDMARK_TEXT", "")
     app_nav_eyebrow: str = os.getenv("APP_NAV_EYEBROW", "Content Writing Agents")
     session_ttl_days: int = int(os.getenv("SESSION_TTL_DAYS", "30"))
     cookie_secure: bool = os.getenv("COOKIE_SECURE", "true").lower() == "true"

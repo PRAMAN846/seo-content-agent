@@ -77,6 +77,7 @@ def app_config() -> AppPublicConfig:
         brand_name=settings.app_brand_name,
         product_name=settings.app_product_name,
         logo_path=settings.app_logo_path,
+        wordmark_text=settings.app_wordmark_text,
         nav_eyebrow=settings.app_nav_eyebrow,
         visibility_only=settings.visibility_only,
     )

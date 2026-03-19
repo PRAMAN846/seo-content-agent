@@ -133,6 +133,18 @@
         display: block;
       }
 
+      .sidebar-wordmark {
+        min-height: 52px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Sora", sans-serif;
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: -0.08em;
+        color: #0f141b;
+      }
+
       .eyebrow {
         margin: 8px 0 0;
         font-size: 11px;
@@ -1957,6 +1969,7 @@
           <div class="brand-wrap">
             <div class="logo-panel">
               <img id="sidebarLogo" class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
+              <div id="sidebarWordmark" class="sidebar-wordmark hidden-mode">SGC</div>
             </div>
             <p id="sidebarEyebrow" class="eyebrow">Content Writing Agents</p>
           </div>
@@ -3319,6 +3332,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
           brand_name: "Xpaan Digital",
           product_name: "Xpaan Content Agent",
           logo_path: "/frontend/assets/xpaan-logo.svg",
+          wordmark_text: "",
           nav_eyebrow: "Content Writing Agents",
           visibility_only: false,
         },
@@ -3331,6 +3345,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
         sidebarShell: document.getElementById("sidebarShell"),
         sidebarToggle: document.getElementById("sidebarToggle"),
         sidebarLogo: document.getElementById("sidebarLogo"),
+        sidebarWordmark: document.getElementById("sidebarWordmark"),
         sidebarEyebrow: document.getElementById("sidebarEyebrow"),
         profileInitial: document.getElementById("profileInitial"),
         profileName: document.getElementById("profileName"),
@@ -3648,8 +3663,16 @@ What AI visibility tracking tools are cited most often?"></textarea>
       function applyAppConfig() {
         const config = state.appConfig || {};
         document.title = `Dashboard | ${config.product_name || "Xpaan Content Agent"}`;
-        els.sidebarLogo.src = config.logo_path || "/frontend/assets/xpaan-logo.svg";
-        els.sidebarLogo.alt = config.brand_name || config.product_name || "App";
+        if (config.wordmark_text) {
+          els.sidebarLogo.classList.add("hidden-mode");
+          els.sidebarWordmark.classList.remove("hidden-mode");
+          els.sidebarWordmark.textContent = config.wordmark_text;
+        } else {
+          els.sidebarWordmark.classList.add("hidden-mode");
+          els.sidebarLogo.classList.remove("hidden-mode");
+          els.sidebarLogo.src = config.logo_path || "/frontend/assets/xpaan-logo.svg";
+          els.sidebarLogo.alt = config.brand_name || config.product_name || "App";
+        }
         els.sidebarEyebrow.textContent = config.nav_eyebrow || "Content Writing Agents";
         const visibilityOnly = Boolean(config.visibility_only);
         [els.tabHome, els.tabWorkspace, els.tabBriefs, els.tabArticles, els.tabSettings, els.seeProfileBtn].forEach((element) => {

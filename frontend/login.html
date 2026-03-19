@@ -60,6 +60,18 @@
         height: auto;
       }
 
+      .wordmark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 70px;
+        font-family: "Sora", sans-serif;
+        font-size: 44px;
+        font-weight: 800;
+        letter-spacing: -0.08em;
+        color: #101216;
+      }
+
       .hero h1 {
         margin: 18px 0 8px;
         font-family: "Sora", sans-serif;
@@ -204,6 +216,7 @@
     <main class="frame">
       <section class="hero">
         <img id="loginLogo" class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
+        <div id="loginWordmark" class="wordmark hidden-mode">SGC</div>
         <h1 id="loginHeroTitle">Welcome to your SEO content workspace</h1>
         <p id="loginHeroSubtitle">Create high-quality long-form content from competitor insights with per-user history and guided progress.</p>
         <ul id="loginHeroPoints" class="hero-points">
@@ -236,6 +249,7 @@
 
     <script>
       const loginLogo = document.getElementById("loginLogo");
+      const loginWordmark = document.getElementById("loginWordmark");
       const loginHeroTitle = document.getElementById("loginHeroTitle");
       const loginHeroSubtitle = document.getElementById("loginHeroSubtitle");
       const loginHeroPoints = document.getElementById("loginHeroPoints");
@@ -265,8 +279,16 @@
         if (!res.ok) return null;
         const config = await res.json();
         document.title = `Login | ${config.product_name}`;
-        loginLogo.src = config.logo_path || "/frontend/assets/xpaan-logo.svg";
-        loginLogo.alt = config.brand_name || config.product_name;
+        if (config.wordmark_text) {
+          loginLogo.classList.add("hidden-mode");
+          loginWordmark.classList.remove("hidden-mode");
+          loginWordmark.textContent = config.wordmark_text;
+        } else {
+          loginWordmark.classList.add("hidden-mode");
+          loginLogo.classList.remove("hidden-mode");
+          loginLogo.src = config.logo_path || "/frontend/assets/xpaan-logo.svg";
+          loginLogo.alt = config.brand_name || config.product_name;
+        }
         if (config.visibility_only) {
           loginHeroTitle.textContent = `Welcome to ${config.product_name}`;
           loginHeroSubtitle.textContent = `Log in to manage projects, generate AI-native prompts, and track visibility for ${config.brand_name}.`;

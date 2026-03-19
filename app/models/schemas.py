@@ -576,5 +576,6 @@ class AppPublicConfig(BaseModel):
     brand_name: str
     product_name: str
     logo_path: str
+    wordmark_text: str = ""
     nav_eyebrow: str
     visibility_only: bool = False

@@ -143,6 +143,9 @@ For a second visibility-only deployment such as `app.searchgrowthcircle.com`, al
 - `APP_PRODUCT_NAME=AI Visibility Tracker`
 - `APP_NAV_EYEBROW=Search Growth Circle`
 - `APP_LOGO_PATH=/frontend/assets/xpaan-logo.svg` or your own hosted logo path
+- Optional text-only logo:
+  - `APP_WORDMARK_TEXT=SGC`
+  - if you use this, you can leave `APP_LOGO_PATH` blank
 
 ### Render commands
 - Build: `pip install -r requirements.txt`
