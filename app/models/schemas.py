@@ -12,7 +12,7 @@ PersonalityAgentType = Literal["workspace", "brief", "writer", "reviewer"]
 VisibilityScheduleFrequency = Literal["disabled", "weekly", "twice_monthly", "monthly"]
 VisibilitySurface = Literal["api", "consumer_ui"]
 VisibilityRunSource = Literal["manual", "scheduled"]
-VisibilityPromptGeneratorProjectType = Literal["b2b_saas", "ecommerce"]
+VisibilityPromptGeneratorProjectType = Literal["b2b_saas", "ecommerce", "services", "local_business"]
 
 
 class UrlContent(BaseModel):
@@ -514,9 +514,12 @@ class VisibilityPromptGeneratorGscRow(BaseModel):
 
 class VisibilityPromptGeneratorRequest(BaseModel):
     project_type: VisibilityPromptGeneratorProjectType
-    desired_prompt_count: int = Field(default=80, ge=50, le=150)
+    desired_prompt_count: int = Field(default=20, ge=5, le=50)
     product_name: str = ""
     category: str = ""
+    quick_audience: str = ""
+    quick_context: str = ""
+    quick_use_case: str = ""
     pricing_tier: str = ""
     target_market: str = ""
     target_market_custom: str = ""

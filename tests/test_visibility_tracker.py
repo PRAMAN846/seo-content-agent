@@ -7,7 +7,7 @@ import time
 import unittest
 import uuid
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 
 os.environ["OPENAI_API_KEY"] = ""
 os.environ["COOKIE_SECURE"] = "false"
@@ -17,6 +17,7 @@ os.environ["APP_DB_PATH"] = _db_handle.name
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.services import visibility_tracker as visibility_tracker_service
 from app.services.visibility_tracker import run_visibility_prompt_list_job
 
 
@@ -342,32 +343,73 @@ class VisibilityTrackerAPITest(unittest.TestCase):
             f"/api/visibility/projects/{ids['project_id']}/prompt-generator",
             json={
                 "project_type": "b2b_saas",
-                "desired_prompt_count": 60,
+                "desired_prompt_count": 40,
                 "product_name": "Xpaan",
                 "category": "AI visibility software",
-                "pricing_tier": "premium",
-                "target_market": "global",
-                "role": "Marketing Head",
-                "company_size": "51-200",
-                "industry": "SaaS",
-                "awareness_level": "comparing",
-                "pain_points": ["measuring AI brand mentions", "tracking cited domains"],
-                "desired_outcomes": ["better share of voice reporting", "stronger brand visibility"],
-                "fears_objections": ["unclear ROI", "slow team adoption"],
-                "buying_triggers": ["launching in new markets", "competitive pressure"],
+                "quick_audience": "Marketing Head",
+                "quick_context": "SaaS",
+                "quick_use_case": "measure AI brand mentions and cited domains",
                 "competitors": ["Profound", "Gauge"],
-                "gsc_rows": [
-                    {"query": "ai visibility tools", "impressions": 420, "ctr": 1.2, "position": 7},
-                ],
             },
         )
         self.assertEqual(response.status_code, 200, response.text)
         payload = response.json()
-        self.assertEqual(payload["generated_prompt_count"], 60)
-        self.assertEqual(payload["requested_prompt_count"], 60)
+        self.assertEqual(payload["generated_prompt_count"], 40)
+        self.assertEqual(payload["requested_prompt_count"], 40)
         self.assertGreaterEqual(len(payload["intent_groups"]), 3)
         self.assertTrue(any(prompt["prompt_type"] == "comparison" for prompt in payload["prompts"]))
         self.assertTrue(any("Xpaan vs Profound" in prompt["prompt_text"] for prompt in payload["prompts"]))
+
+    def test_b2b_prompt_generator_rebalances_toward_awareness_and_consideration(self) -> None:
+        ids = self.create_tracker_stack()
+
+        response = self.client.post(
+            f"/api/visibility/projects/{ids['project_id']}/prompt-generator",
+            json={
+                "project_type": "b2b_saas",
+                "desired_prompt_count": 20,
+                "product_name": "Xpaan",
+                "category": "AI visibility software",
+                "quick_audience": "Marketing Head",
+                "quick_context": "SaaS",
+                "quick_use_case": "measure AI brand mentions and cited domains",
+                "competitors": ["Profound", "Gauge", "Brand Radar"],
+            },
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        prompts = response.json()["prompts"]
+        comparison_count = sum(1 for prompt in prompts if prompt["prompt_type"] == "comparison")
+        primary_stage_count = sum(1 for prompt in prompts if prompt["intent_stage"] in {"awareness", "consideration"})
+        self.assertLessEqual(comparison_count, 8)
+        self.assertGreaterEqual(primary_stage_count, 12)
+
+    def test_prompt_generator_uses_gpt_polish_when_llm_is_enabled(self) -> None:
+        ids = self.create_tracker_stack()
+        polished_text = "Which AI visibility tools should a SaaS marketing head shortlist first?"
+
+        with patch.object(type(visibility_tracker_service.llm_client), "enabled", new_callable=PropertyMock, return_value=True):
+            with patch("app.services.visibility_tracker.llm_client.complete_json", return_value={
+                "prompts": [
+                    {"id": "draft-1", "prompt_text": polished_text},
+                ]
+            }):
+                response = self.client.post(
+                    f"/api/visibility/projects/{ids['project_id']}/prompt-generator",
+                    json={
+                        "project_type": "b2b_saas",
+                        "desired_prompt_count": 20,
+                        "product_name": "Xpaan",
+                        "category": "AI visibility software",
+                        "quick_audience": "Marketing Head",
+                        "quick_context": "SaaS",
+                        "quick_use_case": "measure AI brand mentions and cited domains",
+                        "competitors": ["Profound", "Gauge"],
+                    },
+                )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        prompts = response.json()["prompts"]
+        self.assertEqual(prompts[0]["prompt_text"], polished_text)
 
     def test_ecommerce_prompt_generator_returns_comparison_and_validation_prompts(self) -> None:
         ids = self.create_tracker_stack()
@@ -376,33 +418,68 @@ class VisibilityTrackerAPITest(unittest.TestCase):
             f"/api/visibility/projects/{ids['project_id']}/prompt-generator",
             json={
                 "project_type": "ecommerce",
-                "desired_prompt_count": 50,
+                "desired_prompt_count": 30,
                 "product_name": "Xpaan Fit",
                 "category": "running shoes",
-                "price_range": "mid_range",
-                "brand_positioning": "premium",
-                "target_audience": "custom",
-                "target_audience_custom": "urban runners",
-                "age_group": "25-34",
-                "use_case": "custom",
-                "use_case_custom": "marathon training",
-                "awareness_level": "comparing",
-                "intent_triggers": ["upgrade", "replacement"],
-                "decision_factors": ["comfort", "design", "brand trust"],
-                "objections": ["is it worth it", "does it actually help performance"],
+                "quick_audience": "urban runners",
+                "quick_context": "premium shoppers",
+                "quick_use_case": "marathon training",
                 "competitors": ["Nike", "Adidas"],
-                "gsc_rows": [
-                    {"query": "best running shoes for marathon training", "impressions": 300, "ctr": 2.0, "position": 9},
-                ],
             },
         )
         self.assertEqual(response.status_code, 200, response.text)
         payload = response.json()
-        self.assertEqual(payload["generated_prompt_count"], 50)
+        self.assertEqual(payload["generated_prompt_count"], 30)
         self.assertTrue(any(group["intent_stage"] == "comparison" for group in payload["intent_groups"]))
         self.assertTrue(any(group["intent_stage"] == "validation" for group in payload["intent_groups"]))
         self.assertTrue(any("Xpaan Fit vs Nike" in prompt["prompt_text"] for prompt in payload["prompts"]))
         self.assertTrue(any(prompt["ai_format_likely"] == "comparison" for prompt in payload["prompts"]))
+
+    def test_services_prompt_generator_returns_hiring_and_comparison_prompts(self) -> None:
+        ids = self.create_tracker_stack()
+
+        response = self.client.post(
+            f"/api/visibility/projects/{ids['project_id']}/prompt-generator",
+            json={
+                "project_type": "services",
+                "desired_prompt_count": 30,
+                "product_name": "Xpaan Advisory",
+                "category": "SEO consulting agency",
+                "quick_audience": "startup founders",
+                "quick_context": "B2B growth-stage companies",
+                "quick_use_case": "improve AI visibility",
+                "competitors": ["Profound", "Gauge"],
+            },
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertEqual(payload["generated_prompt_count"], 30)
+        self.assertTrue(any(group["intent_stage"] == "decision" for group in payload["intent_groups"]))
+        self.assertTrue(any("how to choose a seo consulting agency" in prompt["prompt_text"].lower() for prompt in payload["prompts"]))
+        self.assertTrue(any("Xpaan Advisory vs Profound" in prompt["prompt_text"] for prompt in payload["prompts"]))
+
+    def test_local_business_prompt_generator_returns_location_aware_prompts(self) -> None:
+        ids = self.create_tracker_stack()
+
+        response = self.client.post(
+            f"/api/visibility/projects/{ids['project_id']}/prompt-generator",
+            json={
+                "project_type": "local_business",
+                "desired_prompt_count": 30,
+                "product_name": "Oppositive Dental",
+                "category": "dental clinic",
+                "quick_audience": "families",
+                "quick_context": "Mumbai",
+                "quick_use_case": "teeth alignment",
+                "competitors": ["Smile Studio"],
+            },
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertEqual(payload["generated_prompt_count"], 30)
+        self.assertTrue(any(group["intent_stage"] == "discovery" for group in payload["intent_groups"]))
+        self.assertTrue(any("best dental clinic in Mumbai" in prompt["prompt_text"] for prompt in payload["prompts"]))
+        self.assertTrue(any("Oppositive Dental vs Smile Studio in Mumbai" in prompt["prompt_text"] for prompt in payload["prompts"]))
 
     def test_prompt_and_prompt_list_deletion_remove_snapshots(self) -> None:
         ids = self.create_tracker_stack()

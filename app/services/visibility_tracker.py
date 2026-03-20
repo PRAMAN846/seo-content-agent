@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import re
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
@@ -152,6 +153,14 @@ def _pad_candidates(
         if project_type == "b2b_saas"
         else ["for 2026", "for first-time buyers", "for daily use", "for comparison research", "before buying online", "for gifting"]
     )
+    secondary_modifiers = [
+        "with pricing in mind",
+        "for shortlist research",
+        "with strong reviews",
+        "before switching",
+        "for buyer validation",
+        "with comparison intent",
+    ]
     base_candidates = list(candidates) or [
         {
             "prompt_text": f"best {fallback_subject} options",
@@ -166,10 +175,12 @@ def _pad_candidates(
     while len(candidates) < target_count:
         template = base_candidates[(index - 1) % len(base_candidates)]
         modifier = next(modifier_cycle)
+        secondary = secondary_modifiers[((index - 1) // max(len(modifiers), 1)) % len(secondary_modifiers)]
+        suffix = modifier if index <= len(base_candidates) * len(modifiers) else f"{modifier} {secondary}"
         _append_candidate(
             candidates,
             seen,
-            prompt_text=f"{template['prompt_text']} {modifier}",
+            prompt_text=f"{template['prompt_text']} {suffix}",
             intent_stage=str(template["intent_stage"]),
             prompt_type=str(template["prompt_type"]),
             ai_format_likely=str(template["ai_format_likely"]),
@@ -178,17 +189,121 @@ def _pad_candidates(
         index += 1
 
 
+def _rebalance_prompt_candidates(
+    candidates: list[dict[str, object]],
+    *,
+    desired_count: int,
+    project_type: str,
+) -> list[dict[str, object]]:
+    if not candidates:
+        return []
+    ranked = sorted(candidates, key=lambda item: (int(item["priority_score"]), str(item["prompt_text"])), reverse=True)
+    preferred_non_comparison_stages = {"awareness", "consideration"} if project_type in {"b2b_saas", "services"} else {"discovery", "purchase", "validation"}
+    comparison_target = max(1, round(desired_count * 0.4))
+    non_comparison_target = max(1, desired_count - comparison_target)
+
+    comparison_pool = [item for item in ranked if str(item["prompt_type"]) == "comparison"]
+    primary_pool = [
+        item for item in ranked
+        if str(item["prompt_type"]) != "comparison" and str(item["intent_stage"]) in preferred_non_comparison_stages
+    ]
+    secondary_pool = [
+        item for item in ranked
+        if str(item["prompt_type"]) != "comparison" and str(item["intent_stage"]) not in preferred_non_comparison_stages
+    ]
+
+    selected: list[dict[str, object]] = []
+    seen = set()
+
+    def take_from(pool: list[dict[str, object]], limit: int) -> None:
+        for item in pool:
+            if len(selected) >= desired_count:
+                return
+            key = str(item["prompt_text"]).lower()
+            if key in seen:
+                continue
+            if limit <= 0:
+                return
+            seen.add(key)
+            selected.append(item)
+            limit -= 1
+
+    take_from(primary_pool, non_comparison_target)
+    take_from(comparison_pool, comparison_target)
+    take_from(primary_pool, desired_count - len(selected))
+    take_from(secondary_pool, desired_count - len(selected))
+    take_from(comparison_pool, desired_count - len(selected))
+    take_from(ranked, desired_count - len(selected))
+    return selected[:desired_count]
+
+
+def _polish_generated_prompt_texts(
+    prompts: list[dict[str, object]],
+    *,
+    project_type: str,
+    project_name: str,
+) -> list[dict[str, object]]:
+    if not prompts or not llm_client.enabled:
+        return prompts
+    prompt_payload = [
+        {
+            "id": f"draft-{index + 1}",
+            "prompt_text": str(item["prompt_text"]),
+            "intent_stage": str(item["intent_stage"]),
+            "prompt_type": str(item["prompt_type"]),
+        }
+        for index, item in enumerate(prompts)
+    ]
+    instruction = (
+        "You improve prompt phrasing for an AI visibility tracker.\n"
+        "Rewrite prompts to sound natural, high-intent, and non-repetitive.\n"
+        "Keep each prompt focused and realistic for a user to ask in ChatGPT.\n"
+        "Do not change intent_stage or prompt_type. Do not add or remove prompts.\n"
+        "Return strict JSON with shape {\"prompts\":[{\"id\":\"...\",\"prompt_text\":\"...\"}]} only."
+    )
+    input_text = json.dumps(
+        {
+            "project_type": project_type,
+            "project_name": project_name,
+            "prompts": prompt_payload,
+        },
+        ensure_ascii=True,
+    )
+    try:
+        parsed = llm_client.complete_json(
+            model="gpt-5-mini",
+            instruction=instruction,
+            input_text=input_text,
+        )
+    except Exception:
+        return prompts
+
+    rewritten = {
+        str(item.get("id")): str(item.get("prompt_text", "")).strip()
+        for item in parsed.get("prompts", [])
+        if str(item.get("id", "")).strip() and str(item.get("prompt_text", "")).strip()
+    }
+    polished: list[dict[str, object]] = []
+    for index, item in enumerate(prompts):
+        revised = rewritten.get(f"draft-{index + 1}")
+        if revised:
+            polished.append({**item, "prompt_text": revised})
+        else:
+            polished.append(item)
+    return polished
+
+
 def _generate_b2b_prompt_candidates(project: VisibilityProjectRecord, payload: VisibilityPromptGeneratorRequest) -> list[dict[str, object]]:
     product_name = payload.product_name.strip() or project.brand_name.strip() or "this software"
     category = payload.category.strip() or "software"
     pricing_tier = _humanize_token(payload.pricing_tier.strip() or "mid")
     target_market = payload.target_market_custom.strip() if payload.target_market == "custom" else _humanize_token(payload.target_market.strip() or "global")
-    role = payload.role.strip() or "team leads"
+    role = payload.quick_audience.strip() or payload.role.strip() or "team leads"
     company_size = payload.company_size.strip() or "11-50"
-    industry = payload.industry.strip() or "modern businesses"
+    industry = payload.quick_context.strip() or payload.industry.strip() or "modern businesses"
     awareness = _humanize_token(payload.awareness_level.strip() or "solution_aware")
-    pain_points = _clean_list(payload.pain_points) or [f"evaluating the right {category}", f"improving {category} workflows", f"reducing manual work in {category}"]
-    desired_outcomes = _clean_list(payload.desired_outcomes) or ["faster team execution", "better reporting visibility", "stronger ROI from tooling"]
+    pain_points = _clean_list(payload.pain_points) or _clean_list([payload.quick_use_case]) or [f"evaluating the right {category}", f"improving {category} workflows", f"reducing manual work in {category}"]
+    desired_outcomes = _clean_list(payload.desired_outcomes) or _clean_list([payload.quick_use_case]) or ["faster team execution", "better reporting visibility", "stronger ROI from tooling"]
     fears = _clean_list(payload.fears_objections) or ["slow adoption", "switching effort", "unclear ROI"]
     triggers = _clean_list(payload.buying_triggers) or ["team growth", "process complexity", "cost pressure"]
     competitors = _clean_list(payload.competitors) or _clean_list([item.name for item in project.competitors])
@@ -203,22 +318,22 @@ def _generate_b2b_prompt_candidates(project: VisibilityProjectRecord, payload: V
         _append_candidate(candidates, seen, prompt_text=f"signs your team needs better {category} for {pain}", intent_stage="awareness", prompt_type="problem-solving", ai_format_likely="list", priority_score=84)
         _append_candidate(candidates, seen, prompt_text=f"best ways to solve {pain} for {role}s in {target_market}", intent_stage="consideration", prompt_type="use-case", ai_format_likely="list", priority_score=91)
         _append_candidate(candidates, seen, prompt_text=f"tools for {pain} for {role}s at {company_size} {industry} companies", intent_stage="consideration", prompt_type="use-case", ai_format_likely="list", priority_score=95)
-        _append_candidate(candidates, seen, prompt_text=f"how to choose {category} for {pain} without overbuying", intent_stage="decision", prompt_type="decision-validation", ai_format_likely="explanation", priority_score=88)
+        _append_candidate(candidates, seen, prompt_text=f"how to choose {category} for {pain} without overbuying", intent_stage="consideration", prompt_type="decision-validation", ai_format_likely="explanation", priority_score=88)
 
     for outcome in desired_outcomes[:5]:
         _append_candidate(candidates, seen, prompt_text=f"best {category} for {role}s who want {outcome}", intent_stage="consideration", prompt_type="use-case", ai_format_likely="list", priority_score=93)
-        _append_candidate(candidates, seen, prompt_text=f"how to evaluate {category} for {outcome} at {company_size} companies", intent_stage="decision", prompt_type="decision-validation", ai_format_likely="explanation", priority_score=86)
-        _append_candidate(candidates, seen, prompt_text=f"is {category} worth it for {role}s focused on {outcome}", intent_stage="decision", prompt_type="decision-validation", ai_format_likely="explanation", priority_score=84)
+        _append_candidate(candidates, seen, prompt_text=f"how to evaluate {category} for {outcome} at {company_size} companies", intent_stage="consideration", prompt_type="decision-validation", ai_format_likely="explanation", priority_score=86)
+        _append_candidate(candidates, seen, prompt_text=f"is {category} worth it for {role}s focused on {outcome}", intent_stage="consideration", prompt_type="decision-validation", ai_format_likely="explanation", priority_score=84)
         _append_candidate(candidates, seen, prompt_text=f"how teams get ROI from {category} after buying for {outcome}", intent_stage="post-decision", prompt_type="use-case", ai_format_likely="explanation", priority_score=74)
 
     for fear in fears[:5]:
-        _append_candidate(candidates, seen, prompt_text=f"why do {role}s hesitate to buy {category} because of {fear}", intent_stage="decision", prompt_type="objection", ai_format_likely="explanation", priority_score=89)
-        _append_candidate(candidates, seen, prompt_text=f"common objections to {category} tools for {industry} teams", intent_stage="decision", prompt_type="objection", ai_format_likely="list", priority_score=83)
+        _append_candidate(candidates, seen, prompt_text=f"why do {role}s hesitate to buy {category} because of {fear}", intent_stage="consideration", prompt_type="objection", ai_format_likely="explanation", priority_score=89)
+        _append_candidate(candidates, seen, prompt_text=f"common objections to {category} tools for {industry} teams", intent_stage="consideration", prompt_type="objection", ai_format_likely="list", priority_score=83)
         _append_candidate(candidates, seen, prompt_text=f"how to reduce {fear} when switching to a new {category}", intent_stage="post-decision", prompt_type="objection", ai_format_likely="explanation", priority_score=76)
 
     for trigger in triggers[:5]:
         _append_candidate(candidates, seen, prompt_text=f"best {category} when {trigger} starts affecting {industry} teams", intent_stage="consideration", prompt_type="trigger-based", ai_format_likely="list", priority_score=92)
-        _append_candidate(candidates, seen, prompt_text=f"what should a {role} evaluate in {category} when {trigger} happens", intent_stage="decision", prompt_type="trigger-based", ai_format_likely="list", priority_score=87)
+        _append_candidate(candidates, seen, prompt_text=f"what should a {role} evaluate in {category} when {trigger} happens", intent_stage="consideration", prompt_type="trigger-based", ai_format_likely="list", priority_score=87)
         _append_candidate(candidates, seen, prompt_text=f"how to roll out {category} after {trigger}", intent_stage="post-decision", prompt_type="trigger-based", ai_format_likely="explanation", priority_score=72)
 
     for competitor in competitors[:8]:
@@ -229,8 +344,8 @@ def _generate_b2b_prompt_candidates(project: VisibilityProjectRecord, payload: V
     for query in gsc_queries:
         _append_candidate(candidates, seen, prompt_text=f"{query} alternatives for {role}s", intent_stage="consideration", prompt_type="comparison", ai_format_likely="list", priority_score=90)
         _append_candidate(candidates, seen, prompt_text=f"{query} vs {product_name}", intent_stage="decision", prompt_type="comparison", ai_format_likely="comparison", priority_score=94)
-        _append_candidate(candidates, seen, prompt_text=f"is {query} worth it for {company_size} companies", intent_stage="decision", prompt_type="decision-validation", ai_format_likely="explanation", priority_score=85)
-        _append_candidate(candidates, seen, prompt_text=f"common objections buyers have before choosing {query}", intent_stage="decision", prompt_type="objection", ai_format_likely="list", priority_score=82)
+        _append_candidate(candidates, seen, prompt_text=f"is {query} worth it for {company_size} companies", intent_stage="consideration", prompt_type="decision-validation", ai_format_likely="explanation", priority_score=85)
+        _append_candidate(candidates, seen, prompt_text=f"common objections buyers have before choosing {query}", intent_stage="consideration", prompt_type="objection", ai_format_likely="list", priority_score=82)
 
     _append_candidate(candidates, seen, prompt_text=f"best {pricing_tier} {category} for {role}s in {target_market}", intent_stage="consideration", prompt_type="price-based", ai_format_likely="list", priority_score=81)
     _append_candidate(candidates, seen, prompt_text=f"how to shortlist {category} vendors for {role}s who are {awareness}", intent_stage="consideration", prompt_type="decision-validation", ai_format_likely="list", priority_score=79)
@@ -246,12 +361,12 @@ def _generate_ecommerce_prompt_candidates(project: VisibilityProjectRecord, payl
     category = payload.category.strip() or "product"
     price_range = _humanize_token(payload.price_range.strip() or "mid_range")
     brand_positioning = _humanize_token(payload.brand_positioning.strip() or "premium")
-    audience = payload.target_audience_custom.strip() if payload.target_audience == "custom" else _humanize_token(payload.target_audience.strip() or "unisex")
+    audience = payload.quick_audience.strip() or (payload.target_audience_custom.strip() if payload.target_audience == "custom" else _humanize_token(payload.target_audience.strip() or "unisex"))
     age_group = payload.age_group.strip()
-    use_case = payload.use_case_custom.strip() if payload.use_case == "custom" else _humanize_token(payload.use_case.strip() or "daily_use")
+    use_case = payload.quick_use_case.strip() or (payload.use_case_custom.strip() if payload.use_case == "custom" else _humanize_token(payload.use_case.strip() or "daily_use"))
     awareness = _humanize_token(payload.awareness_level.strip() or "exploring")
-    triggers = _clean_list(payload.intent_triggers) or ["problem solving", "upgrade", "replacement"]
-    factors = _clean_list(payload.decision_factors) or ["quality", "brand trust", "features"]
+    triggers = _clean_list(payload.intent_triggers) or _clean_list([payload.quick_context]) or ["problem solving", "upgrade", "replacement"]
+    factors = _clean_list(payload.decision_factors) or _clean_list([payload.quick_context]) or ["quality", "brand trust", "features"]
     objections = _clean_list(payload.objections) or ["is it worth it", "does it work", "will it suit me"]
     competitors = _clean_list(payload.competitors) or _clean_list([item.name for item in project.competitors])
     gsc_queries = _gsc_focus_queries(payload.gsc_rows)
@@ -302,6 +417,69 @@ def _generate_ecommerce_prompt_candidates(project: VisibilityProjectRecord, payl
     return candidates
 
 
+def _generate_services_prompt_candidates(project: VisibilityProjectRecord, payload: VisibilityPromptGeneratorRequest) -> list[dict[str, object]]:
+    product_name = payload.product_name.strip() or project.brand_name.strip() or "this service"
+    category = payload.category.strip() or "service provider"
+    audience = payload.quick_audience.strip() or "buyers"
+    context = payload.quick_context.strip() or "growing businesses"
+    use_case = payload.quick_use_case.strip() or f"choosing the right {category}"
+    competitors = _clean_list(payload.competitors) or _clean_list([item.name for item in project.competitors])
+    gsc_queries = _gsc_focus_queries(payload.gsc_rows)
+
+    candidates: list[dict[str, object]] = []
+    seen: set[str] = set()
+
+    _append_candidate(candidates, seen, prompt_text=f"best {category} for {audience} who need {use_case}", intent_stage="awareness", prompt_type="use-case", ai_format_likely="list", priority_score=95)
+    _append_candidate(candidates, seen, prompt_text=f"how to choose a {category} for {use_case}", intent_stage="consideration", prompt_type="decision-validation", ai_format_likely="list", priority_score=91)
+    _append_candidate(candidates, seen, prompt_text=f"what should {audience} ask before hiring a {category}", intent_stage="decision", prompt_type="decision-validation", ai_format_likely="list", priority_score=88)
+    _append_candidate(candidates, seen, prompt_text=f"signs you need a better {category} partner for {use_case}", intent_stage="awareness", prompt_type="problem-solving", ai_format_likely="list", priority_score=86)
+    _append_candidate(candidates, seen, prompt_text=f"common mistakes when hiring a {category} for {context}", intent_stage="decision", prompt_type="objection", ai_format_likely="explanation", priority_score=82)
+    _append_candidate(candidates, seen, prompt_text=f"what outcomes should you expect after hiring a {category} for {use_case}", intent_stage="post-decision", prompt_type="use-case", ai_format_likely="explanation", priority_score=78)
+
+    for competitor in competitors[:8]:
+        _append_candidate(candidates, seen, prompt_text=f"{product_name} vs {competitor} for {use_case}", intent_stage="decision", prompt_type="comparison", ai_format_likely="comparison", priority_score=98)
+        _append_candidate(candidates, seen, prompt_text=f"alternatives to {competitor} for {audience}", intent_stage="consideration", prompt_type="comparison", ai_format_likely="list", priority_score=94)
+        _append_candidate(candidates, seen, prompt_text=f"is {product_name} better than {competitor} for {context}", intent_stage="decision", prompt_type="comparison", ai_format_likely="comparison", priority_score=92)
+
+    for query in gsc_queries:
+        _append_candidate(candidates, seen, prompt_text=f"{query} alternatives", intent_stage="consideration", prompt_type="comparison", ai_format_likely="list", priority_score=90)
+        _append_candidate(candidates, seen, prompt_text=f"{query} for {audience}", intent_stage="awareness", prompt_type="use-case", ai_format_likely="list", priority_score=86)
+
+    _pad_candidates(candidates, seen, target_count=payload.desired_prompt_count, project_type="b2b_saas", fallback_subject=category)
+    return candidates
+
+
+def _generate_local_business_prompt_candidates(project: VisibilityProjectRecord, payload: VisibilityPromptGeneratorRequest) -> list[dict[str, object]]:
+    product_name = payload.product_name.strip() or project.brand_name.strip() or "this business"
+    category = payload.category.strip() or "local business"
+    audience = payload.quick_audience.strip() or "local customers"
+    location = payload.quick_context.strip() or "your area"
+    use_case = payload.quick_use_case.strip() or f"finding the right {category}"
+    competitors = _clean_list(payload.competitors) or _clean_list([item.name for item in project.competitors])
+    gsc_queries = _gsc_focus_queries(payload.gsc_rows)
+
+    candidates: list[dict[str, object]] = []
+    seen: set[str] = set()
+
+    _append_candidate(candidates, seen, prompt_text=f"best {category} in {location} for {use_case}", intent_stage="discovery", prompt_type="use-case", ai_format_likely="list", priority_score=97)
+    _append_candidate(candidates, seen, prompt_text=f"top-rated {category} in {location}", intent_stage="discovery", prompt_type="use-case", ai_format_likely="list", priority_score=92)
+    _append_candidate(candidates, seen, prompt_text=f"how to choose a {category} in {location} for {audience}", intent_stage="decision", prompt_type="decision-validation", ai_format_likely="list", priority_score=89)
+    _append_candidate(candidates, seen, prompt_text=f"affordable {category} in {location} for {use_case}", intent_stage="comparison", prompt_type="price-based", ai_format_likely="list", priority_score=87)
+    _append_candidate(candidates, seen, prompt_text=f"is {product_name} good for {use_case} in {location}", intent_stage="validation", prompt_type="objection", ai_format_likely="explanation", priority_score=86)
+    _append_candidate(candidates, seen, prompt_text=f"what should you ask before booking a {category} in {location}", intent_stage="decision", prompt_type="decision-validation", ai_format_likely="list", priority_score=84)
+
+    for competitor in competitors[:8]:
+        _append_candidate(candidates, seen, prompt_text=f"{product_name} vs {competitor} in {location}", intent_stage="comparison", prompt_type="comparison", ai_format_likely="comparison", priority_score=96)
+        _append_candidate(candidates, seen, prompt_text=f"alternatives to {competitor} in {location}", intent_stage="comparison", prompt_type="comparison", ai_format_likely="list", priority_score=90)
+
+    for query in gsc_queries:
+        _append_candidate(candidates, seen, prompt_text=f"{query} near {location}", intent_stage="discovery", prompt_type="use-case", ai_format_likely="list", priority_score=88)
+        _append_candidate(candidates, seen, prompt_text=f"is {query} worth it in {location}", intent_stage="validation", prompt_type="decision-validation", ai_format_likely="explanation", priority_score=82)
+
+    _pad_candidates(candidates, seen, target_count=payload.desired_prompt_count, project_type="ecommerce", fallback_subject=category)
+    return candidates
+
+
 def generate_visibility_prompt_suggestions(
     user_id: str,
     *,
@@ -315,12 +493,26 @@ def generate_visibility_prompt_suggestions(
     if payload.project_type == "b2b_saas":
         candidates = _generate_b2b_prompt_candidates(project, payload)
         stage_order = ["awareness", "consideration", "decision", "post-decision"]
-    else:
+    elif payload.project_type == "ecommerce":
         candidates = _generate_ecommerce_prompt_candidates(project, payload)
         stage_order = ["discovery", "comparison", "purchase", "validation"]
+    elif payload.project_type == "services":
+        candidates = _generate_services_prompt_candidates(project, payload)
+        stage_order = ["awareness", "consideration", "decision", "post-decision"]
+    else:
+        candidates = _generate_local_business_prompt_candidates(project, payload)
+        stage_order = ["discovery", "comparison", "decision", "validation"]
 
-    candidates.sort(key=lambda item: (int(item["priority_score"]), str(item["prompt_text"])), reverse=True)
-    trimmed = candidates[: payload.desired_prompt_count]
+    trimmed = _rebalance_prompt_candidates(
+        candidates,
+        desired_count=payload.desired_prompt_count,
+        project_type=payload.project_type,
+    )
+    trimmed = _polish_generated_prompt_texts(
+        trimmed,
+        project_type=payload.project_type,
+        project_name=project.brand_name or project.name,
+    )
     prompts = [
         VisibilityGeneratedPrompt(
             id=f"generated-{index + 1}",

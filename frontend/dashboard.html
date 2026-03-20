@@ -417,6 +417,28 @@
         gap: 12px;
       }
 
+      .label-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .label-help {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        border: 1px solid #cfd9ea;
+        background: #f4f8ff;
+        color: #4f5f78;
+        font-size: 11px;
+        font-weight: 800;
+        cursor: help;
+        user-select: none;
+      }
+
       .wide {
         grid-column: 1 / -1;
       }
@@ -1598,11 +1620,30 @@
         gap: 10px;
       }
 
+      .generated-prompt-card.selected {
+        border-color: #9ab7ff;
+        background: linear-gradient(180deg, #ffffff, #f3f7ff);
+        box-shadow: 0 10px 24px rgba(37, 88, 225, 0.08);
+      }
+
       .generated-prompt-head {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
         gap: 12px;
+      }
+
+      .generated-prompt-selector {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        flex: 1;
+      }
+
+      .generated-prompt-selector input {
+        width: 16px;
+        height: 16px;
+        margin-top: 4px;
       }
 
       .generated-prompt-text {
@@ -1616,6 +1657,90 @@
         align-items: center;
         gap: 8px;
         flex-wrap: wrap;
+      }
+
+      .generator-results-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        margin-bottom: 18px;
+      }
+
+      .generator-selection-meta {
+        font-size: 13px;
+        color: #60718a;
+        font-weight: 700;
+      }
+
+      .generator-mode-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #f8fbff;
+        padding: 4px;
+      }
+
+      .generator-mode-btn {
+        border: 0;
+        background: transparent;
+        color: #5f6f86;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+
+      .generator-mode-btn.active {
+        background: #111927;
+        color: #ffffff;
+      }
+
+      .split-button {
+        position: relative;
+        display: inline-flex;
+        align-items: stretch;
+      }
+
+      .split-button-main {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      .split-button-toggle {
+        min-width: 42px;
+        padding-inline: 12px;
+        border-left: 0;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+
+      .split-button-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        min-width: 168px;
+        padding: 8px;
+        border: 1px solid #d8e2f2;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 18px 40px rgba(15, 23, 40, 0.12);
+        display: grid;
+        gap: 6px;
+        z-index: 30;
+      }
+
+      .split-button-menu.hidden-mode {
+        display: none;
+      }
+
+      .split-button-menu .btn {
+        width: 100%;
+        justify-content: flex-start;
       }
 
       .prompt-tag {
@@ -2804,6 +2929,72 @@ What AI visibility tracking tools are cited most often?"></textarea>
                   </div>
                 </div>
               </div>
+
+              <div id="visibilityGeneratedSaveModal" class="modal-backdrop hidden-mode">
+                <div class="modal-card">
+                  <div class="modal-head">
+                    <div>
+                      <h2>Save Generated Prompts</h2>
+                      <p id="visibilityGeneratedSaveMeta" class="desc">Choose where the selected generated prompts should be stored in your tracker.</p>
+                    </div>
+                    <button id="closeVisibilityGeneratedSaveModalBtn" class="btn" type="button">Close</button>
+                  </div>
+                  <div class="tracker-block stack">
+                    <div class="generator-mode-toggle" role="tablist" aria-label="Save generated prompts">
+                      <button id="visibilityGeneratedSaveModeExistingBtn" class="generator-mode-btn active" type="button">Existing List</button>
+                      <button id="visibilityGeneratedSaveModeNewBtn" class="generator-mode-btn" type="button">New Prompt List</button>
+                    </div>
+
+                    <div class="field-grid">
+                      <div>
+                        <label for="visibilityGeneratedSaveTopicSelect">Topic</label>
+                        <select id="visibilityGeneratedSaveTopicSelect"></select>
+                      </div>
+                      <div>
+                        <label for="visibilityGeneratedSaveSubtopicSelect">Subtopic</label>
+                        <select id="visibilityGeneratedSaveSubtopicSelect"></select>
+                      </div>
+                    </div>
+
+                    <div id="visibilityGeneratedSaveExistingFields" class="field-grid">
+                      <div class="field-span-2">
+                        <label for="visibilityGeneratedSavePromptListSelect">Prompt List</label>
+                        <select id="visibilityGeneratedSavePromptListSelect"></select>
+                      </div>
+                    </div>
+
+                    <div id="visibilityGeneratedSaveNewFields" class="field-grid hidden-mode">
+                      <div id="visibilityGeneratedSaveNewTopicField" class="field-span-2 hidden-mode">
+                        <label for="visibilityGeneratedSaveNewTopicName">New Topic Name</label>
+                        <input id="visibilityGeneratedSaveNewTopicName" placeholder="AI visibility categories" />
+                      </div>
+                      <div id="visibilityGeneratedSaveNewSubtopicField" class="field-span-2 hidden-mode">
+                        <label for="visibilityGeneratedSaveNewSubtopicName">New Subtopic Name</label>
+                        <input id="visibilityGeneratedSaveNewSubtopicName" placeholder="Comparison prompts" />
+                      </div>
+                      <div class="field-span-2">
+                        <label for="visibilityGeneratedSavePromptListName">Prompt List Name</label>
+                        <input id="visibilityGeneratedSavePromptListName" placeholder="Prompt list name" />
+                      </div>
+                      <div>
+                        <label for="visibilityGeneratedSavePromptListSchedule">List Schedule</label>
+                        <select id="visibilityGeneratedSavePromptListSchedule">
+                          <option value="disabled">Manual only</option>
+                          <option value="weekly">Weekly</option>
+                          <option value="twice_monthly">Twice Monthly</option>
+                          <option value="monthly">Monthly</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="row-actions">
+                      <button id="cancelVisibilityGeneratedSaveBtn" class="btn" type="button">Cancel</button>
+                      <button id="saveVisibilityGeneratedPromptsBtn" class="btn primary" type="button">Save Selected Prompts</button>
+                    </div>
+                    <p id="visibilityGeneratedSaveMsg" class="helper"></p>
+                  </div>
+                </div>
+              </div>
             </section>
 
             <section id="visibilityGeneratorPanel" class="visibility-panel">
@@ -2811,12 +3002,11 @@ What AI visibility tracking tools are cited most often?"></textarea>
                 <div class="visibility-toolbar">
                   <div>
                     <h2>Prompt Generator</h2>
-                    <p class="desc">Generate structured AI-native prompts for B2B or ecommerce projects and group them by buying intent.</p>
+                    <p class="desc">Quickly generate AI-native prompts for B2B, ecommerce, services, or local businesses without filling a long strategy form.</p>
                   </div>
                   <div class="visibility-toolbar-actions">
                     <button id="visibilityGeneratePromptsBtn" class="btn primary" type="button">Generate Prompts</button>
                     <button id="visibilityResetPromptGeneratorBtn" class="btn" type="button">Reset</button>
-                    <button id="visibilityCopyAllGeneratedPromptsBtn" class="btn" type="button" disabled>Copy All</button>
                   </div>
                 </div>
 
@@ -2838,16 +3028,41 @@ What AI visibility tracking tools are cited most often?"></textarea>
                 <div class="generator-grid">
                   <div class="generator-column">
                     <div class="tracker-block">
-                      <h3>Generator Setup</h3>
-                      <p class="desc">Choose the business model, set volume, and fill structured inputs. We generate deterministic prompts rather than generic AI guesses.</p>
+                      <h3>Quick Generate</h3>
+                      <p id="visibilityGeneratorQuickHelper" class="desc">Choose the business model, add a few key details, and generate a usable prompt set fast.</p>
                       <div class="generator-segment">
                         <button id="visibilityGeneratorTypeB2B" class="segmented-btn active" type="button" data-generator-type="b2b_saas">B2B / SaaS</button>
-                        <button id="visibilityGeneratorTypeEcommerce" class="segmented-btn" type="button" data-generator-type="ecommerce">Ecommerce</button>
+                        <button id="visibilityGeneratorTypeEcommerce" class="segmented-btn" type="button" data-generator-type="ecommerce">Ecommerce / D2C</button>
+                        <button id="visibilityGeneratorTypeServices" class="segmented-btn" type="button" data-generator-type="services">Services</button>
+                        <button id="visibilityGeneratorTypeLocal" class="segmented-btn" type="button" data-generator-type="local_business">Local Business</button>
                       </div>
                       <div class="field-grid" style="margin-top: 14px;">
                         <div>
                           <label for="visibilityGeneratorPromptCount">How many prompts?</label>
-                          <input id="visibilityGeneratorPromptCount" type="number" min="50" max="150" value="80" />
+                          <input id="visibilityGeneratorPromptCount" type="number" min="5" max="50" value="20" />
+                        </div>
+                        <div>
+                          <label for="visibilityGeneratorQuickName">Brand / Product Name</label>
+                          <input id="visibilityGeneratorQuickName" placeholder="Search Growth Circle" />
+                        </div>
+                        <div>
+                          <label for="visibilityGeneratorQuickCategory">Category</label>
+                          <input id="visibilityGeneratorQuickCategory" placeholder="AI visibility tracking" />
+                        </div>
+                        <div>
+                          <label id="visibilityGeneratorQuickAudienceLabel" for="visibilityGeneratorQuickAudience">ICP Role</label>
+                          <input id="visibilityGeneratorQuickAudience" placeholder="Marketing Head" />
+                        </div>
+                        <div>
+                          <label id="visibilityGeneratorQuickContextLabel" for="visibilityGeneratorQuickContext">Industry</label>
+                          <input id="visibilityGeneratorQuickContext" placeholder="SaaS" />
+                        </div>
+                        <div class="field-span-2">
+                          <label id="visibilityGeneratorQuickUseCaseLabel" class="label-inline" for="visibilityGeneratorQuickUseCase">
+                            <span>Buyer Goal / Use Case</span>
+                            <span id="visibilityGeneratorQuickUseCaseHelp" class="label-help" title="Describe what the customer is trying to achieve or find. Example: improve AI visibility, marathon training, hire an SEO agency, find a trusted dentist nearby.">i</span>
+                          </label>
+                          <input id="visibilityGeneratorQuickUseCase" placeholder="Track AI mentions and cited domains" />
                         </div>
                         <div>
                           <label for="visibilityGeneratorCompetitors">Competitors</label>
@@ -2855,228 +3070,28 @@ What AI visibility tracking tools are cited most often?"></textarea>
                         </div>
                       </div>
                     </div>
-
-                    <div id="visibilityGeneratorB2BFields" class="generator-form-stack">
-                      <div class="tracker-block">
-                        <h3>Business Context</h3>
-                        <div class="field-grid">
-                          <div>
-                            <label for="visibilityGeneratorB2BProductName">Product / Service Name</label>
-                            <input id="visibilityGeneratorB2BProductName" placeholder="Oppositive" />
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorB2BCategory">Category</label>
-                            <input id="visibilityGeneratorB2BCategory" placeholder="AI visibility tracking" />
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorB2BPricingTier">Pricing Tier</label>
-                            <select id="visibilityGeneratorB2BPricingTier">
-                              <option value="low">Low</option>
-                              <option value="mid" selected>Mid</option>
-                              <option value="premium">Premium</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorB2BTargetMarket">Target Market</label>
-                            <select id="visibilityGeneratorB2BTargetMarket">
-                              <option value="india">India</option>
-                              <option value="global" selected>Global</option>
-                              <option value="custom">Custom</option>
-                            </select>
-                          </div>
-                          <div class="field-span-2">
-                            <label for="visibilityGeneratorB2BTargetMarketCustom">Custom Market</label>
-                            <input id="visibilityGeneratorB2BTargetMarketCustom" placeholder="Southeast Asia, GCC, etc." />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="tracker-block">
-                        <h3>ICP</h3>
-                        <div class="field-grid">
-                          <div>
-                            <label for="visibilityGeneratorB2BRole">Role</label>
-                            <input id="visibilityGeneratorB2BRole" placeholder="Marketing Head" />
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorB2BCompanySize">Company Size</label>
-                            <select id="visibilityGeneratorB2BCompanySize">
-                              <option value="1-10">1–10</option>
-                              <option value="11-50" selected>11–50</option>
-                              <option value="51-200">51–200</option>
-                              <option value="200+">200+</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorB2BIndustry">Industry</label>
-                            <input id="visibilityGeneratorB2BIndustry" placeholder="SaaS" />
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorB2BAwareness">Awareness Level</label>
-                            <select id="visibilityGeneratorB2BAwareness">
-                              <option value="unaware">Unaware</option>
-                              <option value="problem_aware">Problem Aware</option>
-                              <option value="solution_aware" selected>Solution Aware</option>
-                              <option value="comparing">Comparing</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="tracker-block">
-                        <h3>Problem Layer</h3>
-                        <div class="field-grid">
-                          <div>
-                            <label for="visibilityGeneratorB2BPainPoints">Pain Points</label>
-                            <textarea id="visibilityGeneratorB2BPainPoints" placeholder="One per line"></textarea>
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorB2BDesiredOutcomes">Desired Outcomes</label>
-                            <textarea id="visibilityGeneratorB2BDesiredOutcomes" placeholder="One per line"></textarea>
-                          </div>
-                          <div class="field-span-2">
-                            <label for="visibilityGeneratorB2BFears">Fears / Objections</label>
-                            <textarea id="visibilityGeneratorB2BFears" placeholder="One per line"></textarea>
-                          </div>
-                        </div>
-                      </div>
-
-                    <div class="tracker-block">
-                      <h3>Buying Triggers + Optional GSC Data</h3>
-                      <div class="field-grid">
-                          <div>
-                            <label for="visibilityGeneratorB2BTriggers">Buying Triggers</label>
-                            <textarea id="visibilityGeneratorB2BTriggers" placeholder="One per line"></textarea>
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorB2BGsc">GSC Rows</label>
-                            <textarea id="visibilityGeneratorB2BGsc" placeholder="query, impressions, ctr, position"></textarea>
-                          </div>
-                      </div>
-                    </div>
-                    </div>
-
-                    <div id="visibilityGeneratorEcommerceFields" class="generator-form-stack" style="display: none;">
-                      <div class="tracker-block">
-                        <h3>Product Context</h3>
-                        <div class="field-grid">
-                          <div>
-                            <label for="visibilityGeneratorEcomProductName">Product Name / Category</label>
-                            <input id="visibilityGeneratorEcomProductName" placeholder="Oppositive visibility tracker" />
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorEcomCategory">Category</label>
-                            <input id="visibilityGeneratorEcomCategory" placeholder="Running shoes" />
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorEcomPriceRange">Price Range</label>
-                            <select id="visibilityGeneratorEcomPriceRange">
-                              <option value="budget">Budget</option>
-                              <option value="mid_range" selected>Mid-range</option>
-                              <option value="premium">Premium</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorEcomBrandPositioning">Brand Positioning</label>
-                            <select id="visibilityGeneratorEcomBrandPositioning">
-                              <option value="budget">Budget</option>
-                              <option value="premium" selected>Premium</option>
-                              <option value="niche">Niche</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="tracker-block">
-                        <h3>Buyer Context</h3>
-                        <div class="field-grid">
-                          <div>
-                            <label for="visibilityGeneratorEcomTargetAudience">Target Audience</label>
-                            <select id="visibilityGeneratorEcomTargetAudience">
-                              <option value="men">Men</option>
-                              <option value="women">Women</option>
-                              <option value="unisex" selected>Unisex</option>
-                              <option value="custom">Custom</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorEcomTargetAudienceCustom">Custom Audience</label>
-                            <input id="visibilityGeneratorEcomTargetAudienceCustom" placeholder="Teen athletes, new mothers, etc." />
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorEcomAgeGroup">Age Group</label>
-                            <input id="visibilityGeneratorEcomAgeGroup" placeholder="25-34" />
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorEcomUseCase">Use Case</label>
-                            <select id="visibilityGeneratorEcomUseCase">
-                              <option value="daily_use">Daily use</option>
-                              <option value="occasion">Occasion</option>
-                              <option value="gifting">Gifting</option>
-                              <option value="professional">Professional</option>
-                              <option value="custom">Custom</option>
-                            </select>
-                          </div>
-                          <div class="field-span-2">
-                            <label for="visibilityGeneratorEcomUseCaseCustom">Custom Use Case</label>
-                            <input id="visibilityGeneratorEcomUseCaseCustom" placeholder="Marathon training, wedding gifting, etc." />
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorEcomAwareness">Awareness Level</label>
-                            <select id="visibilityGeneratorEcomAwareness">
-                              <option value="exploring">Exploring</option>
-                              <option value="comparing" selected>Comparing</option>
-                              <option value="ready_to_buy">Ready to buy</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="tracker-block">
-                        <h3>Intent Triggers + Decision Factors</h3>
-                        <div class="field-grid">
-                          <div>
-                            <label for="visibilityGeneratorEcomIntentTriggers">Intent Triggers</label>
-                            <textarea id="visibilityGeneratorEcomIntentTriggers" placeholder="One per line"></textarea>
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorEcomDecisionFactors">Decision Factors</label>
-                            <textarea id="visibilityGeneratorEcomDecisionFactors" placeholder="One per line"></textarea>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="tracker-block">
-                        <h3>Objections + Optional GSC Data</h3>
-                        <div class="field-grid">
-                          <div>
-                            <label for="visibilityGeneratorEcomObjections">Objections</label>
-                            <textarea id="visibilityGeneratorEcomObjections" placeholder="One per line"></textarea>
-                          </div>
-                          <div>
-                            <label for="visibilityGeneratorEcomGsc">GSC Rows</label>
-                            <textarea id="visibilityGeneratorEcomGsc" placeholder="query, impressions, ctr, position"></textarea>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="tracker-block">
-                      <h3>Google Search Console CSV</h3>
-                      <p class="desc">Upload a Search Console query export to expand high-impression, low-CTR, and mid-ranking queries into prompt ideas.</p>
-                      <div class="row-actions" style="margin-top: 0;">
-                        <input id="visibilityGeneratorGscFile" type="file" accept=".csv,text/csv" />
-                        <button id="visibilityClearGeneratorGscBtn" class="btn" type="button">Clear Upload</button>
-                      </div>
-                      <p id="visibilityGeneratorGscMeta" class="helper">No CSV uploaded yet. Manual GSC rows still work as a fallback.</p>
-                      <div id="visibilityGeneratorGscPreview" class="mini-list"></div>
-                    </div>
                   </div>
 
                   <div class="generator-column">
                     <div class="tracker-block">
                       <h3>Generated Output</h3>
                       <p id="visibilityPromptGeneratorMeta" class="desc">Generate prompts to see grouped output by stage and type.</p>
+                    </div>
+                    <div class="generator-results-toolbar">
+                      <span id="visibilityGeneratedSelectionMeta" class="generator-selection-meta">0 selected</span>
+                      <div class="visibility-toolbar-actions">
+                        <div id="visibilityGeneratedCopySplit" class="split-button">
+                          <button id="visibilityCopyGeneratedPromptsBtn" class="btn split-button-main" type="button" disabled>Copy All</button>
+                          <button id="visibilityCopyGeneratedPromptsToggleBtn" class="btn split-button-toggle" type="button" aria-haspopup="menu" aria-expanded="false" disabled>▾</button>
+                          <div id="visibilityGeneratedCopyMenu" class="split-button-menu hidden-mode" role="menu">
+                            <button id="visibilityCopySelectedGeneratedPromptsBtn" class="btn" type="button">Copy Selected</button>
+                            <button id="visibilityCopyAllGeneratedPromptsBtn" class="btn" type="button">Copy All</button>
+                          </div>
+                        </div>
+                        <button id="visibilitySelectAllGeneratedPromptsBtn" class="btn" type="button" disabled>Select All</button>
+                        <button id="visibilityClearGeneratedSelectionBtn" class="btn" type="button" disabled>Clear</button>
+                        <button id="visibilitySaveSelectedGeneratedPromptsBtn" class="btn primary" type="button" disabled>Save Selected</button>
+                      </div>
                     </div>
                     <div id="visibilityPromptGeneratorResults" class="generator-results"></div>
                   </div>
@@ -3402,6 +3417,9 @@ What AI visibility tracking tools are cited most often?"></textarea>
         selectedVisibilityPromptLists: [],
         visibilityPromptGeneratorType: "b2b_saas",
         visibilityPromptGeneratorResult: null,
+        selectedGeneratedPromptIds: [],
+        visibilityGeneratedSaveModalOpen: false,
+        visibilityGeneratedSaveMode: "existing",
         visibilityPromptGeneratorGscRows: [],
         visibilityPromptGeneratorGscFileName: "",
         appConfig: {
@@ -3581,6 +3599,25 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityPromptManagerModal: document.getElementById("visibilityPromptManagerModal"),
         closeVisibilityPromptManagerModalBtn: document.getElementById("closeVisibilityPromptManagerModalBtn"),
         visibilityPromptManagerMeta: document.getElementById("visibilityPromptManagerMeta"),
+        visibilityGeneratedSaveModal: document.getElementById("visibilityGeneratedSaveModal"),
+        closeVisibilityGeneratedSaveModalBtn: document.getElementById("closeVisibilityGeneratedSaveModalBtn"),
+        cancelVisibilityGeneratedSaveBtn: document.getElementById("cancelVisibilityGeneratedSaveBtn"),
+        visibilityGeneratedSaveMeta: document.getElementById("visibilityGeneratedSaveMeta"),
+        visibilityGeneratedSaveModeExistingBtn: document.getElementById("visibilityGeneratedSaveModeExistingBtn"),
+        visibilityGeneratedSaveModeNewBtn: document.getElementById("visibilityGeneratedSaveModeNewBtn"),
+        visibilityGeneratedSaveTopicSelect: document.getElementById("visibilityGeneratedSaveTopicSelect"),
+        visibilityGeneratedSaveSubtopicSelect: document.getElementById("visibilityGeneratedSaveSubtopicSelect"),
+        visibilityGeneratedSavePromptListSelect: document.getElementById("visibilityGeneratedSavePromptListSelect"),
+        visibilityGeneratedSavePromptListName: document.getElementById("visibilityGeneratedSavePromptListName"),
+        visibilityGeneratedSaveNewTopicName: document.getElementById("visibilityGeneratedSaveNewTopicName"),
+        visibilityGeneratedSaveNewTopicField: document.getElementById("visibilityGeneratedSaveNewTopicField"),
+        visibilityGeneratedSaveNewSubtopicName: document.getElementById("visibilityGeneratedSaveNewSubtopicName"),
+        visibilityGeneratedSaveNewSubtopicField: document.getElementById("visibilityGeneratedSaveNewSubtopicField"),
+        visibilityGeneratedSavePromptListSchedule: document.getElementById("visibilityGeneratedSavePromptListSchedule"),
+        visibilityGeneratedSaveExistingFields: document.getElementById("visibilityGeneratedSaveExistingFields"),
+        visibilityGeneratedSaveNewFields: document.getElementById("visibilityGeneratedSaveNewFields"),
+        saveVisibilityGeneratedPromptsBtn: document.getElementById("saveVisibilityGeneratedPromptsBtn"),
+        visibilityGeneratedSaveMsg: document.getElementById("visibilityGeneratedSaveMsg"),
         visibilityPromptTopicsMetric: document.getElementById("visibilityPromptTopicsMetric"),
         visibilityPromptPromptsMetric: document.getElementById("visibilityPromptPromptsMetric"),
         visibilityPromptResponsesMetric: document.getElementById("visibilityPromptResponsesMetric"),
@@ -3616,50 +3653,37 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityRunMsg: document.getElementById("visibilityRunMsg"),
         visibilityGeneratePromptsBtn: document.getElementById("visibilityGeneratePromptsBtn"),
         visibilityResetPromptGeneratorBtn: document.getElementById("visibilityResetPromptGeneratorBtn"),
+        visibilityCopyGeneratedPromptsBtn: document.getElementById("visibilityCopyGeneratedPromptsBtn"),
+        visibilityCopyGeneratedPromptsToggleBtn: document.getElementById("visibilityCopyGeneratedPromptsToggleBtn"),
+        visibilityGeneratedCopySplit: document.getElementById("visibilityGeneratedCopySplit"),
+        visibilityGeneratedCopyMenu: document.getElementById("visibilityGeneratedCopyMenu"),
+        visibilityCopySelectedGeneratedPromptsBtn: document.getElementById("visibilityCopySelectedGeneratedPromptsBtn"),
         visibilityCopyAllGeneratedPromptsBtn: document.getElementById("visibilityCopyAllGeneratedPromptsBtn"),
         visibilityGeneratedPromptCount: document.getElementById("visibilityGeneratedPromptCount"),
         visibilityGeneratedIntentCount: document.getElementById("visibilityGeneratedIntentCount"),
         visibilityGeneratedTypeCount: document.getElementById("visibilityGeneratedTypeCount"),
+        visibilityGeneratedSelectionMeta: document.getElementById("visibilityGeneratedSelectionMeta"),
         visibilityPromptGeneratorMeta: document.getElementById("visibilityPromptGeneratorMeta"),
         visibilityPromptGeneratorResults: document.getElementById("visibilityPromptGeneratorResults"),
+        visibilitySelectAllGeneratedPromptsBtn: document.getElementById("visibilitySelectAllGeneratedPromptsBtn"),
+        visibilityClearGeneratedSelectionBtn: document.getElementById("visibilityClearGeneratedSelectionBtn"),
+        visibilitySaveSelectedGeneratedPromptsBtn: document.getElementById("visibilitySaveSelectedGeneratedPromptsBtn"),
         visibilityGeneratorTypeB2B: document.getElementById("visibilityGeneratorTypeB2B"),
         visibilityGeneratorTypeEcommerce: document.getElementById("visibilityGeneratorTypeEcommerce"),
+        visibilityGeneratorTypeServices: document.getElementById("visibilityGeneratorTypeServices"),
+        visibilityGeneratorTypeLocal: document.getElementById("visibilityGeneratorTypeLocal"),
         visibilityGeneratorPromptCount: document.getElementById("visibilityGeneratorPromptCount"),
         visibilityGeneratorCompetitors: document.getElementById("visibilityGeneratorCompetitors"),
-        visibilityGeneratorGscFile: document.getElementById("visibilityGeneratorGscFile"),
-        visibilityClearGeneratorGscBtn: document.getElementById("visibilityClearGeneratorGscBtn"),
-        visibilityGeneratorGscMeta: document.getElementById("visibilityGeneratorGscMeta"),
-        visibilityGeneratorGscPreview: document.getElementById("visibilityGeneratorGscPreview"),
-        visibilityGeneratorB2BFields: document.getElementById("visibilityGeneratorB2BFields"),
-        visibilityGeneratorB2BProductName: document.getElementById("visibilityGeneratorB2BProductName"),
-        visibilityGeneratorB2BCategory: document.getElementById("visibilityGeneratorB2BCategory"),
-        visibilityGeneratorB2BPricingTier: document.getElementById("visibilityGeneratorB2BPricingTier"),
-        visibilityGeneratorB2BTargetMarket: document.getElementById("visibilityGeneratorB2BTargetMarket"),
-        visibilityGeneratorB2BTargetMarketCustom: document.getElementById("visibilityGeneratorB2BTargetMarketCustom"),
-        visibilityGeneratorB2BRole: document.getElementById("visibilityGeneratorB2BRole"),
-        visibilityGeneratorB2BCompanySize: document.getElementById("visibilityGeneratorB2BCompanySize"),
-        visibilityGeneratorB2BIndustry: document.getElementById("visibilityGeneratorB2BIndustry"),
-        visibilityGeneratorB2BAwareness: document.getElementById("visibilityGeneratorB2BAwareness"),
-        visibilityGeneratorB2BPainPoints: document.getElementById("visibilityGeneratorB2BPainPoints"),
-        visibilityGeneratorB2BDesiredOutcomes: document.getElementById("visibilityGeneratorB2BDesiredOutcomes"),
-        visibilityGeneratorB2BFears: document.getElementById("visibilityGeneratorB2BFears"),
-        visibilityGeneratorB2BTriggers: document.getElementById("visibilityGeneratorB2BTriggers"),
-        visibilityGeneratorB2BGsc: document.getElementById("visibilityGeneratorB2BGsc"),
-        visibilityGeneratorEcommerceFields: document.getElementById("visibilityGeneratorEcommerceFields"),
-        visibilityGeneratorEcomProductName: document.getElementById("visibilityGeneratorEcomProductName"),
-        visibilityGeneratorEcomCategory: document.getElementById("visibilityGeneratorEcomCategory"),
-        visibilityGeneratorEcomPriceRange: document.getElementById("visibilityGeneratorEcomPriceRange"),
-        visibilityGeneratorEcomBrandPositioning: document.getElementById("visibilityGeneratorEcomBrandPositioning"),
-        visibilityGeneratorEcomTargetAudience: document.getElementById("visibilityGeneratorEcomTargetAudience"),
-        visibilityGeneratorEcomTargetAudienceCustom: document.getElementById("visibilityGeneratorEcomTargetAudienceCustom"),
-        visibilityGeneratorEcomAgeGroup: document.getElementById("visibilityGeneratorEcomAgeGroup"),
-        visibilityGeneratorEcomUseCase: document.getElementById("visibilityGeneratorEcomUseCase"),
-        visibilityGeneratorEcomUseCaseCustom: document.getElementById("visibilityGeneratorEcomUseCaseCustom"),
-        visibilityGeneratorEcomAwareness: document.getElementById("visibilityGeneratorEcomAwareness"),
-        visibilityGeneratorEcomIntentTriggers: document.getElementById("visibilityGeneratorEcomIntentTriggers"),
-        visibilityGeneratorEcomDecisionFactors: document.getElementById("visibilityGeneratorEcomDecisionFactors"),
-        visibilityGeneratorEcomObjections: document.getElementById("visibilityGeneratorEcomObjections"),
-        visibilityGeneratorEcomGsc: document.getElementById("visibilityGeneratorEcomGsc"),
+        visibilityGeneratorQuickHelper: document.getElementById("visibilityGeneratorQuickHelper"),
+        visibilityGeneratorQuickName: document.getElementById("visibilityGeneratorQuickName"),
+        visibilityGeneratorQuickCategory: document.getElementById("visibilityGeneratorQuickCategory"),
+        visibilityGeneratorQuickAudienceLabel: document.getElementById("visibilityGeneratorQuickAudienceLabel"),
+        visibilityGeneratorQuickAudience: document.getElementById("visibilityGeneratorQuickAudience"),
+        visibilityGeneratorQuickContextLabel: document.getElementById("visibilityGeneratorQuickContextLabel"),
+        visibilityGeneratorQuickContext: document.getElementById("visibilityGeneratorQuickContext"),
+        visibilityGeneratorQuickUseCaseLabel: document.getElementById("visibilityGeneratorQuickUseCaseLabel"),
+        visibilityGeneratorQuickUseCaseHelp: document.getElementById("visibilityGeneratorQuickUseCaseHelp"),
+        visibilityGeneratorQuickUseCase: document.getElementById("visibilityGeneratorQuickUseCase"),
         visibilityReportLevel: document.getElementById("visibilityReportLevel"),
         visibilityReportEntity: document.getElementById("visibilityReportEntity"),
         refreshVisibilityReportBtn: document.getElementById("refreshVisibilityReportBtn"),
@@ -3699,6 +3723,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
         googleDocsStatus: document.getElementById("googleDocsStatus"),
         googleSheetsStatus: document.getElementById("googleSheetsStatus"),
       };
+
+      if (els.visibilityGeneratedSaveModal && els.visibilityWorkspaceScreen) {
+        els.visibilityWorkspaceScreen.appendChild(els.visibilityGeneratedSaveModal);
+      }
 
       function humanStage(stage) {
         const map = {
@@ -4254,6 +4282,303 @@ What AI visibility tracking tools are cited most often?"></textarea>
         }
       }
 
+      function visibilityGeneratedPrompts() {
+        return state.visibilityPromptGeneratorResult && state.visibilityPromptGeneratorResult.prompts
+          ? state.visibilityPromptGeneratorResult.prompts
+          : [];
+      }
+
+      function closeVisibilityGeneratedCopyMenu() {
+        els.visibilityGeneratedCopyMenu.classList.add("hidden-mode");
+        els.visibilityCopyGeneratedPromptsToggleBtn.setAttribute("aria-expanded", "false");
+      }
+
+      function openVisibilityGeneratedCopyMenu() {
+        els.visibilityGeneratedCopyMenu.classList.remove("hidden-mode");
+        els.visibilityCopyGeneratedPromptsToggleBtn.setAttribute("aria-expanded", "true");
+      }
+
+      async function copyVisibilityGeneratedPrompts(mode = "selected") {
+        const allPrompts = visibilityGeneratedPrompts();
+        const selectedPrompts = selectedVisibilityGeneratedPrompts();
+        const promptTexts = mode === "all"
+          ? allPrompts.map((prompt) => prompt.prompt_text)
+          : selectedPrompts.map((prompt) => prompt.prompt_text);
+        if (!promptTexts.length) {
+          if (mode === "selected") {
+            alert("Select at least one generated prompt first.");
+          }
+          return;
+        }
+        await navigator.clipboard.writeText(promptTexts.join("\n"));
+        const original = els.visibilityCopyGeneratedPromptsBtn.textContent;
+        els.visibilityCopyGeneratedPromptsBtn.textContent = mode === "all" ? "Copied All" : "Copied Selected";
+        closeVisibilityGeneratedCopyMenu();
+        setTimeout(() => {
+          els.visibilityCopyGeneratedPromptsBtn.textContent = original;
+        }, 1200);
+      }
+
+      function selectedVisibilityGeneratedPrompts() {
+        const selectedIds = new Set(state.selectedGeneratedPromptIds || []);
+        return visibilityGeneratedPrompts().filter((prompt) => selectedIds.has(prompt.id));
+      }
+
+      function syncSelectedGeneratedPromptIds() {
+        const promptIds = new Set(visibilityGeneratedPrompts().map((prompt) => prompt.id));
+        state.selectedGeneratedPromptIds = (state.selectedGeneratedPromptIds || []).filter((id) => promptIds.has(id));
+      }
+
+      function visibilityTopics() {
+        return state.visibilityWorkspace ? state.visibilityWorkspace.topics || [] : [];
+      }
+
+      function visibilitySubtopicsForTopic(topicId) {
+        const topic = visibilityTopics().find((item) => item.id === topicId);
+        return topic ? topic.subtopics || [] : [];
+      }
+
+      function visibilityPromptListsForSubtopic(topicId, subtopicId) {
+        const subtopic = visibilitySubtopicsForTopic(topicId).find((item) => item.id === subtopicId);
+        return subtopic ? subtopic.prompt_lists || [] : [];
+      }
+
+      function closeVisibilityGeneratedSaveModal() {
+        state.visibilityGeneratedSaveModalOpen = false;
+        state.visibilityGeneratedSaveMode = "existing";
+        els.visibilityGeneratedSaveMsg.textContent = "";
+        els.visibilityGeneratedSaveModal.classList.add("hidden-mode");
+      }
+
+      function renderVisibilityGeneratedSaveModal() {
+        const topics = visibilityTopics();
+        const selectedCount = selectedVisibilityGeneratedPrompts().length;
+        const isNewMode = state.visibilityGeneratedSaveMode === "new";
+        const newTopicValue = "__new_topic__";
+        const newSubtopicValue = "__new_subtopic__";
+        const previousTopicValue = els.visibilityGeneratedSaveTopicSelect.value;
+        const previousSubtopicValue = els.visibilityGeneratedSaveSubtopicSelect.value;
+        const previousPromptListValue = els.visibilityGeneratedSavePromptListSelect.value;
+        els.visibilityGeneratedSaveMeta.textContent = selectedCount
+          ? `${selectedCount} generated prompt${selectedCount === 1 ? "" : "s"} selected. Choose where to save them.`
+          : "Choose where the selected generated prompts should be stored in your tracker.";
+
+        const fallbackTopicId = state.selectedVisibilityTopicId || (topics[0] ? topics[0].id : "");
+        const topicOptions = topics.length
+          ? topics.map((topic) => `<option value="${topic.id}">${topic.name}</option>`).join("")
+          : "";
+        els.visibilityGeneratedSaveTopicSelect.innerHTML = `${topicOptions}${isNewMode ? '<option value="__new_topic__">+ Create new topic</option>' : ""}${topicOptions ? "" : '<option value="">No topics yet</option>'}`;
+        if (topics.some((topic) => topic.id === previousTopicValue)) {
+          els.visibilityGeneratedSaveTopicSelect.value = previousTopicValue;
+        } else if (isNewMode && previousTopicValue === newTopicValue) {
+          els.visibilityGeneratedSaveTopicSelect.value = newTopicValue;
+        } else if (fallbackTopicId) {
+          els.visibilityGeneratedSaveTopicSelect.value = fallbackTopicId;
+        } else if (isNewMode) {
+          els.visibilityGeneratedSaveTopicSelect.value = newTopicValue;
+        }
+
+        const topicId = els.visibilityGeneratedSaveTopicSelect.value || fallbackTopicId;
+        const subtopics = topicId && topicId !== newTopicValue ? visibilitySubtopicsForTopic(topicId) : [];
+        const fallbackSubtopicId = state.selectedVisibilitySubtopicId || (subtopics[0] ? subtopics[0].id : "");
+        const subtopicOptions = subtopics.length
+          ? subtopics.map((subtopic) => `<option value="${subtopic.id}">${subtopic.name}</option>`).join("")
+          : "";
+        els.visibilityGeneratedSaveSubtopicSelect.innerHTML = `${subtopicOptions}${isNewMode ? '<option value="__new_subtopic__">+ Create new subtopic</option>' : ""}${subtopicOptions ? "" : '<option value="">No subtopics yet</option>'}`;
+        if (subtopics.some((subtopic) => subtopic.id === previousSubtopicValue)) {
+          els.visibilityGeneratedSaveSubtopicSelect.value = previousSubtopicValue;
+        } else if (isNewMode && (previousSubtopicValue === newSubtopicValue || topicId === newTopicValue)) {
+          els.visibilityGeneratedSaveSubtopicSelect.value = newSubtopicValue;
+        } else if (fallbackSubtopicId && subtopics.some((subtopic) => subtopic.id === fallbackSubtopicId)) {
+          els.visibilityGeneratedSaveSubtopicSelect.value = fallbackSubtopicId;
+        } else if (isNewMode) {
+          els.visibilityGeneratedSaveSubtopicSelect.value = newSubtopicValue;
+        }
+
+        const promptLists = visibilityPromptListsForSubtopic(topicId, els.visibilityGeneratedSaveSubtopicSelect.value || fallbackSubtopicId);
+        const fallbackPromptListId = state.selectedVisibilityPromptListId || (promptLists[0] ? promptLists[0].id : "");
+        els.visibilityGeneratedSavePromptListSelect.innerHTML = promptLists.length
+          ? promptLists.map((promptList) => `<option value="${promptList.id}">${promptList.name}</option>`).join("")
+          : '<option value="">No prompt lists yet</option>';
+        if (promptLists.some((promptList) => promptList.id === previousPromptListValue)) {
+          els.visibilityGeneratedSavePromptListSelect.value = previousPromptListValue;
+        } else if (fallbackPromptListId) {
+          els.visibilityGeneratedSavePromptListSelect.value = fallbackPromptListId;
+        }
+
+        els.visibilityGeneratedSaveModeExistingBtn.classList.toggle("active", state.visibilityGeneratedSaveMode === "existing");
+        els.visibilityGeneratedSaveModeNewBtn.classList.toggle("active", state.visibilityGeneratedSaveMode === "new");
+        els.visibilityGeneratedSaveExistingFields.classList.toggle("hidden-mode", state.visibilityGeneratedSaveMode !== "existing");
+        els.visibilityGeneratedSaveNewFields.classList.toggle("hidden-mode", state.visibilityGeneratedSaveMode !== "new");
+        els.visibilityGeneratedSaveNewTopicField.classList.toggle("hidden-mode", !(isNewMode && els.visibilityGeneratedSaveTopicSelect.value === newTopicValue));
+        els.visibilityGeneratedSaveNewSubtopicField.classList.toggle("hidden-mode", !(isNewMode && els.visibilityGeneratedSaveSubtopicSelect.value === newSubtopicValue));
+        els.visibilityGeneratedSavePromptListSchedule.value = els.visibilityGeneratedSavePromptListSchedule.value || (activeVisibilityProject() ? activeVisibilityProject().default_schedule_frequency || "disabled" : "disabled");
+      }
+
+      function openVisibilityGeneratedSaveModal() {
+        syncSelectedGeneratedPromptIds();
+        if (!selectedVisibilityGeneratedPrompts().length) {
+          alert("Select at least one generated prompt first.");
+          return;
+        }
+        const selectedPromptList = selectedVisibilityPromptList();
+        const selectedSubtopic = selectedVisibilitySubtopic();
+        const selectedTopic = selectedVisibilityTopic();
+        if (selectedPromptList) {
+          els.visibilityGeneratedSavePromptListSelect.value = selectedPromptList.id;
+        }
+        if (selectedSubtopic) {
+          els.visibilityGeneratedSaveSubtopicSelect.value = selectedSubtopic.id;
+        }
+        if (selectedTopic) {
+          els.visibilityGeneratedSaveTopicSelect.value = selectedTopic.id;
+        }
+        els.visibilityGeneratedSavePromptListName.value = "";
+        els.visibilityGeneratedSaveNewTopicName.value = "";
+        els.visibilityGeneratedSaveNewSubtopicName.value = "";
+        els.visibilityGeneratedSaveMsg.textContent = "";
+        state.visibilityGeneratedSaveModalOpen = true;
+        renderVisibilityGeneratedSaveModal();
+        els.visibilityGeneratedSaveModal.classList.remove("hidden-mode");
+      }
+
+      async function saveSelectedGeneratedPrompts() {
+        const selectedPrompts = selectedVisibilityGeneratedPrompts();
+        if (!selectedPrompts.length) {
+          alert("Select at least one generated prompt first.");
+          return;
+        }
+        const mode = state.visibilityGeneratedSaveMode;
+        const topicId = els.visibilityGeneratedSaveTopicSelect.value;
+        let subtopicId = els.visibilityGeneratedSaveSubtopicSelect.value;
+        let promptListId = "";
+
+        if (!topicId) {
+          alert("Choose a topic first.");
+          return;
+        }
+
+        els.saveVisibilityGeneratedPromptsBtn.disabled = true;
+        els.visibilityGeneratedSaveMsg.textContent = "Saving selected prompts...";
+
+        try {
+          if (mode === "new") {
+            let finalTopicId = topicId;
+            if (topicId === "__new_topic__") {
+              const newTopicName = els.visibilityGeneratedSaveNewTopicName.value.trim();
+              if (!newTopicName) {
+                throw new Error("Enter a new topic name.");
+              }
+              const topicRes = await fetch("/api/visibility/topics", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  project_id: state.selectedVisibilityProjectId,
+                  name: newTopicName,
+                }),
+              });
+              if (!topicRes.ok) {
+                const data = await topicRes.json().catch(() => ({}));
+                throw new Error(data.detail || "Unable to create the topic.");
+              }
+              const topic = await topicRes.json();
+              finalTopicId = topic.id;
+            }
+
+            const newSubtopicName = els.visibilityGeneratedSaveSubtopicSelect.value === "__new_subtopic__"
+              ? els.visibilityGeneratedSaveNewSubtopicName.value.trim()
+              : "";
+            if (els.visibilityGeneratedSaveSubtopicSelect.value === "__new_subtopic__") {
+              if (!newSubtopicName) {
+                throw new Error("Enter a new subtopic name.");
+              }
+              const subtopicRes = await fetch("/api/visibility/subtopics", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  project_id: state.selectedVisibilityProjectId,
+                  topic_id: finalTopicId,
+                  name: newSubtopicName,
+                }),
+              });
+              if (!subtopicRes.ok) {
+                const data = await subtopicRes.json().catch(() => ({}));
+                throw new Error(data.detail || "Unable to create the subtopic.");
+              }
+              const subtopic = await subtopicRes.json();
+              subtopicId = subtopic.id;
+            }
+
+            if (!subtopicId) {
+              throw new Error("Choose or create a subtopic first.");
+            }
+
+            const promptListName = els.visibilityGeneratedSavePromptListName.value.trim();
+            if (!promptListName) {
+              throw new Error("Enter a prompt list name.");
+            }
+
+            const listRes = await fetch("/api/visibility/lists", {
+              method: "POST",
+              credentials: "same-origin",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                project_id: state.selectedVisibilityProjectId,
+                subtopic_id: subtopicId,
+                name: promptListName,
+                schedule_frequency: els.visibilityGeneratedSavePromptListSchedule.value || "disabled",
+              }),
+            });
+            if (!listRes.ok) {
+              const data = await listRes.json().catch(() => ({}));
+              throw new Error(data.detail || "Unable to create the prompt list.");
+            }
+            const promptList = await listRes.json();
+            promptListId = promptList.id;
+            state.selectedVisibilityTopicId = finalTopicId;
+          } else {
+            promptListId = els.visibilityGeneratedSavePromptListSelect.value;
+            if (!promptListId) {
+              throw new Error("Choose an existing prompt list first.");
+            }
+          }
+
+          const promptRes = await fetch("/api/visibility/prompts/bulk", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              prompt_list_id: promptListId,
+              prompts: selectedPrompts.map((prompt) => prompt.prompt_text),
+            }),
+          });
+          if (!promptRes.ok) {
+            const data = await promptRes.json().catch(() => ({}));
+            throw new Error(data.detail || "Unable to save the selected prompts.");
+          }
+
+          state.selectedGeneratedPromptIds = [];
+          if (mode !== "new") {
+            state.selectedVisibilityTopicId = topicId;
+          }
+          state.selectedVisibilitySubtopicId = subtopicId || null;
+          state.selectedVisibilityPromptListId = promptListId;
+          state.visibilityProjectView = "library";
+          els.visibilityGeneratedSaveMsg.textContent = `Saved ${selectedPrompts.length} prompts.`;
+          await loadVisibilityWorkspace(true);
+          await loadVisibilityProjects();
+          closeVisibilityGeneratedSaveModal();
+          openVisibilityLibraryModal("prompt_manager", promptListId);
+          renderVisibilityPromptGenerator();
+        } catch (error) {
+          els.visibilityGeneratedSaveMsg.textContent = error instanceof Error ? error.message : "Unable to save selected prompts.";
+        } finally {
+          els.saveVisibilityGeneratedPromptsBtn.disabled = false;
+        }
+      }
+
       async function executeVisibilityPromptListRun(promptListId) {
         if (!promptListId) {
           alert("Choose a prompt list first.");
@@ -4578,38 +4903,63 @@ What AI visibility tracking tools are cited most often?"></textarea>
         return merged;
       }
 
-      function renderVisibilityGscPreview() {
-        const rows = state.visibilityPromptGeneratorGscRows || [];
-        els.visibilityGeneratorGscPreview.innerHTML = "";
-        if (!rows.length) {
-          els.visibilityGeneratorGscMeta.textContent = "No CSV uploaded yet. Manual GSC rows still work as a fallback.";
-          els.visibilityGeneratorGscPreview.innerHTML = '<div class="mini-item"><span>No uploaded GSC rows yet.</span></div>';
-          return;
-        }
-        els.visibilityGeneratorGscMeta.textContent = `${rows.length} GSC rows parsed from ${state.visibilityPromptGeneratorGscFileName || "uploaded CSV"}.`;
-        rows.slice(0, 8).forEach((row) => {
-          const item = document.createElement("div");
-          item.className = "mini-item";
-          item.innerHTML = `
-            <strong>${row.query}</strong>
-            <span>Impressions: ${row.impressions} / CTR: ${row.ctr}% / Position: ${row.position}</span>
-          `;
-          els.visibilityGeneratorGscPreview.appendChild(item);
-        });
-        if (rows.length > 8) {
-          const overflow = document.createElement("div");
-          overflow.className = "mini-item";
-          overflow.innerHTML = `<span>${rows.length - 8} more rows available for prompt expansion.</span>`;
-          els.visibilityGeneratorGscPreview.appendChild(overflow);
-        }
-      }
-
       function setVisibilityPromptGeneratorType(type) {
         state.visibilityPromptGeneratorType = type;
         els.visibilityGeneratorTypeB2B.classList.toggle("active", type === "b2b_saas");
         els.visibilityGeneratorTypeEcommerce.classList.toggle("active", type === "ecommerce");
-        els.visibilityGeneratorB2BFields.style.display = type === "b2b_saas" ? "grid" : "none";
-        els.visibilityGeneratorEcommerceFields.style.display = type === "ecommerce" ? "grid" : "none";
+        els.visibilityGeneratorTypeServices.classList.toggle("active", type === "services");
+        els.visibilityGeneratorTypeLocal.classList.toggle("active", type === "local_business");
+        const configs = {
+          b2b_saas: {
+            helper: "Generate comparison, evaluation, objection, and buying-intent prompts for software buyers.",
+            audienceLabel: "ICP Role",
+            audiencePlaceholder: "Marketing Head",
+            contextLabel: "Industry",
+            contextPlaceholder: "SaaS",
+            useCaseLabel: "Buyer Goal / Use Case",
+            useCasePlaceholder: "Track AI mentions and cited domains",
+            useCaseHelp: "Describe what the buyer is trying to solve or achieve. Example: improve AI visibility, reduce manual HR work, automate invoice approvals.",
+          },
+          ecommerce: {
+            helper: "Generate discovery, comparison, validation, and purchase prompts for consumer brands.",
+            audienceLabel: "Target Audience",
+            audiencePlaceholder: "Urban runners",
+            contextLabel: "Buyer Context",
+            contextPlaceholder: "Premium, first-time buyers, budget-conscious",
+            useCaseLabel: "Buyer Goal / Use Case",
+            useCasePlaceholder: "Marathon training, gifting, daily wear",
+            useCaseHelp: "Describe what the shopper wants the product for. Example: marathon training, wedding gifting, office wear, daily skin care.",
+          },
+          services: {
+            helper: "Generate hiring, evaluation, comparison, and trust-building prompts for service businesses.",
+            audienceLabel: "Target Customer",
+            audiencePlaceholder: "Founders at growth-stage startups",
+            contextLabel: "Service Context",
+            contextPlaceholder: "SEO consulting, legal advisory, performance marketing",
+            useCaseLabel: "Buyer Goal / Use Case",
+            useCasePlaceholder: "Find an agency to improve AI visibility",
+            useCaseHelp: "Describe what the buyer wants help with. Example: hire an SEO agency, redesign a website, improve AI visibility, get legal compliance help.",
+          },
+          local_business: {
+            helper: "Generate location-aware prompts for discovery, comparison, trust, and booking intent.",
+            audienceLabel: "Customer Type",
+            audiencePlaceholder: "Parents, working professionals, homeowners",
+            contextLabel: "City / Area",
+            contextPlaceholder: "Mumbai, Bangalore, Dubai Marina",
+            useCaseLabel: "Buyer Goal / Use Case",
+            useCasePlaceholder: "Find a trusted clinic nearby",
+            useCaseHelp: "Describe what the local customer needs. Example: find a trusted dentist nearby, book a wedding photographer, choose a good gym in my area.",
+          },
+        };
+        const config = configs[type] || configs.b2b_saas;
+        els.visibilityGeneratorQuickHelper.textContent = config.helper;
+        els.visibilityGeneratorQuickAudienceLabel.textContent = config.audienceLabel;
+        els.visibilityGeneratorQuickAudience.placeholder = config.audiencePlaceholder;
+        els.visibilityGeneratorQuickContextLabel.textContent = config.contextLabel;
+        els.visibilityGeneratorQuickContext.placeholder = config.contextPlaceholder;
+        els.visibilityGeneratorQuickUseCaseLabel.querySelector("span").textContent = config.useCaseLabel;
+        els.visibilityGeneratorQuickUseCaseHelp.title = config.useCaseHelp;
+        els.visibilityGeneratorQuickUseCase.placeholder = config.useCasePlaceholder;
       }
 
       function visibilityGeneratorDefaultCompetitors() {
@@ -4622,14 +4972,11 @@ What AI visibility tracking tools are cited most often?"></textarea>
         if (!els.visibilityGeneratorCompetitors.value.trim()) {
           els.visibilityGeneratorCompetitors.value = visibilityGeneratorDefaultCompetitors();
         }
-        if (!els.visibilityGeneratorB2BProductName.value.trim()) {
-          els.visibilityGeneratorB2BProductName.value = project.brand_name || project.name || "";
+        if (!els.visibilityGeneratorQuickName.value.trim()) {
+          els.visibilityGeneratorQuickName.value = project.brand_name || project.name || "";
         }
-        if (!els.visibilityGeneratorEcomProductName.value.trim()) {
-          els.visibilityGeneratorEcomProductName.value = project.brand_name || project.name || "";
-        }
-        if (!els.visibilityGeneratorB2BCategory.value.trim()) {
-          els.visibilityGeneratorB2BCategory.value = "AI visibility tracking";
+        if (!els.visibilityGeneratorQuickCategory.value.trim()) {
+          els.visibilityGeneratorQuickCategory.value = "AI visibility tracking";
         }
       }
 
@@ -4642,113 +4989,74 @@ What AI visibility tracking tools are cited most often?"></textarea>
       }
 
       function visibilityProjectTypeLabel(value) {
-        return value === "b2b_saas" ? "B2B / SaaS" : "Ecommerce";
+        const labels = {
+          b2b_saas: "B2B / SaaS",
+          ecommerce: "Ecommerce / D2C",
+          services: "Services",
+          local_business: "Local Business",
+        };
+        return labels[value] || "Prompt Generator";
       }
 
       function visibilityGeneratorPromptPayload() {
-        const uploadedRows = state.visibilityPromptGeneratorGscRows || [];
-        const common = {
-          project_type: state.visibilityPromptGeneratorType,
-          desired_prompt_count: Math.max(50, Math.min(150, Number(els.visibilityGeneratorPromptCount.value || 80))),
-          competitors: parseVisibilityLines(els.visibilityGeneratorCompetitors.value),
-        };
-        if (state.visibilityPromptGeneratorType === "b2b_saas") {
-          return {
-            ...common,
-            product_name: els.visibilityGeneratorB2BProductName.value.trim(),
-            category: els.visibilityGeneratorB2BCategory.value.trim(),
-            pricing_tier: els.visibilityGeneratorB2BPricingTier.value,
-            target_market: els.visibilityGeneratorB2BTargetMarket.value,
-            target_market_custom: els.visibilityGeneratorB2BTargetMarketCustom.value.trim(),
-            role: els.visibilityGeneratorB2BRole.value.trim(),
-            company_size: els.visibilityGeneratorB2BCompanySize.value,
-            industry: els.visibilityGeneratorB2BIndustry.value.trim(),
-            awareness_level: els.visibilityGeneratorB2BAwareness.value,
-            pain_points: parseVisibilityLines(els.visibilityGeneratorB2BPainPoints.value),
-            desired_outcomes: parseVisibilityLines(els.visibilityGeneratorB2BDesiredOutcomes.value),
-            fears_objections: parseVisibilityLines(els.visibilityGeneratorB2BFears.value),
-            buying_triggers: parseVisibilityLines(els.visibilityGeneratorB2BTriggers.value),
-            gsc_rows: mergeVisibilityGscRows(uploadedRows, parseVisibilityGscRows(els.visibilityGeneratorB2BGsc.value)),
-          };
-        }
         return {
-          ...common,
-          product_name: els.visibilityGeneratorEcomProductName.value.trim(),
-          category: els.visibilityGeneratorEcomCategory.value.trim(),
-          price_range: els.visibilityGeneratorEcomPriceRange.value,
-          brand_positioning: els.visibilityGeneratorEcomBrandPositioning.value,
-          target_audience: els.visibilityGeneratorEcomTargetAudience.value,
-          target_audience_custom: els.visibilityGeneratorEcomTargetAudienceCustom.value.trim(),
-          age_group: els.visibilityGeneratorEcomAgeGroup.value.trim(),
-          use_case: els.visibilityGeneratorEcomUseCase.value,
-          use_case_custom: els.visibilityGeneratorEcomUseCaseCustom.value.trim(),
-          awareness_level: els.visibilityGeneratorEcomAwareness.value,
-          intent_triggers: parseVisibilityLines(els.visibilityGeneratorEcomIntentTriggers.value),
-          decision_factors: parseVisibilityLines(els.visibilityGeneratorEcomDecisionFactors.value),
-          objections: parseVisibilityLines(els.visibilityGeneratorEcomObjections.value),
-          gsc_rows: mergeVisibilityGscRows(uploadedRows, parseVisibilityGscRows(els.visibilityGeneratorEcomGsc.value)),
+          project_type: state.visibilityPromptGeneratorType,
+          desired_prompt_count: Math.max(5, Math.min(50, Number(els.visibilityGeneratorPromptCount.value || 20))),
+          product_name: els.visibilityGeneratorQuickName.value.trim(),
+          category: els.visibilityGeneratorQuickCategory.value.trim(),
+          quick_audience: els.visibilityGeneratorQuickAudience.value.trim(),
+          quick_context: els.visibilityGeneratorQuickContext.value.trim(),
+          quick_use_case: els.visibilityGeneratorQuickUseCase.value.trim(),
+          competitors: parseVisibilityLines(els.visibilityGeneratorCompetitors.value),
         };
       }
 
       function resetVisibilityPromptGeneratorInputs() {
-        els.visibilityGeneratorPromptCount.value = "80";
+        els.visibilityGeneratorPromptCount.value = "20";
         els.visibilityGeneratorCompetitors.value = visibilityGeneratorDefaultCompetitors();
         [
-          els.visibilityGeneratorB2BProductName,
-          els.visibilityGeneratorB2BCategory,
-          els.visibilityGeneratorB2BTargetMarketCustom,
-          els.visibilityGeneratorB2BRole,
-          els.visibilityGeneratorB2BIndustry,
-          els.visibilityGeneratorB2BPainPoints,
-          els.visibilityGeneratorB2BDesiredOutcomes,
-          els.visibilityGeneratorB2BFears,
-          els.visibilityGeneratorB2BTriggers,
-          els.visibilityGeneratorB2BGsc,
-          els.visibilityGeneratorEcomProductName,
-          els.visibilityGeneratorEcomCategory,
-          els.visibilityGeneratorEcomTargetAudienceCustom,
-          els.visibilityGeneratorEcomAgeGroup,
-          els.visibilityGeneratorEcomUseCaseCustom,
-          els.visibilityGeneratorEcomIntentTriggers,
-          els.visibilityGeneratorEcomDecisionFactors,
-          els.visibilityGeneratorEcomObjections,
-          els.visibilityGeneratorEcomGsc,
+          els.visibilityGeneratorQuickName,
+          els.visibilityGeneratorQuickCategory,
+          els.visibilityGeneratorQuickAudience,
+          els.visibilityGeneratorQuickContext,
+          els.visibilityGeneratorQuickUseCase,
         ].forEach((field) => {
           field.value = "";
         });
-        state.visibilityPromptGeneratorGscRows = [];
-        state.visibilityPromptGeneratorGscFileName = "";
-        els.visibilityGeneratorGscFile.value = "";
-        els.visibilityGeneratorB2BPricingTier.value = "mid";
-        els.visibilityGeneratorB2BTargetMarket.value = "global";
-        els.visibilityGeneratorB2BCompanySize.value = "11-50";
-        els.visibilityGeneratorB2BAwareness.value = "solution_aware";
-        els.visibilityGeneratorEcomPriceRange.value = "mid_range";
-        els.visibilityGeneratorEcomBrandPositioning.value = "premium";
-        els.visibilityGeneratorEcomTargetAudience.value = "unisex";
-        els.visibilityGeneratorEcomUseCase.value = "daily_use";
-        els.visibilityGeneratorEcomAwareness.value = "comparing";
         setVisibilityPromptGeneratorType("b2b_saas");
         state.visibilityPromptGeneratorResult = null;
+        state.selectedGeneratedPromptIds = [];
+        closeVisibilityGeneratedSaveModal();
         if (state.visibilityWorkspace && state.visibilityWorkspace.project) {
           hydrateVisibilityPromptGeneratorFromProject(state.visibilityWorkspace.project);
         }
-        renderVisibilityGscPreview();
       }
 
       function renderVisibilityPromptGenerator() {
         setVisibilityPromptGeneratorType(state.visibilityPromptGeneratorType || "b2b_saas");
         const result = state.visibilityPromptGeneratorResult;
+        syncSelectedGeneratedPromptIds();
+        const selectedGeneratedCount = (state.selectedGeneratedPromptIds || []).length;
+        const hasGeneratedPrompts = Boolean(result && (result.prompts || []).length);
+        const defaultCopyMode = selectedGeneratedCount ? "selected" : "all";
         els.visibilityGeneratedPromptCount.textContent = String(result ? result.generated_prompt_count : 0);
         els.visibilityGeneratedIntentCount.textContent = String(result ? (result.intent_groups || []).length : 0);
         els.visibilityGeneratedTypeCount.textContent = String(result ? (result.type_summary || []).length : 0);
-        els.visibilityCopyAllGeneratedPromptsBtn.disabled = !result || !(result.prompts || []).length;
-        renderVisibilityGscPreview();
+        els.visibilityCopyGeneratedPromptsBtn.disabled = !hasGeneratedPrompts;
+        els.visibilityCopyGeneratedPromptsToggleBtn.disabled = !hasGeneratedPrompts;
+        els.visibilityCopySelectedGeneratedPromptsBtn.disabled = !selectedGeneratedCount;
+        els.visibilityCopyAllGeneratedPromptsBtn.disabled = !hasGeneratedPrompts;
+        els.visibilitySelectAllGeneratedPromptsBtn.disabled = !result || !(result.prompts || []).length;
+        els.visibilityClearGeneratedSelectionBtn.disabled = !selectedGeneratedCount;
+        els.visibilitySaveSelectedGeneratedPromptsBtn.disabled = !selectedGeneratedCount;
+        els.visibilityGeneratedSelectionMeta.textContent = `${selectedGeneratedCount} selected`;
+        els.visibilityCopyGeneratedPromptsBtn.textContent = defaultCopyMode === "selected" ? "Copy Selected" : "Copy All";
         els.visibilityPromptGeneratorMeta.textContent = result
           ? `${result.generated_prompt_count} prompts generated for ${visibilityProjectTypeLabel(result.project_type)}.`
           : "Generate prompts to see grouped output by stage and type.";
 
         els.visibilityPromptGeneratorResults.innerHTML = "";
+        closeVisibilityGeneratedCopyMenu();
         if (!result || !(result.intent_groups || []).length) {
           els.visibilityPromptGeneratorResults.innerHTML = '<div class="generator-empty">Fill the form, choose a prompt count, and generate a grouped prompt set for this project.</div>';
           return;
@@ -4785,10 +5093,14 @@ What AI visibility tracking tools are cited most often?"></textarea>
             typeGroup.innerHTML = `<h4>${visibilityPromptTypeLabel(type)}</h4>`;
             prompts.forEach((prompt) => {
               const card = document.createElement("article");
-              card.className = "generated-prompt-card";
+              const isSelected = (state.selectedGeneratedPromptIds || []).includes(prompt.id);
+              card.className = `generated-prompt-card${isSelected ? " selected" : ""}`;
               card.innerHTML = `
                 <div class="generated-prompt-head">
-                  <div class="generated-prompt-text">${prompt.prompt_text}</div>
+                  <label class="generated-prompt-selector">
+                    <input type="checkbox" data-select-generated-prompt="${prompt.id}" ${isSelected ? "checked" : ""} />
+                    <div class="generated-prompt-text"></div>
+                  </label>
                   <button class="btn" type="button" data-copy-generated-prompt="${prompt.id}">Copy</button>
                 </div>
                 <div class="generated-prompt-tags">
@@ -4798,6 +5110,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
                   <span class="prompt-tag">Priority ${prompt.priority_score}</span>
                 </div>
               `;
+              card.querySelector(".generated-prompt-text").textContent = prompt.prompt_text;
               typeGroup.appendChild(card);
             });
             stageBody.appendChild(typeGroup);
@@ -4815,6 +5128,21 @@ What AI visibility tracking tools are cited most often?"></textarea>
             setTimeout(() => { button.textContent = original; }, 1200);
           });
         });
+        els.visibilityPromptGeneratorResults.querySelectorAll("[data-select-generated-prompt]").forEach((input) => {
+          input.addEventListener("change", () => {
+            const promptId = input.dataset.selectGeneratedPrompt;
+            if (!promptId) return;
+            if (input.checked) {
+              state.selectedGeneratedPromptIds = [...new Set([...(state.selectedGeneratedPromptIds || []), promptId])];
+            } else {
+              state.selectedGeneratedPromptIds = (state.selectedGeneratedPromptIds || []).filter((id) => id !== promptId);
+            }
+            renderVisibilityPromptGenerator();
+          });
+        });
+        if (state.visibilityGeneratedSaveModalOpen) {
+          renderVisibilityGeneratedSaveModal();
+        }
       }
 
       function visibilityFormatSchedule(value) {
@@ -5507,6 +5835,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
           setVisibilityActiveJobs([]);
           renderVisibilityRunStrip();
           stopVisibilityJobPolling();
+          closeVisibilityGeneratedSaveModal();
           return;
         }
 
@@ -5637,6 +5966,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         if (state.selectedVisibilityPromptListId && promptLists.some((promptList) => promptList.id === state.selectedVisibilityPromptListId)) {
           els.visibilityPromptListSelect.value = state.selectedVisibilityPromptListId;
         }
+
+        renderVisibilityGeneratedSaveModal();
 
         if (state.visibilityProjectView === "library" || state.visibilityLibraryModal) {
           try {
@@ -6495,6 +6826,32 @@ What AI visibility tracking tools are cited most often?"></textarea>
           if (event.target === modal) closeVisibilityLibraryModal();
         });
       });
+      [
+        els.closeVisibilityGeneratedSaveModalBtn,
+        els.cancelVisibilityGeneratedSaveBtn,
+      ].forEach((button) => {
+        button.addEventListener("click", () => closeVisibilityGeneratedSaveModal());
+      });
+      els.visibilityGeneratedSaveModal.addEventListener("click", (event) => {
+        if (event.target === els.visibilityGeneratedSaveModal) closeVisibilityGeneratedSaveModal();
+      });
+      els.visibilityGeneratedSaveModeExistingBtn.addEventListener("click", () => {
+        state.visibilityGeneratedSaveMode = "existing";
+        renderVisibilityGeneratedSaveModal();
+      });
+      els.visibilityGeneratedSaveModeNewBtn.addEventListener("click", () => {
+        state.visibilityGeneratedSaveMode = "new";
+        renderVisibilityGeneratedSaveModal();
+      });
+      els.visibilityGeneratedSaveTopicSelect.addEventListener("change", () => {
+        renderVisibilityGeneratedSaveModal();
+      });
+      els.visibilityGeneratedSaveSubtopicSelect.addEventListener("change", () => {
+        renderVisibilityGeneratedSaveModal();
+      });
+      els.saveVisibilityGeneratedPromptsBtn.addEventListener("click", async () => {
+        await saveSelectedGeneratedPrompts();
+      });
       els.visibilityManageSelectedBtn.addEventListener("click", () => {
         if (state.selectedVisibilityPromptLists.length !== 1) return;
         const promptListId = state.selectedVisibilityPromptLists[0];
@@ -6852,7 +7209,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
         await loadVisibilityWorkspace(true);
       });
 
-      [els.visibilityGeneratorTypeB2B, els.visibilityGeneratorTypeEcommerce].forEach((button) => {
+      [els.visibilityGeneratorTypeB2B, els.visibilityGeneratorTypeEcommerce, els.visibilityGeneratorTypeServices, els.visibilityGeneratorTypeLocal].forEach((button) => {
         button.addEventListener("click", () => {
           setVisibilityPromptGeneratorType(button.dataset.generatorType);
           renderVisibilityPromptGenerator();
@@ -6864,39 +7221,39 @@ What AI visibility tracking tools are cited most often?"></textarea>
         renderVisibilityPromptGenerator();
       });
 
-      els.visibilityGeneratorGscFile.addEventListener("change", async () => {
-        const file = els.visibilityGeneratorGscFile.files && els.visibilityGeneratorGscFile.files[0];
-        if (!file) return;
-        try {
-          const text = await file.text();
-          state.visibilityPromptGeneratorGscRows = parseVisibilityGscCsv(text);
-          state.visibilityPromptGeneratorGscFileName = file.name;
-          renderVisibilityPromptGenerator();
-        } catch (error) {
-          state.visibilityPromptGeneratorGscRows = [];
-          state.visibilityPromptGeneratorGscFileName = "";
-          els.visibilityGeneratorGscFile.value = "";
-          renderVisibilityPromptGenerator();
-          alert(error && error.message ? error.message : "Unable to parse the uploaded CSV.");
+      els.visibilityCopyGeneratedPromptsBtn.addEventListener("click", async () => {
+        const mode = (state.selectedGeneratedPromptIds || []).length ? "selected" : "all";
+        await copyVisibilityGeneratedPrompts(mode);
+      });
+      els.visibilityCopyGeneratedPromptsToggleBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (els.visibilityGeneratedCopyMenu.classList.contains("hidden-mode")) {
+          openVisibilityGeneratedCopyMenu();
+        } else {
+          closeVisibilityGeneratedCopyMenu();
         }
       });
-
-      els.visibilityClearGeneratorGscBtn.addEventListener("click", () => {
-        state.visibilityPromptGeneratorGscRows = [];
-        state.visibilityPromptGeneratorGscFileName = "";
-        els.visibilityGeneratorGscFile.value = "";
+      els.visibilityCopySelectedGeneratedPromptsBtn.addEventListener("click", async () => {
+        await copyVisibilityGeneratedPrompts("selected");
+      });
+      els.visibilityCopyAllGeneratedPromptsBtn.addEventListener("click", async () => {
+        await copyVisibilityGeneratedPrompts("all");
+      });
+      document.addEventListener("click", (event) => {
+        if (!els.visibilityGeneratedCopySplit.contains(event.target)) {
+          closeVisibilityGeneratedCopyMenu();
+        }
+      });
+      els.visibilitySelectAllGeneratedPromptsBtn.addEventListener("click", () => {
+        state.selectedGeneratedPromptIds = visibilityGeneratedPrompts().map((prompt) => prompt.id);
         renderVisibilityPromptGenerator();
       });
-
-      els.visibilityCopyAllGeneratedPromptsBtn.addEventListener("click", async () => {
-        const result = state.visibilityPromptGeneratorResult;
-        if (!result || !(result.prompts || []).length) return;
-        await navigator.clipboard.writeText(result.prompts.map((prompt) => prompt.prompt_text).join("\n"));
-        const original = els.visibilityCopyAllGeneratedPromptsBtn.textContent;
-        els.visibilityCopyAllGeneratedPromptsBtn.textContent = "Copied";
-        setTimeout(() => {
-          els.visibilityCopyAllGeneratedPromptsBtn.textContent = original;
-        }, 1200);
+      els.visibilityClearGeneratedSelectionBtn.addEventListener("click", () => {
+        state.selectedGeneratedPromptIds = [];
+        renderVisibilityPromptGenerator();
+      });
+      els.visibilitySaveSelectedGeneratedPromptsBtn.addEventListener("click", () => {
+        openVisibilityGeneratedSaveModal();
       });
 
       els.visibilityGeneratePromptsBtn.addEventListener("click", async () => {
@@ -6904,6 +7261,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         const payload = visibilityGeneratorPromptPayload();
         els.visibilityGeneratePromptsBtn.disabled = true;
         els.visibilityPromptGeneratorMeta.textContent = "Generating prompts...";
+        state.selectedGeneratedPromptIds = [];
+        closeVisibilityGeneratedSaveModal();
         const res = await fetch(`/api/visibility/projects/${state.selectedVisibilityProjectId}/prompt-generator`, {
           method: "POST",
           credentials: "same-origin",
