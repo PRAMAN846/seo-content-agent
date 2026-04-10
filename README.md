@@ -30,7 +30,7 @@ Supports 3 modes:
 
 - FastAPI backend (`app/`)
 - Login/register/logout API with session cookies
-- Xpaan-branded login and dashboard UI
+- Workspace-branded login and dashboard UI
 - `Home`, `AI Workspace`, `Content Brief Agent`, `Content Writing Agent`, and `Settings` in dashboard
 - Account Settings tab with:
   - user name
@@ -82,7 +82,12 @@ Set at least:
 OPENAI_API_KEY=your_key_here
 SMALL_MODEL=gpt-5-mini
 ANALYST_MODEL=gpt-5-mini
-WRITER_MODEL=gpt-5
+WRITER_MODEL=gpt-5.4
+WRITER_REASONING_EFFORT=medium
+IMAGE_MODEL=gpt-image-1.5
+ARTICLE_IMAGE_COUNT=3
+ARTICLE_IMAGE_SIZE=1536x1024
+ARTICLE_IMAGE_QUALITY=high
 ORCHESTRATOR_MODEL=gpt-5-mini
 COOKIE_SECURE=false
 ENABLE_SCHEDULER=false
@@ -122,6 +127,20 @@ Notes:
 
 ## Deploy on Render with Neon
 
+### Recommended setup for Content Agent + Playwright
+
+Use a `Render Docker web service` for the production app.
+
+Why:
+- `playwright` the Python package installs from `requirements.txt`
+- Chromium browser binaries and Linux system dependencies are much more reliable when baked into the image
+- this avoids the common "package installed but browser missing" or "shared library missing" problems on native runtimes
+
+Files now included for this setup:
+- [Dockerfile](/Users/pramanmenaria/Documents/content%20writing%20agent/Dockerfile)
+- [.dockerignore](/Users/pramanmenaria/Documents/content%20writing%20agent/.dockerignore)
+- [render.yaml](/Users/pramanmenaria/Documents/content%20writing%20agent/render.yaml)
+
 ### Neon
 1. Create Neon project
 2. Copy pooled connection string
@@ -131,25 +150,67 @@ Notes:
 - `OPENAI_API_KEY`
 - `SMALL_MODEL=gpt-5-mini`
 - `ANALYST_MODEL=gpt-5-mini`
-- `WRITER_MODEL=gpt-5`
+- `WRITER_MODEL=gpt-5.4`
+- `WRITER_REASONING_EFFORT=medium`
+- `IMAGE_MODEL=gpt-image-1.5`
+- `ARTICLE_IMAGE_COUNT=3`
+- `ARTICLE_IMAGE_SIZE=1536x1024`
+- `ARTICLE_IMAGE_QUALITY=high`
 - `ORCHESTRATOR_MODEL=gpt-5-mini`
 - `COOKIE_SECURE=true`
 - `SESSION_TTL_DAYS=30`
 - `DATABASE_URL=<your-neon-connection-string>`
+- Optional for live source discovery:
+  - `SERPER_API_KEY=<your-serper-key>`
+- Optional but recommended for agent search/browser behavior:
+  - `CONTENT_AGENT_SEARCH_ENABLED=true`
+  - `CONTENT_AGENT_SEARCH_RESULT_COUNT=3`
+  - `CONTENT_AGENT_BROWSER_FALLBACK_ENABLED=true`
+  - `CONTENT_AGENT_BROWSER_TIMEOUT_MS=18000`
 
 For a second visibility-only deployment such as `app.searchgrowthcircle.com`, also set:
 - `VISIBILITY_ONLY=true`
 - `APP_BRAND_NAME=Search Growth Circle`
 - `APP_PRODUCT_NAME=AI Visibility Tracker`
 - `APP_NAV_EYEBROW=Search Growth Circle`
-- `APP_LOGO_PATH=/frontend/assets/xpaan-logo.svg` or your own hosted logo path
+- `APP_LOGO_PATH=` or your own hosted logo path
 - Optional text-only logo:
-  - `APP_WORDMARK_TEXT=SGC`
+  - `APP_WORDMARK_TEXT=CONTENT`
   - if you use this, you can leave `APP_LOGO_PATH` blank
 
-### Render commands
-- Build: `pip install -r requirements.txt`
-- Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+### Recommended Render deployment flow
+
+1. Push this repo with the new `Dockerfile`.
+2. In Render, create a new `Web Service`.
+3. Choose `Deploy from existing repository`.
+4. Render should detect the repo as a Docker service because of the `Dockerfile`.
+5. Add environment variables:
+   - `DATABASE_URL` from Neon
+   - `OPENAI_API_KEY`
+   - optional `SERPER_API_KEY`
+6. Deploy.
+
+This Docker image already runs:
+- `pip install -r requirements.txt`
+- `python -m playwright install --with-deps chromium`
+
+and starts the app with:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}
+```
+
+### If you stay on Render native Python instead of Docker
+
+It can work, but it is less reliable for browser support.
+
+You would need a build command like:
+
+```bash
+pip install -r requirements.txt && python -m playwright install chromium
+```
+
+But even then, Chromium may still fail at runtime if the underlying image is missing Linux libraries. That is why Docker is the recommended production path for the new Content Agent browser fallback.
 
 ## Main API overview
 

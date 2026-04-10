@@ -223,14 +223,14 @@
   <body>
     <main class="frame">
       <section class="hero">
-        <img id="loginLogo" class="logo" src="/frontend/assets/xpaan-logo.svg" alt="Xpaan Digital" />
-        <div id="loginWordmark" class="wordmark hidden-mode">SGC</div>
-        <h1 id="loginHeroTitle">Welcome to your SEO content workspace</h1>
-        <p id="loginHeroSubtitle">Create high-quality long-form content from competitor insights with per-user history and guided progress.</p>
+        <img id="loginLogo" class="logo hidden-mode" src="" alt="Content Workspace" />
+        <div id="loginWordmark" class="wordmark">CONTENT</div>
+        <h1 id="loginHeroTitle">Welcome to your Content Studio</h1>
+        <p id="loginHeroSubtitle">Run chat-led content workflows, apply specialist skills, and keep improving output quality account by account.</p>
         <ul id="loginHeroPoints" class="hero-points">
-          <li>Personal dashboard with saved runs</li>
-          <li>Live generation progress by stage</li>
-          <li>Structured article output ready for publishing</li>
+          <li>Cursor-style chat workspace for content ops</li>
+          <li>Default editorial skills and workflow presets</li>
+          <li>AI visibility tracking kept in the same suite</li>
         </ul>
       </section>
 
@@ -251,7 +251,7 @@
         </form>
 
         <div class="msg" id="message"></div>
-        <p id="loginFootnote" class="footnote">Your runs and generated articles are saved to your account history.</p>
+        <p id="loginFootnote" class="footnote">Your settings and studio workflows stay tied to your account.</p>
       </section>
     </main>
 
@@ -291,11 +291,15 @@
           loginLogo.classList.add("hidden-mode");
           loginWordmark.classList.remove("hidden-mode");
           loginWordmark.textContent = config.wordmark_text;
-        } else {
+        } else if (config.logo_path) {
           loginWordmark.classList.add("hidden-mode");
           loginLogo.classList.remove("hidden-mode");
-          loginLogo.src = config.logo_path || "/frontend/assets/xpaan-logo.svg";
+          loginLogo.src = config.logo_path;
           loginLogo.alt = config.brand_name || config.product_name;
+        } else {
+          loginLogo.classList.add("hidden-mode");
+          loginWordmark.classList.remove("hidden-mode");
+          loginWordmark.textContent = (config.product_name || "Content Workspace").toUpperCase();
         }
         if (config.visibility_only) {
           loginHeroTitle.textContent = `Welcome to ${config.product_name}`;

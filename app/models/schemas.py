@@ -6,13 +6,14 @@ from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
 
-TaskStatus = Literal["queued", "running", "cancel_requested", "cancelled", "completed", "failed"]
+TaskStatus = Literal["queued", "running", "awaiting_approval", "cancel_requested", "cancelled", "completed", "failed"]
 ArticleMode = Literal["from_brief", "from_custom_brief", "quick_draft"]
 PersonalityAgentType = Literal["workspace", "brief", "writer", "reviewer"]
 VisibilityScheduleFrequency = Literal["disabled", "weekly", "twice_monthly", "monthly"]
 VisibilitySurface = Literal["api", "consumer_ui"]
 VisibilityRunSource = Literal["manual", "scheduled"]
 VisibilityPromptGeneratorProjectType = Literal["b2b_saas", "ecommerce", "services", "local_business"]
+ContentSkillOverrideScope = Literal["workspace", "project"]
 
 
 class UrlContent(BaseModel):
@@ -24,6 +25,18 @@ class UrlContent(BaseModel):
 class ArticleSummary(BaseModel):
     url: str
     summary: str
+
+
+class ArticleImageAsset(BaseModel):
+    id: str
+    title: str
+    alt_text: str
+    prompt: str
+    revised_prompt: str = ""
+    section_heading: str = ""
+    placement: str = "inline"
+    local_path: str = ""
+    public_url: str = ""
 
 
 class UserPublic(BaseModel):
@@ -41,6 +54,11 @@ class UserSettings(BaseModel):
     name: Optional[str] = None
     brand_name: Optional[str] = None
     brand_url: Optional[str] = None
+    workspace_name: str = ""
+    workspace_type: Literal["agency", "individual_brand"] = "agency"
+    workspace_role: Literal["admin", "power_user", "standard_user"] = "admin"
+    allow_power_user_workspace_skill_updates: bool = False
+    model_routing_mode: Literal["balanced", "high_quality", "cost_saver"] = "balanced"
     brief_prompt_override: str = ""
     writer_prompt_override: str = ""
     orchestrator_personality_id: str = "strategist"
@@ -58,6 +76,11 @@ class UserSettingsUpdateRequest(BaseModel):
     name: str = ""
     brand_name: str = ""
     brand_url: str = ""
+    workspace_name: str = ""
+    workspace_type: Literal["agency", "individual_brand"] = "agency"
+    workspace_role: Literal["admin", "power_user", "standard_user"] = "admin"
+    allow_power_user_workspace_skill_updates: bool = False
+    model_routing_mode: Literal["balanced", "high_quality", "cost_saver"] = "balanced"
     brief_prompt_override: str = ""
     writer_prompt_override: str = ""
     orchestrator_personality_id: str = "strategist"
@@ -66,6 +89,69 @@ class UserSettingsUpdateRequest(BaseModel):
     custom_orchestrator_personality: str = ""
     custom_brief_personality: str = ""
     custom_writer_personality: str = ""
+
+
+class ProviderUsageEventRecord(BaseModel):
+    id: str
+    workspace_id: str
+    user_id: str
+    project_id: Optional[str] = None
+    feature: str
+    provider: str
+    provider_surface: str = ""
+    provider_model: str = ""
+    provider_request_id: Optional[str] = None
+    status: str = "completed"
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cached_tokens: int = 0
+    reasoning_tokens: int = 0
+    total_tokens: int = 0
+    provider_cost_usd: float = 0.0
+    metadata_json: dict = Field(default_factory=dict)
+    created_at: datetime
+
+
+class CustomerBillingEventRecord(BaseModel):
+    id: str
+    workspace_id: str
+    user_id: str
+    project_id: Optional[str] = None
+    feature: str
+    billing_unit_type: str
+    quantity: int = 1
+    credits_charged: int = 0
+    pricing_version: str = "v1"
+    reference_type: Optional[str] = None
+    reference_id: Optional[str] = None
+    metadata_json: dict = Field(default_factory=dict)
+    created_at: datetime
+
+
+class BillingBreakdownItem(BaseModel):
+    key: str
+    label: str
+    quantity: int = 0
+    credits: int = 0
+
+
+class WorkspaceBillingSummaryResponse(BaseModel):
+    workspace_id: str
+    current_period_start: datetime
+    current_period_end: datetime
+    included_credits: int = 0
+    total_credits_used: int = 0
+    remaining_credits: int = 0
+    overage_credits: int = 0
+    total_billable_actions: int = 0
+    total_provider_requests: int = 0
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    total_cached_tokens: int = 0
+    total_reasoning_tokens: int = 0
+    feature_breakdown: list[BillingBreakdownItem] = Field(default_factory=list)
+    provider_breakdown: list[BillingBreakdownItem] = Field(default_factory=list)
+    recent_events: list[CustomerBillingEventRecord] = Field(default_factory=list)
 
 
 class PersonalityPreset(BaseModel):
@@ -131,6 +217,294 @@ class WorkspaceMessageResponse(BaseModel):
     suggested_next_step: str = ""
     action: WorkspaceAction = Field(default_factory=WorkspaceAction)
     artifact: Optional[WorkspaceArtifact] = None
+
+
+class ContentStudioSettingHint(BaseModel):
+    key: str
+    label: str
+    description: str
+    required: bool = False
+
+
+class ContentStudioSkillDefinition(BaseModel):
+    id: str
+    name: str
+    category: str
+    description: str
+    when_to_use: str
+    required_inputs: list[ContentStudioSettingHint] = Field(default_factory=list)
+
+
+class ContentStudioWorkflowDefinition(BaseModel):
+    id: str
+    name: str
+    description: str
+    skill_ids: list[str] = Field(default_factory=list)
+
+
+class ContentStudioCatalogResponse(BaseModel):
+    skills: list[ContentStudioSkillDefinition] = Field(default_factory=list)
+    workflows: list[ContentStudioWorkflowDefinition] = Field(default_factory=list)
+    export_formats: list[str] = Field(default_factory=list)
+    recommended_settings: list[ContentStudioSettingHint] = Field(default_factory=list)
+    model_strategy: str = ""
+
+
+class ContentStudioMessageRequest(BaseModel):
+    project_id: str = Field(min_length=1)
+    messages: list[WorkspaceMessage] = Field(default_factory=list, min_length=1)
+    selected_skill_ids: list[str] = Field(default_factory=list)
+    workflow_id: Optional[str] = None
+
+
+class ContentStudioMessageResponse(BaseModel):
+    reply: str
+    active_skill_ids: list[str] = Field(default_factory=list)
+    workflow_id: Optional[str] = None
+    export_formats: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+    artifacts: list["ContentStudioArtifactRecord"] = Field(default_factory=list)
+
+
+class ContentStudioChatSummary(BaseModel):
+    id: str
+    user_id: str
+    project_id: str
+    title: str
+    last_message_preview: str = ""
+    message_count: int = 0
+    active_skill_ids: list[str] = Field(default_factory=list)
+    workflow_id: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    archived_at: Optional[datetime] = None
+
+
+ContentStudioArtifactType = Literal["image"]
+
+
+class ContentStudioArtifactRecord(BaseModel):
+    id: str
+    chat_id: str
+    message_id: str
+    user_id: str
+    project_id: str
+    artifact_type: ContentStudioArtifactType
+    title: str
+    content_markdown: str = ""
+    metadata_json: dict = Field(default_factory=dict)
+    created_at: datetime
+
+
+class ContentStudioChatMessageRecord(BaseModel):
+    id: str
+    chat_id: str
+    role: ChatRole
+    content: str
+    active_skill_ids: list[str] = Field(default_factory=list)
+    workflow_id: Optional[str] = None
+    artifacts: list[ContentStudioArtifactRecord] = Field(default_factory=list)
+    created_at: datetime
+
+
+class ContentStudioChatRecord(ContentStudioChatSummary):
+    messages: list[ContentStudioChatMessageRecord] = Field(default_factory=list)
+
+
+class ContentStudioChatsResponse(BaseModel):
+    chats: list[ContentStudioChatSummary] = Field(default_factory=list)
+
+
+class ContentStudioChatCreateRequest(BaseModel):
+    project_id: str = Field(min_length=1)
+    title: str = ""
+
+
+class ContentStudioChatUpdateRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=160)
+
+
+class ContentStudioChatSendRequest(BaseModel):
+    content: str = Field(min_length=1)
+    selected_skill_ids: list[str] = Field(default_factory=list)
+    workflow_id: Optional[str] = None
+
+
+class ContentStudioChatArchiveResponse(BaseModel):
+    chat_id: str
+    archived: bool = True
+
+
+class ContentStudioChatSendResponse(BaseModel):
+    chat: ContentStudioChatRecord
+    reply: str
+    active_skill_ids: list[str] = Field(default_factory=list)
+    workflow_id: Optional[str] = None
+    export_formats: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+    artifacts: list[ContentStudioArtifactRecord] = Field(default_factory=list)
+
+
+class ContentSkillOverrideRecord(BaseModel):
+    id: str
+    user_id: str
+    project_id: Optional[str] = None
+    scope: ContentSkillOverrideScope = "project"
+    skill_id: str
+    instruction: str
+    source: str = "chat_feedback"
+    created_at: datetime
+    updated_at: datetime
+
+
+class ContentSkillOverridesResponse(BaseModel):
+    overrides: list[ContentSkillOverrideRecord] = Field(default_factory=list)
+
+
+class ContentSkillOverrideCreateRequest(BaseModel):
+    skill_id: str = Field(min_length=1)
+    instruction: str = Field(min_length=1)
+    scope: ContentSkillOverrideScope = "project"
+
+
+ContentAgentStepType = Literal[
+    "plan",
+    "research",
+    "approval",
+    "content_brief",
+    "content_writer",
+    "content_editor",
+    "internal_linking",
+    "image_generation",
+    "publish_qa",
+    "export",
+    "finalize",
+]
+ContentAgentArtifactType = Literal[
+    "research_packet",
+    "brief",
+    "draft",
+    "edited_draft",
+    "linked_draft",
+    "image_plan",
+    "image",
+    "illustrated_draft",
+    "publish_qa",
+    "final_article",
+    "export",
+    "note",
+]
+
+
+class ContentAgentArtifactRecord(BaseModel):
+    id: str
+    run_id: str
+    chat_id: Optional[str] = None
+    user_id: str
+    project_id: str
+    artifact_type: ContentAgentArtifactType
+    title: str
+    content_markdown: str = ""
+    metadata_json: dict = Field(default_factory=dict)
+    created_at: datetime
+
+
+class ContentAgentStepRecord(BaseModel):
+    id: str
+    run_id: str
+    user_id: str
+    project_id: str
+    step_type: ContentAgentStepType
+    skill_id: Optional[str] = None
+    status: TaskStatus
+    title: str = ""
+    input_json: dict = Field(default_factory=dict)
+    output_json: dict = Field(default_factory=dict)
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class ContentAgentRunSummary(BaseModel):
+    id: str
+    user_id: str
+    project_id: str
+    chat_id: Optional[str] = None
+    title: str
+    goal: str
+    selected_workflow_id: Optional[str] = None
+    status: TaskStatus
+    stage: str = "queued"
+    progress_percent: int = Field(default=0, ge=0, le=100)
+    current_step_title: str = ""
+    latest_artifact_type: Optional[ContentAgentArtifactType] = None
+    latest_artifact_title: str = ""
+    error: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    archived_at: Optional[datetime] = None
+
+
+class ContentAgentRunRecord(ContentAgentRunSummary):
+    steps: list[ContentAgentStepRecord] = Field(default_factory=list)
+    artifacts: list[ContentAgentArtifactRecord] = Field(default_factory=list)
+
+
+class ContentAgentRunsResponse(BaseModel):
+    runs: list[ContentAgentRunSummary] = Field(default_factory=list)
+
+
+class ContentAgentRunCreateRequest(BaseModel):
+    prompt: str = Field(min_length=1)
+
+
+class ContentAgentRunStartResponse(BaseModel):
+    run: ContentAgentRunRecord
+
+
+class ContentAgentRunUpdateRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=160)
+
+
+class ContentAgentRunUpdateResponse(BaseModel):
+    run: ContentAgentRunSummary
+
+
+class ContentAgentRunContinueRequest(BaseModel):
+    prompt: str = Field(min_length=1)
+
+
+class ContentAgentRunContinueResponse(BaseModel):
+    run: ContentAgentRunRecord
+
+
+class ContentAgentRunApproveRequest(BaseModel):
+    note: str = ""
+
+
+class ContentAgentRunApproveResponse(BaseModel):
+    run: ContentAgentRunRecord
+
+
+class ContentAgentRunCancelResponse(BaseModel):
+    run: ContentAgentRunRecord
+
+
+class ContentAgentRunArchiveResponse(BaseModel):
+    run_id: str
+    archived: bool = True
+
+
+ContentAgentExportFormat = Literal["markdown", "docx", "images_zip"]
+
+
+class ContentAgentRunExportRequest(BaseModel):
+    format: ContentAgentExportFormat = "markdown"
+
+
+class ContentAgentRunExportResponse(BaseModel):
+    run: ContentAgentRunRecord
 
 
 class RegisterRequest(BaseModel):
@@ -199,6 +573,7 @@ class ArticleArtifacts(BaseModel):
     source_brief_id: Optional[str] = None
     source_brief_markdown: str = ""
     article_markdown: str = ""
+    image_assets: list[ArticleImageAsset] = Field(default_factory=list)
     export_link: Optional[str] = None
 
 
@@ -270,6 +645,17 @@ class VisibilityProjectSummary(BaseModel):
     name: str = ""
     brand_name: str = ""
     brand_url: str = ""
+    default_target_country: str = ""
+    target_audience_notes: str = ""
+    brand_positioning: str = ""
+    editorial_voice: str = ""
+    editorial_quality_bar: str = ""
+    sitemap_url: str = ""
+    approved_domains: str = ""
+    approved_internal_urls: str = ""
+    product_page_urls: str = ""
+    visual_guidelines: str = ""
+    allow_standard_skill_updates: bool = False
     default_schedule_frequency: VisibilityScheduleFrequency = "disabled"
     topic_count: int = 0
     prompt_list_count: int = 0
@@ -289,6 +675,17 @@ class VisibilityProjectCreateRequest(BaseModel):
     name: str = Field(min_length=1)
     brand_name: str = ""
     brand_url: str = ""
+    default_target_country: str = ""
+    target_audience_notes: str = ""
+    brand_positioning: str = ""
+    editorial_voice: str = ""
+    editorial_quality_bar: str = ""
+    sitemap_url: str = ""
+    approved_domains: str = ""
+    approved_internal_urls: str = ""
+    product_page_urls: str = ""
+    visual_guidelines: str = ""
+    allow_standard_skill_updates: bool = False
     default_schedule_frequency: VisibilityScheduleFrequency = "disabled"
 
 
@@ -296,6 +693,17 @@ class VisibilityProjectUpdateRequest(BaseModel):
     name: str = Field(min_length=1)
     brand_name: str = ""
     brand_url: str = ""
+    default_target_country: str = ""
+    target_audience_notes: str = ""
+    brand_positioning: str = ""
+    editorial_voice: str = ""
+    editorial_quality_bar: str = ""
+    sitemap_url: str = ""
+    approved_domains: str = ""
+    approved_internal_urls: str = ""
+    product_page_urls: str = ""
+    visual_guidelines: str = ""
+    allow_standard_skill_updates: bool = False
     default_schedule_frequency: VisibilityScheduleFrequency = "disabled"
 
 

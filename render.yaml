@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: content-workspace
+    env: docker
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: SESSION_TTL_DAYS
+        value: "30"
+      - key: ENABLE_SCHEDULER
+        value: "true"
+      - key: VISIBILITY_ONLY
+        value: "false"
+      - key: SMALL_MODEL
+        value: gpt-5-mini
+      - key: ANALYST_MODEL
+        value: gpt-5-mini
+      - key: WRITER_MODEL
+        value: gpt-5.4
+      - key: WRITER_REASONING_EFFORT
+        value: medium
+      - key: IMAGE_MODEL
+        value: gpt-image-1.5
+      - key: ARTICLE_IMAGE_COUNT
+        value: "3"
+      - key: ARTICLE_IMAGE_SIZE
+        value: 1536x1024
+      - key: ARTICLE_IMAGE_QUALITY
+        value: high
+      - key: ORCHESTRATOR_MODEL
+        value: gpt-5-mini
+      - key: CONTENT_AGENT_SEARCH_ENABLED
+        value: "true"
+      - key: CONTENT_AGENT_SEARCH_RESULT_COUNT
+        value: "3"
+      - key: CONTENT_AGENT_BROWSER_FALLBACK_ENABLED
+        value: "true"
+      - key: CONTENT_AGENT_BROWSER_TIMEOUT_MS
+        value: "18000"
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false

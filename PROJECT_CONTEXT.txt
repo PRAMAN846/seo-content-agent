@@ -64,7 +64,7 @@ Planned next product surface:
   - generate from custom brief
   - quick draft from query
 - Separate progress/status tracking for briefs and articles.
-- Xpaan-branded dashboard redesign implemented.
+- Generic Content Workspace dashboard redesign implemented.
 - Account Settings tab implemented:
   - user name
   - brand name
@@ -108,7 +108,7 @@ Planned next product surface:
 - app/workflows/source_analysis.py
 - frontend/login.html
 - frontend/dashboard.html
-- frontend/assets/xpaan-logo.svg
+- frontend/assets/content-logo.svg
 - .env
 
 6) Current Low-Cost Model Profile
@@ -293,7 +293,7 @@ Important Render env vars:
 - Add Google Docs + Sheets export.
 - Add Redis worker queue for heavier usage.
 - Add Stripe subscriptions and usage limits.
-- Replace placeholder SVG if final Xpaan logo asset is provided.
+- Replace placeholder SVG if a final product logo asset is provided.
 
 20) Note for Future Codex Sessions
 At thread start, say:

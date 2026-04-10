@@ -27,6 +27,7 @@ from app.models.schemas import (
     VisibilityReport,
 )
 from app.models.store import run_store
+from app.services.billing import record_visibility_provider_check, usage_scope
 from app.services.llm_client import llm_client
 
 
@@ -674,12 +675,22 @@ async def run_visibility_prompt_list_job(job_id: str, *, force: bool = False) ->
             )
             return
         try:
-            response_text = await asyncio.to_thread(
-                llm_client.complete,
-                model=job.model,
-                instruction=_build_visibility_instruction(project),
-                input_text=prompt.prompt_text,
-            )
+            with usage_scope(
+                user_id=job.user_id,
+                workspace_id=job.user_id,
+                project_id=job.project_id,
+                feature="visibility",
+                provider_surface=job.provider,
+                reference_type="visibility_job",
+                reference_id=job.id,
+                metadata={"prompt_id": prompt.id, "prompt_list_id": job.prompt_list_id, "surface": job.surface},
+            ):
+                response_text = await asyncio.to_thread(
+                    llm_client.complete,
+                    model=job.model,
+                    instruction=_build_visibility_instruction(project),
+                    input_text=prompt.prompt_text,
+                )
             brands, domains, urls = await asyncio.to_thread(_extract_entities, response_text, project)
             run_store.create_visibility_prompt_run(
                 job.user_id,
@@ -699,6 +710,13 @@ async def run_visibility_prompt_list_job(job_id: str, *, force: bool = False) ->
                 brands=brands,
                 cited_domains=domains,
                 cited_urls=urls,
+            )
+            record_visibility_provider_check(
+                user_id=job.user_id,
+                project_id=job.project_id,
+                prompt_id=prompt.id,
+                prompt_list_id=job.prompt_list_id,
+                provider_surface=job.provider,
             )
         except Exception as exc:  # noqa: BLE001
             run_store.create_visibility_prompt_run(

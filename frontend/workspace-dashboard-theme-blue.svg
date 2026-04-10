@@ -1,0 +1,192 @@
+<svg width="1600" height="1020" viewBox="0 0 1600 1020" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="1020" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4F8FF"/>
+      <stop offset="1" stop-color="#E6F0FF"/>
+    </linearGradient>
+    <linearGradient id="sidebar" x1="0" y1="0" x2="280" y2="1020" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E3A8A"/>
+      <stop offset="1" stop-color="#102A5C"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1220" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EAF2FF"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#6B604D" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      text {
+        font-family: Inter, Arial, sans-serif;
+        fill: #102A43;
+      }
+      .display {
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .title {
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .body {
+        font-size: 14px;
+        fill: #486581;
+      }
+      .small {
+        font-size: 12px;
+        fill: #6C8CFF;
+      }
+      .navTitle {
+        font-size: 15px;
+        font-weight: 600;
+        fill: #F8FBFF;
+      }
+      .navBody {
+        font-size: 12px;
+        fill: #C9D8FF;
+      }
+      .metric {
+        font-size: 32px;
+        font-weight: 700;
+      }
+      .chip {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .cardTitle {
+        font-size: 19px;
+        font-weight: 700;
+      }
+      .cta {
+        font-size: 14px;
+        font-weight: 700;
+      }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1020" fill="url(#bg)"/>
+  <rect x="18" y="18" width="1564" height="984" rx="28" fill="#F8FBFF" stroke="#D7E5FF"/>
+  <rect x="18" y="18" width="280" height="984" rx="28" fill="url(#sidebar)"/>
+  <rect x="278" y="18" width="20" height="984" fill="url(#sidebar)"/>
+
+  <circle cx="68" cy="72" r="22" fill="#60A5FA"/>
+  <rect x="104" y="50" width="110" height="15" rx="7.5" fill="#F8FBFF" fill-opacity="0.95"/>
+  <rect x="104" y="74" width="78" height="10" rx="5" fill="#C9D8FF" fill-opacity="0.85"/>
+
+  <rect x="42" y="124" width="232" height="88" rx="20" fill="#2563EB"/>
+  <circle cx="76" cy="168" r="18" fill="#EFF6FF"/>
+  <text x="104" y="162" class="navTitle">Praman Menaria</text>
+  <text x="104" y="182" class="navBody">Agency workspace</text>
+  <rect x="194" y="146" width="58" height="26" rx="13" fill="#3B82F6"/>
+  <text x="207" y="163" class="chip" fill="#F6F0E5">Admin</text>
+
+  <text x="42" y="264" class="small" fill="#C9D8FF">WORKSPACE</text>
+
+  <rect x="34" y="286" width="248" height="68" rx="18" fill="#EFF6FF"/>
+  <circle cx="62" cy="320" r="10" fill="#2563EB"/>
+  <text x="84" y="316" class="navTitle" fill="#102A43">Projects</text>
+  <text x="84" y="336" class="navBody" fill="#486581">Manage all client workspaces</text>
+
+  <rect x="42" y="370" width="232" height="60" rx="18" fill="#1D4ED8"/>
+  <circle cx="66" cy="400" r="9" fill="#B7C7C0"/>
+  <text x="86" y="397" class="navTitle">Recent Activity</text>
+  <text x="86" y="416" class="navBody">Latest runs and updates</text>
+
+  <rect x="42" y="442" width="232" height="60" rx="18" fill="#1D4ED8"/>
+  <circle cx="66" cy="472" r="9" fill="#B7C7C0"/>
+  <text x="86" y="469" class="navTitle">Settings</text>
+  <text x="86" y="488" class="navBody">Workspace preferences</text>
+
+  <text x="334" y="70" class="small" fill="#5B7CFA">WORKSPACE DASHBOARD</text>
+  <text x="334" y="110" class="display">Manage all projects from one calm control center</text>
+  <text x="334" y="138" class="body">A cleaner workspace dashboard focused on launching projects quickly, scanning status, and keeping actions obvious.</text>
+
+  <rect x="1336" y="66" width="216" height="48" rx="24" fill="#2563EB"/>
+  <text x="1394" y="96" class="cta" fill="#F8FBFF">+ New Project</text>
+
+  <rect x="334" y="170" width="1218" height="136" rx="28" fill="url(#hero)" stroke="#D7E5FF"/>
+  <text x="372" y="218" class="title">Content Writing Agent Workspace</text>
+  <text x="372" y="246" class="body">12 projects across India, US, and UK. 8 are fully configured, 5 have active schedules, and the latest visibility run finished 2 hours ago.</text>
+
+  <g filter="url(#softShadow)">
+    <rect x="334" y="338" width="278" height="124" rx="24" fill="#FFFFFF"/>
+    <rect x="632" y="338" width="278" height="124" rx="24" fill="#FFFFFF"/>
+    <rect x="930" y="338" width="278" height="124" rx="24" fill="#FFFFFF"/>
+    <rect x="1228" y="338" width="324" height="124" rx="24" fill="#1E40AF"/>
+  </g>
+
+  <text x="366" y="382" class="small">TOTAL PROJECTS</text>
+  <text x="366" y="426" class="metric">12</text>
+  <text x="366" y="446" class="body">All client workspaces</text>
+
+  <text x="664" y="382" class="small">READY PROJECTS</text>
+  <text x="664" y="426" class="metric">8</text>
+  <text x="664" y="446" class="body">Brand + content inputs set</text>
+
+  <text x="962" y="382" class="small">SCHEDULED</text>
+  <text x="962" y="426" class="metric">5</text>
+  <text x="962" y="446" class="body">Recurring visibility runs enabled</text>
+
+  <text x="1260" y="382" class="small" fill="#C9D8FF">LATEST WORKSPACE SIGNAL</text>
+  <text x="1260" y="424" class="title" fill="#F8FBFF">124 snapshots this month</text>
+  <text x="1260" y="446" class="body" fill="#D6E4FF">Most recent run: Acme SEO · 2h ago</text>
+
+  <rect x="334" y="494" width="520" height="54" rx="18" fill="#FFFFFF" stroke="#D7E5FF"/>
+  <text x="366" y="527" class="body">Search projects, brands, domains, or country</text>
+
+  <rect x="874" y="494" width="154" height="54" rx="18" fill="#FFFFFF" stroke="#D7E5FF"/>
+  <text x="925" y="527" class="chip">Country</text>
+
+  <rect x="1044" y="494" width="174" height="54" rx="18" fill="#FFFFFF" stroke="#D7E5FF"/>
+  <text x="1098" y="527" class="chip">Schedule</text>
+
+  <rect x="1234" y="494" width="140" height="54" rx="18" fill="#FFFFFF" stroke="#D7E5FF"/>
+  <text x="1286" y="527" class="chip">Status</text>
+
+  <rect x="1390" y="494" width="162" height="54" rx="18" fill="#EAF2FF" stroke="#D7E5FF"/>
+  <text x="1422" y="527" class="chip" fill="#2563EB">Bulk actions</text>
+
+  <g filter="url(#softShadow)">
+    <rect x="334" y="584" width="590" height="176" rx="26" fill="#FFFFFF"/>
+    <rect x="962" y="584" width="590" height="176" rx="26" fill="#FFFFFF"/>
+    <rect x="334" y="790" width="590" height="176" rx="26" fill="#FFFFFF"/>
+    <rect x="962" y="790" width="590" height="176" rx="26" fill="#FFFFFF"/>
+  </g>
+
+  <rect x="366" y="614" width="94" height="28" rx="14" fill="#E7F2EA"/>
+  <text x="392" y="632" class="chip" fill="#2E6841">Ready</text>
+  <text x="366" y="676" class="cardTitle">Acme SEO</text>
+  <text x="366" y="702" class="body">acme.com</text>
+  <text x="366" y="728" class="body">India · Weekly schedule · Last run 2 days ago</text>
+  <text x="366" y="754" class="small">26 topics · 9 prompt lists · 4 competitors tracked</text>
+  <rect x="744" y="698" width="148" height="42" rx="21" fill="#2563EB"/>
+  <text x="781" y="724" class="cta" fill="#F8FBFF">Open Project</text>
+
+  <rect x="994" y="614" width="118" height="28" rx="14" fill="#FAEBDD"/>
+  <text x="1017" y="632" class="chip" fill="#A25A12">Needs setup</text>
+  <text x="994" y="676" class="cardTitle">Nova Health</text>
+  <text x="994" y="702" class="body">novahealth.com</text>
+  <text x="994" y="728" class="body">United States · Schedule disabled · No runs yet</text>
+  <text x="994" y="754" class="small">Brand URL set, but content defaults are still incomplete</text>
+  <rect x="1372" y="698" width="148" height="42" rx="21" fill="#2563EB"/>
+  <text x="1409" y="724" class="cta" fill="#F8FBFF">Open Project</text>
+
+  <rect x="366" y="820" width="112" height="28" rx="14" fill="#E9EDF9"/>
+  <text x="389" y="838" class="chip" fill="#4F5FA1">Active</text>
+  <text x="366" y="882" class="cardTitle">BluePeak Content</text>
+  <text x="366" y="908" class="body">bluepeak.io</text>
+  <text x="366" y="934" class="body">UK · Twice monthly · Last run today</text>
+  <text x="366" y="960" class="small">Content Studio active, visibility tracker running smoothly</text>
+  <rect x="744" y="904" width="148" height="42" rx="21" fill="#2563EB"/>
+  <text x="781" y="930" class="cta" fill="#F8FBFF">Open Project</text>
+
+  <rect x="994" y="820" width="120" height="28" rx="14" fill="#F1ECE5"/>
+  <text x="1026" y="838" class="chip" fill="#6F6254">Paused</text>
+  <text x="994" y="882" class="cardTitle">Orbit Finance</text>
+  <text x="994" y="908" class="body">orbitfinance.ai</text>
+  <text x="994" y="934" class="body">Canada · Monthly schedule · Last run 11 days ago</text>
+  <text x="994" y="960" class="small">Visibility tracking paused, project still fully configured</text>
+  <rect x="1372" y="904" width="148" height="42" rx="21" fill="#2563EB"/>
+  <text x="1409" y="930" class="cta" fill="#F8FBFF">Open Project</text>
+</svg>

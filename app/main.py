@@ -9,7 +9,10 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes_auth import router as auth_router
 from app.api.routes_articles import router as articles_router
+from app.api.routes_billing import router as billing_router
 from app.api.routes_briefs import router as briefs_router
+from app.api.routes_content_agent import router as content_agent_router
+from app.api.routes_content_studio import router as content_studio_router
 from app.api.routes_library import router as library_router
 from app.api.routes_personalities import router as personalities_router
 from app.api.routes_runs import router as runs_router
@@ -21,11 +24,14 @@ from app.core.config import settings
 from app.models.schemas import AppPublicConfig
 from app.workers.scheduler import start_scheduler
 
-app = FastAPI(title="SEO Content Agent")
+app = FastAPI(title="Content Workspace")
 app.include_router(runs_router)
 app.include_router(auth_router)
 app.include_router(briefs_router)
 app.include_router(articles_router)
+app.include_router(billing_router)
+app.include_router(content_agent_router)
+app.include_router(content_studio_router)
 app.include_router(library_router)
 app.include_router(personalities_router)
 app.include_router(settings_router)
@@ -44,13 +50,17 @@ frontend_dir = Path("frontend")
 if frontend_dir.exists():
     app.mount("/frontend", StaticFiles(directory=str(frontend_dir)), name="frontend")
 
+exports_dir = Path("exports")
+exports_dir.mkdir(exist_ok=True)
+app.mount("/exports", StaticFiles(directory=str(exports_dir)), name="exports")
+
 
 def _app_meta_description() -> str:
     if settings.visibility_only:
         return (
             f"Manage projects, generate AI-native prompts, and track AI visibility for {settings.app_brand_name}."
         )
-    return "Create high-quality long-form content from competitor insights with per-user history and guided progress."
+    return "Run project-based content workflows, specialist skills, and AI visibility tracking from one workspace."
 
 
 def _render_frontend_html(filename: str, *, page_title: str) -> HTMLResponse:

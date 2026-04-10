@@ -43,16 +43,16 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         client = TestClient(app)
         response = client.get("/login")
         self.assertEqual(response.status_code, 200, response.text)
-        self.assertIn("<title>Login | Xpaan Content Agent</title>", response.text)
-        self.assertIn('meta property="og:title" content="Login | Xpaan Content Agent"', response.text)
+        self.assertIn("<title>Login | Content Workspace</title>", response.text)
+        self.assertIn('meta property="og:title" content="Login | Content Workspace"', response.text)
 
     def create_tracker_stack(self) -> dict[str, str]:
         project = self.client.post(
             "/api/visibility/projects",
             json={
-                "name": "Xpaan Core",
-                "brand_name": "Xpaan",
-                "brand_url": "https://xpaan.com",
+                "name": "Northstar Core",
+                "brand_name": "Northstar",
+                "brand_url": "https://northstar.example",
                 "default_schedule_frequency": "weekly",
             },
         )
@@ -93,8 +93,8 @@ class VisibilityTrackerAPITest(unittest.TestCase):
             json={
                 "prompt_list_id": prompt_list_id,
                 "prompts": [
-                    "What are the best AI visibility tools for brands like Xpaan?",
-                    "Which AI SEO tools cite Xpaan and Profound most often?",
+                    "What are the best AI visibility tools for brands like Northstar?",
+                    "Which AI SEO tools cite Northstar and Profound most often?",
                 ],
             },
         )
@@ -132,7 +132,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(workspace.status_code, 200, workspace.text)
         payload = workspace.json()
 
-        self.assertEqual(payload["project"]["brand_name"], "Xpaan")
+        self.assertEqual(payload["project"]["brand_name"], "Northstar")
         self.assertEqual(payload["project"]["default_schedule_frequency"], "weekly")
         self.assertEqual(len(payload["project"]["competitors"]), 1)
         self.assertEqual(len(payload["topics"]), 1)
@@ -171,7 +171,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(report.status_code, 200, report.text)
         report_payload = report.json()
         self.assertEqual(report_payload["total_runs"], 2)
-        self.assertTrue(any(item["brand"] == "Xpaan" for item in report_payload["brand_presence"]))
+        self.assertTrue(any(item["brand"] == "Northstar" for item in report_payload["brand_presence"]))
         self.assertGreaterEqual(len(report_payload["daily_metrics"]), 1)
         if report_payload["domain_drilldown"]:
             prompt_ref = report_payload["domain_drilldown"][0]["prompts"][0]
@@ -218,7 +218,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
 
         def slow_complete(*args, **kwargs):
             time.sleep(0.05)
-            return "Xpaan answer\n\nCitations:\nhttps://xpaan.com"
+            return "Northstar answer\n\nCitations:\nhttps://northstar.example"
 
         with patch("app.api.routes_visibility.asyncio.create_task", side_effect=lambda coro: coro.close()):
             run_response = self.client.post(
@@ -252,9 +252,9 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         with patch(
             "app.services.visibility_tracker.llm_client.complete",
             return_value=(
-                "Xpaan is a strong option for AI visibility tracking.\n\n"
+                "Northstar is a strong option for AI visibility tracking.\n\n"
                 "Citations:\n"
-                "https://xpaan.com/features\n"
+                "https://northstar.example/features\n"
                 "https://example.com/research"
             ),
         ):
@@ -269,9 +269,9 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         prompt_payload = workspace["topics"][0]["subtopics"][0]["prompt_lists"][0]["prompts"][0]
         self.assertEqual(prompt_payload["run_count"], 1)
         self.assertEqual(prompt_payload["latest_status"], "completed")
-        self.assertIn("Xpaan", prompt_payload["latest_brands"])
-        self.assertIn("xpaan.com", prompt_payload["latest_cited_domains"])
-        self.assertIn("https://xpaan.com/features", prompt_payload["latest_cited_urls"])
+        self.assertIn("Northstar", prompt_payload["latest_brands"])
+        self.assertIn("northstar.example", prompt_payload["latest_cited_domains"])
+        self.assertIn("https://northstar.example/features", prompt_payload["latest_cited_urls"])
         self.assertIn("Citations", prompt_payload["latest_response_text"])
 
         report = self.client.get(
@@ -283,9 +283,9 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertGreaterEqual(len(report_payload["domain_drilldown"]), 1)
         prompt_ref = report_payload["domain_drilldown"][0]["prompts"][0]
         self.assertEqual(prompt_ref["status"], "completed")
-        self.assertIn("Xpaan", prompt_ref["brands"])
-        self.assertIn("xpaan.com", prompt_ref["cited_domains"])
-        self.assertIn("https://xpaan.com/features", prompt_ref["cited_urls"])
+        self.assertIn("Northstar", prompt_ref["brands"])
+        self.assertIn("northstar.example", prompt_ref["cited_domains"])
+        self.assertIn("https://northstar.example/features", prompt_ref["cited_urls"])
         self.assertIn("Citations", prompt_ref["response_text"])
 
     def test_workspace_date_filter_resets_prompt_latest_run_outside_range(self) -> None:
@@ -319,8 +319,8 @@ class VisibilityTrackerAPITest(unittest.TestCase):
             json={
                 "prompt_list_id": ids["prompt_list_id"],
                 "prompts": [
-                    "How visible is Xpaan in AI answer engines for enterprise SEO?",
-                    "Which sources cite Xpaan most often for AI visibility?",
+                    "How visible is Northstar in AI answer engines for enterprise SEO?",
+                    "Which sources cite Northstar most often for AI visibility?",
                 ],
             },
         )
@@ -334,7 +334,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(workspace.status_code, 200, workspace.text)
         prompt_items = workspace.json()["topics"][0]["subtopics"][0]["prompt_lists"][0]["prompts"]
         self.assertEqual(len(prompt_items), 4)
-        self.assertEqual(prompt_items[-1]["prompt_text"], "Which sources cite Xpaan most often for AI visibility?")
+        self.assertEqual(prompt_items[-1]["prompt_text"], "Which sources cite Northstar most often for AI visibility?")
 
     def test_b2b_prompt_generator_returns_grouped_structured_prompts(self) -> None:
         ids = self.create_tracker_stack()
@@ -344,7 +344,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
             json={
                 "project_type": "b2b_saas",
                 "desired_prompt_count": 40,
-                "product_name": "Xpaan",
+                "product_name": "Northstar",
                 "category": "AI visibility software",
                 "quick_audience": "Marketing Head",
                 "quick_context": "SaaS",
@@ -358,7 +358,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(payload["requested_prompt_count"], 40)
         self.assertGreaterEqual(len(payload["intent_groups"]), 3)
         self.assertTrue(any(prompt["prompt_type"] == "comparison" for prompt in payload["prompts"]))
-        self.assertTrue(any("Xpaan vs Profound" in prompt["prompt_text"] for prompt in payload["prompts"]))
+        self.assertTrue(any("Northstar vs Profound" in prompt["prompt_text"] for prompt in payload["prompts"]))
 
     def test_b2b_prompt_generator_rebalances_toward_awareness_and_consideration(self) -> None:
         ids = self.create_tracker_stack()
@@ -368,7 +368,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
             json={
                 "project_type": "b2b_saas",
                 "desired_prompt_count": 20,
-                "product_name": "Xpaan",
+                "product_name": "Northstar",
                 "category": "AI visibility software",
                 "quick_audience": "Marketing Head",
                 "quick_context": "SaaS",
@@ -398,7 +398,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
                     json={
                         "project_type": "b2b_saas",
                         "desired_prompt_count": 20,
-                        "product_name": "Xpaan",
+                        "product_name": "Northstar",
                         "category": "AI visibility software",
                         "quick_audience": "Marketing Head",
                         "quick_context": "SaaS",
@@ -419,7 +419,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
             json={
                 "project_type": "ecommerce",
                 "desired_prompt_count": 30,
-                "product_name": "Xpaan Fit",
+                "product_name": "Northstar Fit",
                 "category": "running shoes",
                 "quick_audience": "urban runners",
                 "quick_context": "premium shoppers",
@@ -432,7 +432,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(payload["generated_prompt_count"], 30)
         self.assertTrue(any(group["intent_stage"] == "comparison" for group in payload["intent_groups"]))
         self.assertTrue(any(group["intent_stage"] == "validation" for group in payload["intent_groups"]))
-        self.assertTrue(any("Xpaan Fit vs Nike" in prompt["prompt_text"] for prompt in payload["prompts"]))
+        self.assertTrue(any("Northstar Fit vs Nike" in prompt["prompt_text"] for prompt in payload["prompts"]))
         self.assertTrue(any(prompt["ai_format_likely"] == "comparison" for prompt in payload["prompts"]))
 
     def test_services_prompt_generator_returns_hiring_and_comparison_prompts(self) -> None:
@@ -443,7 +443,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
             json={
                 "project_type": "services",
                 "desired_prompt_count": 30,
-                "product_name": "Xpaan Advisory",
+                "product_name": "Northstar Advisory",
                 "category": "SEO consulting agency",
                 "quick_audience": "startup founders",
                 "quick_context": "B2B growth-stage companies",
@@ -456,7 +456,7 @@ class VisibilityTrackerAPITest(unittest.TestCase):
         self.assertEqual(payload["generated_prompt_count"], 30)
         self.assertTrue(any(group["intent_stage"] == "decision" for group in payload["intent_groups"]))
         self.assertTrue(any("how to choose a seo consulting agency" in prompt["prompt_text"].lower() for prompt in payload["prompts"]))
-        self.assertTrue(any("Xpaan Advisory vs Profound" in prompt["prompt_text"] for prompt in payload["prompts"]))
+        self.assertTrue(any("Northstar Advisory vs Profound" in prompt["prompt_text"] for prompt in payload["prompts"]))
 
     def test_local_business_prompt_generator_returns_location_aware_prompts(self) -> None:
         ids = self.create_tracker_stack()

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from app.models.schemas import ArticleArtifacts
 from app.models.store import run_store
+from app.services.article_visuals import generate_article_images, inject_article_images
 from app.services.brief_builder import (
     build_brief_from_query_with_customization,
     build_brief_with_customization,
@@ -26,6 +27,18 @@ async def process_article_from_brief(article_id: str, query: str, source_brief_i
             user_settings.writer_personality_id if user_settings else "seo_writer",
             user_settings.custom_writer_personality if user_settings else "",
         )
+        run_store.update_article(article_id, stage="generating_visuals", progress_percent=82)
+        image_assets = []
+        try:
+            image_assets = generate_article_images(
+                query=query,
+                brief_markdown=brief_markdown,
+                article_markdown=article_markdown,
+                brand_name=user_settings.brand_name if user_settings else "",
+            )
+            article_markdown = inject_article_images(article_markdown, image_assets)
+        except Exception:
+            image_assets = []
         run_store.update_article(article_id, stage="exporting_output", progress_percent=90)
         export_link = export_to_local_doc(query or "content-article", article_markdown)
         artifacts = ArticleArtifacts(
@@ -36,6 +49,7 @@ async def process_article_from_brief(article_id: str, query: str, source_brief_i
             source_brief_id=source_brief_id,
             source_brief_markdown=brief_markdown,
             article_markdown=article_markdown,
+            image_assets=image_assets,
             export_link=export_link,
         )
         run_store.update_article(
@@ -115,6 +129,18 @@ async def process_quick_draft(
             writer_personality_id,
             custom_writer_personality,
         )
+        run_store.update_article(article_id, stage="generating_visuals", progress_percent=92)
+        image_assets = []
+        try:
+            image_assets = generate_article_images(
+                query=query,
+                brief_markdown=brief_markdown,
+                article_markdown=article_markdown,
+                brand_name=brand_name,
+            )
+            article_markdown = inject_article_images(article_markdown, image_assets)
+        except Exception:
+            image_assets = []
         run_store.update_article(article_id, stage="exporting_output", progress_percent=95)
         export_link = export_to_local_doc(query or "quick-draft", article_markdown)
         artifacts = ArticleArtifacts(
@@ -125,6 +151,7 @@ async def process_quick_draft(
             source_brief_id=None,
             source_brief_markdown=brief_markdown,
             article_markdown=article_markdown,
+            image_assets=image_assets,
             export_link=export_link,
         )
         run_store.update_article(

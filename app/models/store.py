@@ -16,9 +16,20 @@ from app.models.schemas import (
     ArticleArtifacts,
     ArticleCreateRequest,
     ArticleRecord,
+    CustomerBillingEventRecord,
     BriefArtifacts,
     BriefCreateRequest,
     BriefRecord,
+    ProviderUsageEventRecord,
+    ContentAgentArtifactRecord,
+    ContentAgentRunRecord,
+    ContentAgentRunSummary,
+    ContentSkillOverrideRecord,
+    ContentAgentStepRecord,
+    ContentStudioArtifactRecord,
+    ContentStudioChatMessageRecord,
+    ContentStudioChatRecord,
+    ContentStudioChatSummary,
     RunArtifacts,
     RunCreateRequest,
     RunRecord,
@@ -128,6 +139,123 @@ class StoreBase:
         )
 
     @staticmethod
+    def _row_to_content_studio_chat_summary(row: Mapping[str, Any]) -> ContentStudioChatSummary:
+        return ContentStudioChatSummary(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            project_id=str(row["project_id"]),
+            title=str((row.get("title") if hasattr(row, "get") else row["title"]) or "Untitled chat"),
+            last_message_preview=str((row.get("last_message_preview") if hasattr(row, "get") else row["last_message_preview"]) or ""),
+            message_count=int((row.get("message_count") if hasattr(row, "get") else row["message_count"]) or 0),
+            active_skill_ids=json.loads(str((row.get("active_skill_ids_json") if hasattr(row, "get") else row["active_skill_ids_json"]) or "[]")),
+            workflow_id=(row.get("workflow_id") if hasattr(row, "get") else row["workflow_id"]) or None,
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+            archived_at=StoreBase._parse_dt(row["archived_at"]) if (row.get("archived_at") if hasattr(row, "get") else row["archived_at"]) else None,
+        )
+
+    @staticmethod
+    def _row_to_content_studio_message(row: Mapping[str, Any]) -> ContentStudioChatMessageRecord:
+        return ContentStudioChatMessageRecord(
+            id=str(row["id"]),
+            chat_id=str(row["chat_id"]),
+            role=str(row["role"]),
+            content=str(row["content"]),
+            active_skill_ids=json.loads(str((row.get("active_skill_ids_json") if hasattr(row, "get") else row["active_skill_ids_json"]) or "[]")),
+            workflow_id=(row.get("workflow_id") if hasattr(row, "get") else row["workflow_id"]) or None,
+            created_at=StoreBase._parse_dt(row["created_at"]),
+        )
+
+    @staticmethod
+    def _row_to_content_studio_artifact(row: Mapping[str, Any]) -> ContentStudioArtifactRecord:
+        return ContentStudioArtifactRecord(
+            id=str(row["id"]),
+            chat_id=str(row["chat_id"]),
+            message_id=str(row["message_id"]),
+            user_id=str(row["user_id"]),
+            project_id=str(row["project_id"]),
+            artifact_type=str(row["artifact_type"]),
+            title=str(row["title"]),
+            content_markdown=str((row.get("content_markdown") if hasattr(row, "get") else row["content_markdown"]) or ""),
+            metadata_json=json.loads(str((row.get("metadata_json") if hasattr(row, "get") else row["metadata_json"]) or "{}")),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+        )
+
+    @staticmethod
+    def _row_to_content_agent_run_summary(row: Mapping[str, Any]) -> ContentAgentRunSummary:
+        latest_type = (row.get("latest_artifact_type") if hasattr(row, "get") else row["latest_artifact_type"]) if row else None
+        latest_title = (row.get("latest_artifact_title") if hasattr(row, "get") else row["latest_artifact_title"]) if row else None
+        title_value = (row.get("title") if hasattr(row, "get") else row["title"]) if row else None
+        archived_at_value = (row.get("archived_at") if hasattr(row, "get") else row["archived_at"]) if row else None
+        return ContentAgentRunSummary(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            project_id=str(row["project_id"]),
+            chat_id=(row.get("chat_id") if hasattr(row, "get") else row["chat_id"]) or None,
+            title=str(title_value or row["goal"] or "Untitled run")[:160],
+            goal=str(row["goal"]),
+            selected_workflow_id=(row.get("selected_workflow_id") if hasattr(row, "get") else row["selected_workflow_id"]) or None,
+            status=str(row["status"]),
+            stage=str((row.get("stage") if hasattr(row, "get") else row["stage"]) or "queued"),
+            progress_percent=int((row.get("progress_percent") if hasattr(row, "get") else row["progress_percent"]) or 0),
+            current_step_title=str((row.get("current_step_title") if hasattr(row, "get") else row["current_step_title"]) or ""),
+            latest_artifact_type=latest_type or None,
+            latest_artifact_title=str(latest_title or ""),
+            error=(row.get("error") if hasattr(row, "get") else row["error"]) or None,
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+            archived_at=StoreBase._parse_dt(archived_at_value) if archived_at_value else None,
+        )
+
+    @staticmethod
+    def _row_to_content_agent_step(row: Mapping[str, Any]) -> ContentAgentStepRecord:
+        return ContentAgentStepRecord(
+            id=str(row["id"]),
+            run_id=str(row["run_id"]),
+            user_id=str(row["user_id"]),
+            project_id=str(row["project_id"]),
+            step_type=str(row["step_type"]),
+            skill_id=(row.get("skill_id") if hasattr(row, "get") else row["skill_id"]) or None,
+            status=str(row["status"]),
+            title=str((row.get("title") if hasattr(row, "get") else row["title"]) or ""),
+            input_json=json.loads(str((row.get("input_json") if hasattr(row, "get") else row["input_json"]) or "{}")),
+            output_json=json.loads(str((row.get("output_json") if hasattr(row, "get") else row["output_json"]) or "{}")),
+            started_at=StoreBase._parse_dt(row["started_at"]) if (row.get("started_at") if hasattr(row, "get") else row["started_at"]) else None,
+            completed_at=StoreBase._parse_dt(row["completed_at"]) if (row.get("completed_at") if hasattr(row, "get") else row["completed_at"]) else None,
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+        )
+
+    @staticmethod
+    def _row_to_content_skill_override(row: Mapping[str, Any]) -> ContentSkillOverrideRecord:
+        return ContentSkillOverrideRecord(
+            id=str(row["id"]),
+            user_id=str(row["user_id"]),
+            project_id=(row.get("project_id") if hasattr(row, "get") else row["project_id"]) or None,
+            scope=str((row.get("scope") if hasattr(row, "get") else row["scope"]) or "project"),
+            skill_id=str(row["skill_id"]),
+            instruction=str((row.get("instruction") if hasattr(row, "get") else row["instruction"]) or ""),
+            source=str((row.get("source") if hasattr(row, "get") else row["source"]) or "chat_feedback"),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+            updated_at=StoreBase._parse_dt(row["updated_at"]),
+        )
+
+    @staticmethod
+    def _row_to_content_agent_artifact(row: Mapping[str, Any]) -> ContentAgentArtifactRecord:
+        return ContentAgentArtifactRecord(
+            id=str(row["id"]),
+            run_id=str(row["run_id"]),
+            chat_id=(row.get("chat_id") if hasattr(row, "get") else row["chat_id"]) or None,
+            user_id=str(row["user_id"]),
+            project_id=str(row["project_id"]),
+            artifact_type=str(row["artifact_type"]),
+            title=str(row["title"]),
+            content_markdown=str((row.get("content_markdown") if hasattr(row, "get") else row["content_markdown"]) or ""),
+            metadata_json=json.loads(str((row.get("metadata_json") if hasattr(row, "get") else row["metadata_json"]) or "{}")),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+        )
+
+    @staticmethod
     def _row_to_user(row: Mapping[str, Any]) -> UserPublic:
         return UserPublic(
             id=str(row["id"]),
@@ -146,6 +274,13 @@ class StoreBase:
             name=row.get("name") if hasattr(row, "get") else row["name"],
             brand_name=row.get("brand_name") if hasattr(row, "get") else row["brand_name"],
             brand_url=row.get("brand_url") if hasattr(row, "get") else row["brand_url"],
+            workspace_name=(row.get("workspace_name") if hasattr(row, "get") else row["workspace_name"]) or "",
+            workspace_type=(row.get("workspace_type") if hasattr(row, "get") else row["workspace_type"]) or "agency",
+            workspace_role=(row.get("workspace_role") if hasattr(row, "get") else row["workspace_role"]) or "admin",
+            allow_power_user_workspace_skill_updates=bool(
+                (row.get("allow_power_user_workspace_skill_updates") if hasattr(row, "get") else row["allow_power_user_workspace_skill_updates"]) or False
+            ),
+            model_routing_mode=(row.get("model_routing_mode") if hasattr(row, "get") else row["model_routing_mode"]) or "balanced",
             brief_prompt_override=(row.get("brief_prompt_override") if hasattr(row, "get") else row["brief_prompt_override"]) or "",
             writer_prompt_override=(row.get("writer_prompt_override") if hasattr(row, "get") else row["writer_prompt_override"]) or "",
             orchestrator_personality_id=(row.get("orchestrator_personality_id") if hasattr(row, "get") else row["orchestrator_personality_id"]) or "strategist",
@@ -156,6 +291,47 @@ class StoreBase:
             custom_writer_personality=(row.get("custom_writer_personality") if hasattr(row, "get") else row["custom_writer_personality"]) or "",
             google_docs_connected=bool((row.get("google_docs_connected") if hasattr(row, "get") else row["google_docs_connected"]) or False),
             google_sheets_connected=bool((row.get("google_sheets_connected") if hasattr(row, "get") else row["google_sheets_connected"]) or False),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+        )
+
+    @staticmethod
+    def _row_to_provider_usage_event(row: Mapping[str, Any]) -> ProviderUsageEventRecord:
+        return ProviderUsageEventRecord(
+            id=str(row["id"]),
+            workspace_id=str(row["workspace_id"]),
+            user_id=str(row["user_id"]),
+            project_id=(row.get("project_id") if hasattr(row, "get") else row["project_id"]) or None,
+            feature=str(row["feature"]),
+            provider=str(row["provider"]),
+            provider_surface=str((row.get("provider_surface") if hasattr(row, "get") else row["provider_surface"]) or ""),
+            provider_model=str((row.get("provider_model") if hasattr(row, "get") else row["provider_model"]) or ""),
+            provider_request_id=(row.get("provider_request_id") if hasattr(row, "get") else row["provider_request_id"]) or None,
+            status=str((row.get("status") if hasattr(row, "get") else row["status"]) or "completed"),
+            input_tokens=int((row.get("input_tokens") if hasattr(row, "get") else row["input_tokens"]) or 0),
+            output_tokens=int((row.get("output_tokens") if hasattr(row, "get") else row["output_tokens"]) or 0),
+            cached_tokens=int((row.get("cached_tokens") if hasattr(row, "get") else row["cached_tokens"]) or 0),
+            reasoning_tokens=int((row.get("reasoning_tokens") if hasattr(row, "get") else row["reasoning_tokens"]) or 0),
+            total_tokens=int((row.get("total_tokens") if hasattr(row, "get") else row["total_tokens"]) or 0),
+            provider_cost_usd=float((row.get("provider_cost_usd") if hasattr(row, "get") else row["provider_cost_usd"]) or 0),
+            metadata_json=json.loads(str((row.get("metadata_json") if hasattr(row, "get") else row["metadata_json"]) or "{}")),
+            created_at=StoreBase._parse_dt(row["created_at"]),
+        )
+
+    @staticmethod
+    def _row_to_customer_billing_event(row: Mapping[str, Any]) -> CustomerBillingEventRecord:
+        return CustomerBillingEventRecord(
+            id=str(row["id"]),
+            workspace_id=str(row["workspace_id"]),
+            user_id=str(row["user_id"]),
+            project_id=(row.get("project_id") if hasattr(row, "get") else row["project_id"]) or None,
+            feature=str(row["feature"]),
+            billing_unit_type=str(row["billing_unit_type"]),
+            quantity=int((row.get("quantity") if hasattr(row, "get") else row["quantity"]) or 0),
+            credits_charged=int((row.get("credits_charged") if hasattr(row, "get") else row["credits_charged"]) or 0),
+            pricing_version=str((row.get("pricing_version") if hasattr(row, "get") else row["pricing_version"]) or "v1"),
+            reference_type=(row.get("reference_type") if hasattr(row, "get") else row["reference_type"]) or None,
+            reference_id=(row.get("reference_id") if hasattr(row, "get") else row["reference_id"]) or None,
+            metadata_json=json.loads(str((row.get("metadata_json") if hasattr(row, "get") else row["metadata_json"]) or "{}")),
             created_at=StoreBase._parse_dt(row["created_at"]),
         )
 
@@ -182,6 +358,17 @@ class StoreBase:
             name=str(row.get("name") if hasattr(row, "get") else row["name"] or ""),
             brand_name=str(row["brand_name"] or ""),
             brand_url=str(row["brand_url"] or ""),
+            default_target_country=str((row.get("default_target_country") if hasattr(row, "get") else row["default_target_country"]) or ""),
+            target_audience_notes=str((row.get("target_audience_notes") if hasattr(row, "get") else row["target_audience_notes"]) or ""),
+            brand_positioning=str((row.get("brand_positioning") if hasattr(row, "get") else row["brand_positioning"]) or ""),
+            editorial_voice=str((row.get("editorial_voice") if hasattr(row, "get") else row["editorial_voice"]) or ""),
+            editorial_quality_bar=str((row.get("editorial_quality_bar") if hasattr(row, "get") else row["editorial_quality_bar"]) or ""),
+            sitemap_url=str((row.get("sitemap_url") if hasattr(row, "get") else row["sitemap_url"]) or ""),
+            approved_domains=str((row.get("approved_domains") if hasattr(row, "get") else row["approved_domains"]) or ""),
+            approved_internal_urls=str((row.get("approved_internal_urls") if hasattr(row, "get") else row["approved_internal_urls"]) or ""),
+            product_page_urls=str((row.get("product_page_urls") if hasattr(row, "get") else row["product_page_urls"]) or ""),
+            visual_guidelines=str((row.get("visual_guidelines") if hasattr(row, "get") else row["visual_guidelines"]) or ""),
+            allow_standard_skill_updates=bool((row.get("allow_standard_skill_updates") if hasattr(row, "get") else row["allow_standard_skill_updates"]) or False),
             default_schedule_frequency=str(row["default_schedule_frequency"] or "disabled"),
             topic_count=int((row.get("topic_count") if hasattr(row, "get") else row["topic_count"]) or 0),
             prompt_list_count=int((row.get("prompt_list_count") if hasattr(row, "get") else row["prompt_list_count"]) or 0),
@@ -350,6 +537,11 @@ class SQLiteStore(StoreBase):
                     name TEXT,
                     brand_name TEXT,
                     brand_url TEXT,
+                    workspace_name TEXT DEFAULT '',
+                    workspace_type TEXT DEFAULT 'agency',
+                    workspace_role TEXT DEFAULT 'admin',
+                    allow_power_user_workspace_skill_updates INTEGER DEFAULT 0,
+                    model_routing_mode TEXT DEFAULT 'balanced',
                     brief_prompt_override TEXT DEFAULT '',
                     writer_prompt_override TEXT DEFAULT '',
                     orchestrator_personality_id TEXT DEFAULT 'strategist',
@@ -414,6 +606,124 @@ class SQLiteStore(StoreBase):
                     FOREIGN KEY(user_id) REFERENCES users(id)
                 );
 
+                CREATE TABLE IF NOT EXISTS content_studio_chats (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    project_id TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    last_message_preview TEXT DEFAULT '',
+                    message_count INTEGER NOT NULL DEFAULT 0,
+                    active_skill_ids_json TEXT NOT NULL DEFAULT '[]',
+                    workflow_id TEXT,
+                    archived_at TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(project_id) REFERENCES visibility_projects(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS content_studio_messages (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    project_id TEXT NOT NULL,
+                    chat_id TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    active_skill_ids_json TEXT NOT NULL DEFAULT '[]',
+                    workflow_id TEXT,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(project_id) REFERENCES visibility_projects(id),
+                    FOREIGN KEY(chat_id) REFERENCES content_studio_chats(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS content_studio_artifacts (
+                    id TEXT PRIMARY KEY,
+                    chat_id TEXT NOT NULL,
+                    message_id TEXT NOT NULL,
+                    user_id TEXT NOT NULL,
+                    project_id TEXT NOT NULL,
+                    artifact_type TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    content_markdown TEXT DEFAULT '',
+                    metadata_json TEXT NOT NULL DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(chat_id) REFERENCES content_studio_chats(id),
+                    FOREIGN KEY(message_id) REFERENCES content_studio_messages(id),
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(project_id) REFERENCES visibility_projects(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS content_agent_runs (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    project_id TEXT NOT NULL,
+                    chat_id TEXT,
+                    title TEXT NOT NULL,
+                    goal TEXT NOT NULL,
+                    selected_workflow_id TEXT,
+                    status TEXT NOT NULL,
+                    stage TEXT NOT NULL,
+                    progress_percent INTEGER NOT NULL DEFAULT 0,
+                    current_step_title TEXT DEFAULT '',
+                    error TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    archived_at TEXT,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(project_id) REFERENCES visibility_projects(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS content_agent_steps (
+                    id TEXT PRIMARY KEY,
+                    run_id TEXT NOT NULL,
+                    user_id TEXT NOT NULL,
+                    project_id TEXT NOT NULL,
+                    step_type TEXT NOT NULL,
+                    skill_id TEXT,
+                    status TEXT NOT NULL,
+                    title TEXT DEFAULT '',
+                    input_json TEXT NOT NULL DEFAULT '{}',
+                    output_json TEXT NOT NULL DEFAULT '{}',
+                    started_at TEXT,
+                    completed_at TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(run_id) REFERENCES content_agent_runs(id),
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(project_id) REFERENCES visibility_projects(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS content_agent_artifacts (
+                    id TEXT PRIMARY KEY,
+                    run_id TEXT NOT NULL,
+                    chat_id TEXT,
+                    user_id TEXT NOT NULL,
+                    project_id TEXT NOT NULL,
+                    artifact_type TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    content_markdown TEXT DEFAULT '',
+                    metadata_json TEXT NOT NULL DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(run_id) REFERENCES content_agent_runs(id),
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(project_id) REFERENCES visibility_projects(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS content_skill_overrides (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    project_id TEXT,
+                    scope TEXT NOT NULL,
+                    skill_id TEXT NOT NULL,
+                    instruction TEXT NOT NULL,
+                    source TEXT NOT NULL DEFAULT 'chat_feedback',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(project_id) REFERENCES visibility_projects(id)
+                );
+
                 CREATE TABLE IF NOT EXISTS visibility_profiles (
                     id TEXT PRIMARY KEY,
                     user_id TEXT UNIQUE NOT NULL,
@@ -431,6 +741,17 @@ class SQLiteStore(StoreBase):
                     name TEXT NOT NULL,
                     brand_name TEXT DEFAULT '',
                     brand_url TEXT DEFAULT '',
+                    default_target_country TEXT DEFAULT '',
+                    target_audience_notes TEXT DEFAULT '',
+                    brand_positioning TEXT DEFAULT '',
+                    editorial_voice TEXT DEFAULT '',
+                    editorial_quality_bar TEXT DEFAULT '',
+                    sitemap_url TEXT DEFAULT '',
+                    approved_domains TEXT DEFAULT '',
+                    approved_internal_urls TEXT DEFAULT '',
+                    product_page_urls TEXT DEFAULT '',
+                    visual_guidelines TEXT DEFAULT '',
+                    allow_standard_skill_updates INTEGER DEFAULT 0,
                     default_schedule_frequency TEXT DEFAULT 'disabled',
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL,
@@ -560,10 +881,59 @@ class SQLiteStore(StoreBase):
                     FOREIGN KEY(prompt_id) REFERENCES visibility_prompts(id)
                 );
 
+                CREATE TABLE IF NOT EXISTS provider_usage_events (
+                    id TEXT PRIMARY KEY,
+                    workspace_id TEXT NOT NULL,
+                    user_id TEXT NOT NULL,
+                    project_id TEXT,
+                    feature TEXT NOT NULL,
+                    provider TEXT NOT NULL,
+                    provider_surface TEXT DEFAULT '',
+                    provider_model TEXT DEFAULT '',
+                    provider_request_id TEXT,
+                    status TEXT NOT NULL DEFAULT 'completed',
+                    input_tokens INTEGER NOT NULL DEFAULT 0,
+                    output_tokens INTEGER NOT NULL DEFAULT 0,
+                    cached_tokens INTEGER NOT NULL DEFAULT 0,
+                    reasoning_tokens INTEGER NOT NULL DEFAULT 0,
+                    total_tokens INTEGER NOT NULL DEFAULT 0,
+                    provider_cost_usd REAL NOT NULL DEFAULT 0,
+                    metadata_json TEXT NOT NULL DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(project_id) REFERENCES visibility_projects(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS customer_billing_events (
+                    id TEXT PRIMARY KEY,
+                    workspace_id TEXT NOT NULL,
+                    user_id TEXT NOT NULL,
+                    project_id TEXT,
+                    feature TEXT NOT NULL,
+                    billing_unit_type TEXT NOT NULL,
+                    quantity INTEGER NOT NULL DEFAULT 1,
+                    credits_charged INTEGER NOT NULL DEFAULT 0,
+                    pricing_version TEXT NOT NULL DEFAULT 'v1',
+                    reference_type TEXT,
+                    reference_id TEXT,
+                    metadata_json TEXT NOT NULL DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(project_id) REFERENCES visibility_projects(id)
+                );
+
                 CREATE INDEX IF NOT EXISTS idx_runs_user_created ON runs(user_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
                 CREATE INDEX IF NOT EXISTS idx_briefs_user_created ON briefs(user_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_articles_user_created ON articles(user_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_content_studio_chats_project ON content_studio_chats(user_id, project_id, updated_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_content_studio_messages_chat ON content_studio_messages(chat_id, created_at ASC);
+                CREATE INDEX IF NOT EXISTS idx_content_studio_artifacts_chat ON content_studio_artifacts(chat_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_content_studio_artifacts_message ON content_studio_artifacts(message_id, created_at ASC);
+                CREATE INDEX IF NOT EXISTS idx_content_agent_runs_project ON content_agent_runs(user_id, project_id, updated_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_content_agent_steps_run ON content_agent_steps(run_id, created_at ASC);
+                CREATE INDEX IF NOT EXISTS idx_content_agent_artifacts_run ON content_agent_artifacts(run_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_content_skill_overrides_scope ON content_skill_overrides(user_id, scope, project_id, skill_id, updated_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_visibility_projects_user ON visibility_projects(user_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_visibility_competitors_user ON visibility_competitors(user_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_visibility_topics_user ON visibility_topics(user_id, created_at DESC);
@@ -573,6 +943,10 @@ class SQLiteStore(StoreBase):
                 CREATE INDEX IF NOT EXISTS idx_visibility_jobs_user ON visibility_jobs(user_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_visibility_runs_user ON visibility_prompt_runs(user_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_visibility_lists_next_run ON visibility_prompt_lists(next_run_at);
+                CREATE INDEX IF NOT EXISTS idx_provider_usage_events_workspace ON provider_usage_events(workspace_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_provider_usage_events_user ON provider_usage_events(user_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_customer_billing_events_workspace ON customer_billing_events(workspace_id, created_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_customer_billing_events_user ON customer_billing_events(user_id, created_at DESC);
                 """
             )
             # Lightweight migrations for existing local databases.
@@ -580,6 +954,11 @@ class SQLiteStore(StoreBase):
                 "ALTER TABLE users ADD COLUMN name TEXT",
                 "ALTER TABLE users ADD COLUMN brand_name TEXT",
                 "ALTER TABLE users ADD COLUMN brand_url TEXT",
+                "ALTER TABLE users ADD COLUMN workspace_name TEXT DEFAULT ''",
+                "ALTER TABLE users ADD COLUMN workspace_type TEXT DEFAULT 'agency'",
+                "ALTER TABLE users ADD COLUMN workspace_role TEXT DEFAULT 'admin'",
+                "ALTER TABLE users ADD COLUMN allow_power_user_workspace_skill_updates INTEGER DEFAULT 0",
+                "ALTER TABLE users ADD COLUMN model_routing_mode TEXT DEFAULT 'balanced'",
                 "ALTER TABLE users ADD COLUMN brief_prompt_override TEXT DEFAULT ''",
                 "ALTER TABLE users ADD COLUMN writer_prompt_override TEXT DEFAULT ''",
                 "ALTER TABLE users ADD COLUMN orchestrator_personality_id TEXT DEFAULT 'strategist'",
@@ -591,17 +970,46 @@ class SQLiteStore(StoreBase):
                 "ALTER TABLE users ADD COLUMN google_docs_connected INTEGER DEFAULT 0",
                 "ALTER TABLE users ADD COLUMN google_sheets_connected INTEGER DEFAULT 0",
                 "ALTER TABLE visibility_competitors ADD COLUMN project_id TEXT",
+                "ALTER TABLE visibility_projects ADD COLUMN default_target_country TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN target_audience_notes TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN brand_positioning TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN editorial_voice TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN editorial_quality_bar TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN sitemap_url TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN approved_domains TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN approved_internal_urls TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN product_page_urls TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN visual_guidelines TEXT DEFAULT ''",
+                "ALTER TABLE visibility_projects ADD COLUMN allow_standard_skill_updates INTEGER DEFAULT 0",
                 "ALTER TABLE visibility_topics ADD COLUMN project_id TEXT",
                 "ALTER TABLE visibility_subtopics ADD COLUMN project_id TEXT",
                 "ALTER TABLE visibility_prompt_lists ADD COLUMN project_id TEXT",
                 "ALTER TABLE visibility_prompts ADD COLUMN project_id TEXT",
                 "ALTER TABLE visibility_jobs ADD COLUMN project_id TEXT",
                 "ALTER TABLE visibility_prompt_runs ADD COLUMN project_id TEXT",
+                "ALTER TABLE content_studio_chats ADD COLUMN archived_at TEXT",
+                "ALTER TABLE content_agent_runs ADD COLUMN title TEXT",
+                "ALTER TABLE content_agent_runs ADD COLUMN archived_at TEXT",
             ]:
                 try:
                     self._conn.execute(statement)
                 except sqlite3.OperationalError:
                     pass
+            try:
+                self._conn.execute(
+                    """
+                    UPDATE users
+                    SET workspace_name = COALESCE(NULLIF(workspace_name, ''), COALESCE(NULLIF(brand_name, ''), name, 'My Workspace'))
+                    """
+                )
+            except sqlite3.OperationalError:
+                pass
+            try:
+                self._conn.execute(
+                    "UPDATE content_agent_runs SET title = substr(goal, 1, 160) WHERE title IS NULL OR trim(title) = ''"
+                )
+            except sqlite3.OperationalError:
+                pass
             self._conn.commit()
 
     def create_user(self, email: str, password: str) -> UserPublic:
@@ -693,6 +1101,8 @@ class SQLiteStore(StoreBase):
             row = self._conn.execute(
                 """
                 SELECT id, email, name, brand_name, brand_url,
+                       workspace_name, workspace_type, workspace_role,
+                       allow_power_user_workspace_skill_updates, model_routing_mode,
                        brief_prompt_override, writer_prompt_override,
                        orchestrator_personality_id, brief_personality_id, writer_personality_id,
                        custom_orchestrator_personality, custom_brief_personality, custom_writer_personality,
@@ -708,6 +1118,11 @@ class SQLiteStore(StoreBase):
             "name",
             "brand_name",
             "brand_url",
+            "workspace_name",
+            "workspace_type",
+            "workspace_role",
+            "allow_power_user_workspace_skill_updates",
+            "model_routing_mode",
             "brief_prompt_override",
             "writer_prompt_override",
             "orchestrator_personality_id",
@@ -732,6 +1147,764 @@ class SQLiteStore(StoreBase):
             self._conn.execute("UPDATE users SET {} WHERE id = ?".format(", ".join(columns)), values)
             self._conn.commit()
         return self.get_user_settings(user_id)
+
+    def create_provider_usage_event(
+        self,
+        *,
+        user_id: str,
+        workspace_id: str,
+        project_id: Optional[str],
+        feature: str,
+        provider: str,
+        provider_surface: str,
+        provider_model: str,
+        provider_request_id: Optional[str],
+        status: str,
+        input_tokens: int,
+        output_tokens: int,
+        cached_tokens: int,
+        reasoning_tokens: int,
+        total_tokens: int,
+        provider_cost_usd: float,
+        metadata_json: Optional[dict[str, Any]] = None,
+    ) -> ProviderUsageEventRecord:
+        record_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO provider_usage_events (
+                    id, workspace_id, user_id, project_id, feature, provider, provider_surface,
+                    provider_model, provider_request_id, status, input_tokens, output_tokens,
+                    cached_tokens, reasoning_tokens, total_tokens, provider_cost_usd, metadata_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    record_id,
+                    workspace_id,
+                    user_id,
+                    project_id,
+                    feature,
+                    provider,
+                    provider_surface,
+                    provider_model,
+                    provider_request_id,
+                    status,
+                    input_tokens,
+                    output_tokens,
+                    cached_tokens,
+                    reasoning_tokens,
+                    total_tokens,
+                    provider_cost_usd,
+                    json.dumps(metadata_json or {}),
+                    now,
+                ),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM provider_usage_events WHERE id = ?", (record_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Provider usage event creation failed unexpectedly")
+        return self._row_to_provider_usage_event(row)
+
+    def list_provider_usage_events(
+        self,
+        *,
+        user_id: str,
+        workspace_id: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
+        limit: int = 200,
+    ) -> List[ProviderUsageEventRecord]:
+        clauses = ["user_id = ?", "workspace_id = ?"]
+        values: list[Any] = [user_id, workspace_id]
+        if start_date:
+            clauses.append("created_at >= ?")
+            values.append(start_date.isoformat())
+        if end_date:
+            clauses.append("created_at < ?")
+            values.append(end_date.isoformat())
+        values.append(limit)
+        with self._lock:
+            rows = self._conn.execute(
+                f"""
+                SELECT * FROM provider_usage_events
+                WHERE {' AND '.join(clauses)}
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                values,
+            ).fetchall()
+        return [self._row_to_provider_usage_event(row) for row in rows]
+
+    def create_customer_billing_event(
+        self,
+        *,
+        user_id: str,
+        workspace_id: str,
+        project_id: Optional[str],
+        feature: str,
+        billing_unit_type: str,
+        quantity: int,
+        credits_charged: int,
+        pricing_version: str,
+        reference_type: Optional[str],
+        reference_id: Optional[str],
+        metadata_json: Optional[dict[str, Any]] = None,
+    ) -> CustomerBillingEventRecord:
+        record_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO customer_billing_events (
+                    id, workspace_id, user_id, project_id, feature, billing_unit_type,
+                    quantity, credits_charged, pricing_version, reference_type, reference_id,
+                    metadata_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    record_id,
+                    workspace_id,
+                    user_id,
+                    project_id,
+                    feature,
+                    billing_unit_type,
+                    quantity,
+                    credits_charged,
+                    pricing_version,
+                    reference_type,
+                    reference_id,
+                    json.dumps(metadata_json or {}),
+                    now,
+                ),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM customer_billing_events WHERE id = ?", (record_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Customer billing event creation failed unexpectedly")
+        return self._row_to_customer_billing_event(row)
+
+    def list_customer_billing_events(
+        self,
+        *,
+        user_id: str,
+        workspace_id: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
+        limit: int = 200,
+    ) -> List[CustomerBillingEventRecord]:
+        clauses = ["user_id = ?", "workspace_id = ?"]
+        values: list[Any] = [user_id, workspace_id]
+        if start_date:
+            clauses.append("created_at >= ?")
+            values.append(start_date.isoformat())
+        if end_date:
+            clauses.append("created_at < ?")
+            values.append(end_date.isoformat())
+        values.append(limit)
+        with self._lock:
+            rows = self._conn.execute(
+                f"""
+                SELECT * FROM customer_billing_events
+                WHERE {' AND '.join(clauses)}
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                values,
+            ).fetchall()
+        return [self._row_to_customer_billing_event(row) for row in rows]
+
+    def create_content_studio_chat(self, user_id: str, *, project_id: str, title: str) -> ContentStudioChatRecord:
+        chat_id = str(uuid4())
+        now = self._now_iso()
+        clean_title = title.strip() or "New chat"
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO content_studio_chats (
+                    id, user_id, project_id, title, last_message_preview, message_count,
+                    active_skill_ids_json, workflow_id, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (chat_id, user_id, project_id, clean_title, "", 0, "[]", None, now, now),
+            )
+            self._conn.commit()
+        created = self.get_content_studio_chat(user_id, chat_id)
+        if not created:
+            raise RuntimeError("Content Studio chat creation failed unexpectedly")
+        return created
+
+    def list_content_studio_chats(self, user_id: str, project_id: str, limit: int = 100) -> List[ContentStudioChatSummary]:
+        with self._lock:
+            rows = self._conn.execute(
+                """
+                SELECT * FROM content_studio_chats
+                WHERE user_id = ? AND project_id = ? AND archived_at IS NULL
+                ORDER BY updated_at DESC, created_at DESC
+                LIMIT ?
+                """,
+                (user_id, project_id, limit),
+            ).fetchall()
+        return [self._row_to_content_studio_chat_summary(row) for row in rows]
+
+    def get_content_studio_chat(self, user_id: str, chat_id: str) -> Optional[ContentStudioChatRecord]:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT * FROM content_studio_chats WHERE id = ? AND user_id = ? AND archived_at IS NULL",
+                (chat_id, user_id),
+            ).fetchone()
+            if not row:
+                return None
+            message_rows = self._conn.execute(
+                """
+                SELECT * FROM content_studio_messages
+                WHERE chat_id = ? AND user_id = ?
+                ORDER BY created_at ASC
+                """,
+                (chat_id, user_id),
+            ).fetchall()
+            artifact_rows = self._conn.execute(
+                """
+                SELECT * FROM content_studio_artifacts
+                WHERE chat_id = ? AND user_id = ?
+                ORDER BY created_at ASC
+                """,
+                (chat_id, user_id),
+            ).fetchall()
+        summary = self._row_to_content_studio_chat_summary(row)
+        artifacts_by_message: dict[str, list[ContentStudioArtifactRecord]] = {}
+        for artifact_row in artifact_rows:
+            artifact = self._row_to_content_studio_artifact(artifact_row)
+            artifacts_by_message.setdefault(artifact.message_id, []).append(artifact)
+        messages: list[ContentStudioChatMessageRecord] = []
+        for item in message_rows:
+            message = self._row_to_content_studio_message(item)
+            messages.append(
+                message.model_copy(update={"artifacts": artifacts_by_message.get(message.id, [])})
+            )
+        return ContentStudioChatRecord(**summary.model_dump(), messages=messages)
+
+    def append_content_studio_message(
+        self,
+        user_id: str,
+        *,
+        project_id: str,
+        chat_id: str,
+        role: str,
+        content: str,
+        active_skill_ids: Optional[List[str]] = None,
+        workflow_id: Optional[str] = None,
+        update_title_from_content: bool = False,
+    ) -> Optional[ContentStudioChatRecord]:
+        now = self._now_iso()
+        message_id = str(uuid4())
+        preview = content.strip()[:220]
+        with self._lock:
+            chat_row = self._conn.execute(
+                "SELECT title, message_count FROM content_studio_chats WHERE id = ? AND user_id = ? AND project_id = ? AND archived_at IS NULL",
+                (chat_id, user_id, project_id),
+            ).fetchone()
+            if not chat_row:
+                return None
+            next_title = str(chat_row["title"] or "New chat")
+            if update_title_from_content and (not next_title.strip() or next_title.strip().lower() == "new chat"):
+                next_title = content.strip()[:80] or "New chat"
+            next_count = int(chat_row["message_count"] or 0) + 1
+            self._conn.execute(
+                """
+                INSERT INTO content_studio_messages (
+                    id, user_id, project_id, chat_id, role, content, active_skill_ids_json, workflow_id, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    message_id,
+                    user_id,
+                    project_id,
+                    chat_id,
+                    role,
+                    content,
+                    json.dumps(active_skill_ids or []),
+                    workflow_id,
+                    now,
+                ),
+            )
+            self._conn.execute(
+                """
+                UPDATE content_studio_chats
+                SET title = ?, last_message_preview = ?, message_count = ?, active_skill_ids_json = ?, workflow_id = ?, updated_at = ?
+                WHERE id = ? AND user_id = ?
+                """,
+                (
+                    next_title,
+                    preview,
+                    next_count,
+                    json.dumps(active_skill_ids or []),
+                    workflow_id,
+                    now,
+                    chat_id,
+                    user_id,
+                ),
+            )
+            self._conn.commit()
+        return self.get_content_studio_chat(user_id, chat_id)
+
+    def rename_content_studio_chat(
+        self,
+        user_id: str,
+        chat_id: str,
+        *,
+        title: str,
+    ) -> Optional[ContentStudioChatSummary]:
+        clean_title = title.strip()[:160] or "Untitled chat"
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                UPDATE content_studio_chats
+                SET title = ?, updated_at = ?
+                WHERE id = ? AND user_id = ? AND archived_at IS NULL
+                """,
+                (clean_title, now, chat_id, user_id),
+            )
+            row = self._conn.execute(
+                "SELECT * FROM content_studio_chats WHERE id = ? AND user_id = ? AND archived_at IS NULL",
+                (chat_id, user_id),
+            ).fetchone()
+            self._conn.commit()
+        return self._row_to_content_studio_chat_summary(row) if row else None
+
+    def archive_content_studio_chat(self, user_id: str, chat_id: str) -> bool:
+        now = self._now_iso()
+        with self._lock:
+            cursor = self._conn.execute(
+                """
+                UPDATE content_studio_chats
+                SET archived_at = ?, updated_at = ?
+                WHERE id = ? AND user_id = ? AND archived_at IS NULL
+                """,
+                (now, now, chat_id, user_id),
+            )
+            self._conn.commit()
+        return bool(cursor.rowcount)
+
+    def create_content_studio_artifact(
+        self,
+        user_id: str,
+        *,
+        project_id: str,
+        chat_id: str,
+        message_id: str,
+        artifact_type: str,
+        title: str,
+        content_markdown: str = "",
+        metadata_json: Optional[dict[str, Any]] = None,
+    ) -> ContentStudioArtifactRecord:
+        artifact_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO content_studio_artifacts (
+                    id, chat_id, message_id, user_id, project_id, artifact_type, title, content_markdown, metadata_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    artifact_id,
+                    chat_id,
+                    message_id,
+                    user_id,
+                    project_id,
+                    artifact_type,
+                    title,
+                    content_markdown,
+                    json.dumps(metadata_json or {}),
+                    now,
+                ),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM content_studio_artifacts WHERE id = ?", (artifact_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Content Studio artifact creation failed unexpectedly")
+        return self._row_to_content_studio_artifact(row)
+
+    def delete_content_studio_chats_for_project(self, user_id: str, project_id: str) -> None:
+        with self._lock:
+            self._conn.execute(
+                "DELETE FROM content_studio_artifacts WHERE project_id = ? AND user_id = ?",
+                (project_id, user_id),
+            )
+            self._conn.execute(
+                "DELETE FROM content_studio_messages WHERE project_id = ? AND user_id = ?",
+                (project_id, user_id),
+            )
+            self._conn.execute(
+                "DELETE FROM content_studio_chats WHERE project_id = ? AND user_id = ?",
+                (project_id, user_id),
+            )
+            self._conn.commit()
+
+    def create_content_agent_run(
+        self,
+        user_id: str,
+        *,
+        project_id: str,
+        goal: str,
+        chat_id: Optional[str] = None,
+        selected_workflow_id: Optional[str] = None,
+    ) -> ContentAgentRunRecord:
+        run_id = str(uuid4())
+        now = self._now_iso()
+        title = goal.strip()[:160] or "Untitled run"
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO content_agent_runs (
+                    id, user_id, project_id, chat_id, title, goal, selected_workflow_id, status, stage,
+                    progress_percent, current_step_title, error, created_at, updated_at, archived_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (run_id, user_id, project_id, chat_id, title, goal, selected_workflow_id, "queued", "queued", 0, "", None, now, now, None),
+            )
+            self._conn.commit()
+        created = self.get_content_agent_run(user_id, run_id)
+        if not created:
+            raise RuntimeError("Content Agent run creation failed unexpectedly")
+        return created
+
+    def list_content_agent_runs(self, user_id: str, project_id: str, limit: int = 100) -> List[ContentAgentRunSummary]:
+        with self._lock:
+            rows = self._conn.execute(
+                """
+                SELECT r.*,
+                       (
+                         SELECT artifact_type FROM content_agent_artifacts a
+                         WHERE a.run_id = r.id AND a.user_id = r.user_id
+                         ORDER BY a.created_at DESC LIMIT 1
+                       ) AS latest_artifact_type,
+                       (
+                         SELECT title FROM content_agent_artifacts a
+                         WHERE a.run_id = r.id AND a.user_id = r.user_id
+                         ORDER BY a.created_at DESC LIMIT 1
+                       ) AS latest_artifact_title
+                FROM content_agent_runs r
+                WHERE r.user_id = ? AND r.project_id = ? AND r.archived_at IS NULL
+                ORDER BY r.updated_at DESC, r.created_at DESC
+                LIMIT ?
+                """,
+                (user_id, project_id, limit),
+            ).fetchall()
+        return [self._row_to_content_agent_run_summary(row) for row in rows]
+
+    def get_content_agent_run(self, user_id: str, run_id: str) -> Optional[ContentAgentRunRecord]:
+        with self._lock:
+            row = self._conn.execute(
+                """
+                SELECT r.*,
+                       (
+                         SELECT artifact_type FROM content_agent_artifacts a
+                         WHERE a.run_id = r.id AND a.user_id = r.user_id
+                         ORDER BY a.created_at DESC LIMIT 1
+                       ) AS latest_artifact_type,
+                       (
+                         SELECT title FROM content_agent_artifacts a
+                         WHERE a.run_id = r.id AND a.user_id = r.user_id
+                         ORDER BY a.created_at DESC LIMIT 1
+                       ) AS latest_artifact_title
+                FROM content_agent_runs r
+                WHERE r.id = ? AND r.user_id = ? AND r.archived_at IS NULL
+                """,
+                (run_id, user_id),
+            ).fetchone()
+            if not row:
+                return None
+            step_rows = self._conn.execute(
+                "SELECT * FROM content_agent_steps WHERE run_id = ? AND user_id = ? ORDER BY created_at ASC",
+                (run_id, user_id),
+            ).fetchall()
+            artifact_rows = self._conn.execute(
+                "SELECT * FROM content_agent_artifacts WHERE run_id = ? AND user_id = ? ORDER BY created_at DESC",
+                (run_id, user_id),
+            ).fetchall()
+        summary = self._row_to_content_agent_run_summary(row)
+        return ContentAgentRunRecord(
+            **summary.model_dump(),
+            steps=[self._row_to_content_agent_step(item) for item in step_rows],
+            artifacts=[self._row_to_content_agent_artifact(item) for item in artifact_rows],
+        )
+
+    def create_content_agent_step(
+        self,
+        user_id: str,
+        *,
+        run_id: str,
+        project_id: str,
+        step_type: str,
+        title: str,
+        skill_id: Optional[str] = None,
+        status: str = "queued",
+        input_json: Optional[dict[str, Any]] = None,
+        output_json: Optional[dict[str, Any]] = None,
+        started_at: Optional[datetime] = None,
+        completed_at: Optional[datetime] = None,
+    ) -> ContentAgentStepRecord:
+        step_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO content_agent_steps (
+                    id, run_id, user_id, project_id, step_type, skill_id, status, title,
+                    input_json, output_json, started_at, completed_at, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    step_id,
+                    run_id,
+                    user_id,
+                    project_id,
+                    step_type,
+                    skill_id,
+                    status,
+                    title,
+                    json.dumps(input_json or {}),
+                    json.dumps(output_json or {}),
+                    started_at.isoformat() if started_at else None,
+                    completed_at.isoformat() if completed_at else None,
+                    now,
+                    now,
+                ),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM content_agent_steps WHERE id = ?", (step_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Content Agent step creation failed unexpectedly")
+        return self._row_to_content_agent_step(row)
+
+    def update_content_agent_step(self, user_id: str, step_id: str, **kwargs: Any) -> Optional[ContentAgentStepRecord]:
+        allowed = {"status", "title", "input_json", "output_json", "started_at", "completed_at"}
+        updates = {k: v for k, v in kwargs.items() if k in allowed}
+        if not updates:
+            with self._lock:
+                row = self._conn.execute("SELECT * FROM content_agent_steps WHERE id = ? AND user_id = ?", (step_id, user_id)).fetchone()
+            return self._row_to_content_agent_step(row) if row else None
+        cols = []
+        values: List[Any] = []
+        for key, value in updates.items():
+            cols.append(f"{key} = ?")
+            if key in {"input_json", "output_json"}:
+                values.append(json.dumps(value or {}))
+            elif key in {"started_at", "completed_at"} and value is not None:
+                values.append(value.isoformat() if hasattr(value, "isoformat") else value)
+            else:
+                values.append(value)
+        cols.append("updated_at = ?")
+        values.append(self._now_iso())
+        values.extend([step_id, user_id])
+        with self._lock:
+            self._conn.execute(
+                f"UPDATE content_agent_steps SET {', '.join(cols)} WHERE id = ? AND user_id = ?",
+                values,
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM content_agent_steps WHERE id = ? AND user_id = ?", (step_id, user_id)).fetchone()
+        return self._row_to_content_agent_step(row) if row else None
+
+    def create_content_agent_artifact(
+        self,
+        user_id: str,
+        *,
+        run_id: str,
+        project_id: str,
+        artifact_type: str,
+        title: str,
+        content_markdown: str,
+        chat_id: Optional[str] = None,
+        metadata_json: Optional[dict[str, Any]] = None,
+    ) -> ContentAgentArtifactRecord:
+        artifact_id = str(uuid4())
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO content_agent_artifacts (
+                    id, run_id, chat_id, user_id, project_id, artifact_type, title, content_markdown, metadata_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (artifact_id, run_id, chat_id, user_id, project_id, artifact_type, title, content_markdown, json.dumps(metadata_json or {}), now),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM content_agent_artifacts WHERE id = ?", (artifact_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Content Agent artifact creation failed unexpectedly")
+        return self._row_to_content_agent_artifact(row)
+
+    def update_content_agent_run(self, user_id: str, run_id: str, **kwargs: Any) -> Optional[ContentAgentRunRecord]:
+        allowed = {"status", "stage", "progress_percent", "current_step_title", "error", "selected_workflow_id", "chat_id", "title", "archived_at"}
+        updates = {k: v for k, v in kwargs.items() if k in allowed}
+        if not updates:
+            return self.get_content_agent_run(user_id, run_id)
+        cols = []
+        values: List[Any] = []
+        for key, value in updates.items():
+            cols.append(f"{key} = ?")
+            values.append(value)
+        cols.append("updated_at = ?")
+        values.append(self._now_iso())
+        values.extend([run_id, user_id])
+        with self._lock:
+            self._conn.execute(
+                f"UPDATE content_agent_runs SET {', '.join(cols)} WHERE id = ? AND user_id = ?",
+                values,
+            )
+            self._conn.commit()
+        return self.get_content_agent_run(user_id, run_id)
+
+    def rename_content_agent_run(
+        self,
+        user_id: str,
+        run_id: str,
+        *,
+        title: str,
+    ) -> Optional[ContentAgentRunSummary]:
+        clean_title = title.strip()[:160] or "Untitled run"
+        now = self._now_iso()
+        with self._lock:
+            self._conn.execute(
+                """
+                UPDATE content_agent_runs
+                SET title = ?, updated_at = ?
+                WHERE id = ? AND user_id = ? AND archived_at IS NULL
+                """,
+                (clean_title, now, run_id, user_id),
+            )
+            row = self._conn.execute(
+                """
+                SELECT r.*,
+                       (
+                         SELECT artifact_type FROM content_agent_artifacts a
+                         WHERE a.run_id = r.id AND a.user_id = r.user_id
+                         ORDER BY a.created_at DESC LIMIT 1
+                       ) AS latest_artifact_type,
+                       (
+                         SELECT title FROM content_agent_artifacts a
+                         WHERE a.run_id = r.id AND a.user_id = r.user_id
+                         ORDER BY a.created_at DESC LIMIT 1
+                       ) AS latest_artifact_title
+                FROM content_agent_runs r
+                WHERE r.id = ? AND r.user_id = ? AND r.archived_at IS NULL
+                """,
+                (run_id, user_id),
+            ).fetchone()
+            self._conn.commit()
+        return self._row_to_content_agent_run_summary(row) if row else None
+
+    def archive_content_agent_run(self, user_id: str, run_id: str) -> bool:
+        now = self._now_iso()
+        with self._lock:
+            cursor = self._conn.execute(
+                """
+                UPDATE content_agent_runs
+                SET archived_at = ?, updated_at = ?
+                WHERE id = ? AND user_id = ? AND archived_at IS NULL
+                """,
+                (now, now, run_id, user_id),
+            )
+            self._conn.commit()
+        return bool(cursor.rowcount)
+
+    def create_content_skill_override(
+        self,
+        user_id: str,
+        *,
+        skill_id: str,
+        instruction: str,
+        scope: str,
+        project_id: Optional[str] = None,
+        source: str = "chat_feedback",
+    ) -> ContentSkillOverrideRecord:
+        override_id = str(uuid4())
+        now = self._now_iso()
+        resolved_project_id = project_id if scope == "project" else None
+        with self._lock:
+            self._conn.execute(
+                """
+                INSERT INTO content_skill_overrides (
+                    id, user_id, project_id, scope, skill_id, instruction, source, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (override_id, user_id, resolved_project_id, scope, skill_id, instruction, source, now, now),
+            )
+            self._conn.commit()
+            row = self._conn.execute("SELECT * FROM content_skill_overrides WHERE id = ?", (override_id,)).fetchone()
+        if not row:
+            raise RuntimeError("Content skill override creation failed unexpectedly")
+        return self._row_to_content_skill_override(row)
+
+    def list_content_skill_overrides(
+        self,
+        user_id: str,
+        *,
+        project_id: Optional[str] = None,
+        scope: Optional[str] = None,
+        skill_id: Optional[str] = None,
+        limit: int = 200,
+    ) -> List[ContentSkillOverrideRecord]:
+        query = ["SELECT * FROM content_skill_overrides WHERE user_id = ?"]
+        params: List[Any] = [user_id]
+        if scope:
+            query.append("AND scope = ?")
+            params.append(scope)
+        if skill_id:
+            query.append("AND skill_id = ?")
+            params.append(skill_id)
+        if project_id is not None:
+            query.append("AND project_id = ?")
+            params.append(project_id)
+        query.append("ORDER BY updated_at DESC, created_at DESC LIMIT ?")
+        params.append(limit)
+        with self._lock:
+            rows = self._conn.execute(" ".join(query), tuple(params)).fetchall()
+        return [self._row_to_content_skill_override(row) for row in rows]
+
+    def get_effective_content_skill_overrides(
+        self,
+        user_id: str,
+        *,
+        project_id: str,
+        skill_id: Optional[str] = None,
+    ) -> List[ContentSkillOverrideRecord]:
+        query = [
+            """
+            SELECT * FROM content_skill_overrides
+            WHERE user_id = ?
+              AND (
+                scope = 'workspace'
+                OR (scope = 'project' AND project_id = ?)
+              )
+            """
+        ]
+        params: List[Any] = [user_id, project_id]
+        if skill_id:
+            query.append("AND skill_id = ?")
+            params.append(skill_id)
+        query.append(
+            """
+            ORDER BY
+              CASE WHEN scope = 'workspace' THEN 0 ELSE 1 END ASC,
+              updated_at ASC,
+              created_at ASC
+            """
+        )
+        with self._lock:
+            rows = self._conn.execute(" ".join(query), tuple(params)).fetchall()
+        return [self._row_to_content_skill_override(row) for row in rows]
+
+    def delete_content_agent_data_for_project(self, user_id: str, project_id: str) -> None:
+        with self._lock:
+            self._conn.execute("DELETE FROM content_agent_artifacts WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.execute("DELETE FROM content_agent_steps WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.execute("DELETE FROM content_agent_runs WHERE project_id = ? AND user_id = ?", (project_id, user_id))
+            self._conn.commit()
 
     def _ensure_visibility_project_migration(self, user_id: str) -> None:
         with self._lock:
@@ -874,6 +2047,17 @@ class SQLiteStore(StoreBase):
         name: str,
         brand_name: str,
         brand_url: str,
+        default_target_country: str,
+        target_audience_notes: str,
+        brand_positioning: str,
+        editorial_voice: str,
+        editorial_quality_bar: str,
+        sitemap_url: str,
+        approved_domains: str,
+        approved_internal_urls: str,
+        product_page_urls: str,
+        visual_guidelines: str,
+        allow_standard_skill_updates: bool,
         default_schedule_frequency: str,
     ) -> VisibilityProjectRecord:
         self._ensure_visibility_project_migration(user_id)
@@ -883,8 +2067,11 @@ class SQLiteStore(StoreBase):
             self._conn.execute(
                 """
                 INSERT INTO visibility_projects (
-                    id, user_id, name, brand_name, brand_url, default_schedule_frequency, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    id, user_id, name, brand_name, brand_url, default_target_country,
+                    target_audience_notes, brand_positioning, editorial_voice, editorial_quality_bar,
+                    sitemap_url, approved_domains, approved_internal_urls, product_page_urls,
+                    visual_guidelines, allow_standard_skill_updates, default_schedule_frequency, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     project_id,
@@ -892,6 +2079,17 @@ class SQLiteStore(StoreBase):
                     name,
                     brand_name,
                     brand_url,
+                    default_target_country,
+                    target_audience_notes,
+                    brand_positioning,
+                    editorial_voice,
+                    editorial_quality_bar,
+                    sitemap_url,
+                    approved_domains,
+                    approved_internal_urls,
+                    product_page_urls,
+                    visual_guidelines,
+                    int(allow_standard_skill_updates),
                     self._normalize_schedule_frequency(default_schedule_frequency),
                     now,
                     now,
@@ -911,6 +2109,17 @@ class SQLiteStore(StoreBase):
         name: str,
         brand_name: str,
         brand_url: str,
+        default_target_country: str,
+        target_audience_notes: str,
+        brand_positioning: str,
+        editorial_voice: str,
+        editorial_quality_bar: str,
+        sitemap_url: str,
+        approved_domains: str,
+        approved_internal_urls: str,
+        product_page_urls: str,
+        visual_guidelines: str,
+        allow_standard_skill_updates: bool,
         default_schedule_frequency: str,
     ) -> Optional[VisibilityProjectRecord]:
         self._ensure_visibility_project_migration(user_id)
@@ -918,13 +2127,27 @@ class SQLiteStore(StoreBase):
             self._conn.execute(
                 """
                 UPDATE visibility_projects
-                SET name = ?, brand_name = ?, brand_url = ?, default_schedule_frequency = ?, updated_at = ?
+                SET name = ?, brand_name = ?, brand_url = ?, default_target_country = ?, target_audience_notes = ?,
+                    brand_positioning = ?, editorial_voice = ?, editorial_quality_bar = ?, sitemap_url = ?,
+                    approved_domains = ?, approved_internal_urls = ?, product_page_urls = ?, visual_guidelines = ?,
+                    allow_standard_skill_updates = ?, default_schedule_frequency = ?, updated_at = ?
                 WHERE id = ? AND user_id = ?
                 """,
                 (
                     name,
                     brand_name,
                     brand_url,
+                    default_target_country,
+                    target_audience_notes,
+                    brand_positioning,
+                    editorial_voice,
+                    editorial_quality_bar,
+                    sitemap_url,
+                    approved_domains,
+                    approved_internal_urls,
+                    product_page_urls,
+                    visual_guidelines,
+                    int(allow_standard_skill_updates),
                     self._normalize_schedule_frequency(default_schedule_frequency),
                     self._now_iso(),
                     project_id,
@@ -944,6 +2167,8 @@ class SQLiteStore(StoreBase):
         deleted_any = False
         for row in topic_rows:
             deleted_any = self.delete_visibility_topic(user_id, str(row["id"])) or deleted_any
+        self.delete_content_studio_chats_for_project(user_id, project_id)
+        self.delete_content_agent_data_for_project(user_id, project_id)
         with self._lock:
             self._conn.execute("DELETE FROM visibility_prompt_runs WHERE project_id = ? AND user_id = ?", (project_id, user_id))
             self._conn.execute("DELETE FROM visibility_jobs WHERE project_id = ? AND user_id = ?", (project_id, user_id))
@@ -1692,6 +2917,11 @@ class PostgresStore(StoreBase):
                         name TEXT,
                         brand_name TEXT,
                         brand_url TEXT,
+                        workspace_name TEXT DEFAULT '',
+                        workspace_type TEXT DEFAULT 'agency',
+                        workspace_role TEXT DEFAULT 'admin',
+                        allow_power_user_workspace_skill_updates BOOLEAN DEFAULT FALSE,
+                        model_routing_mode TEXT DEFAULT 'balanced',
                         brief_prompt_override TEXT DEFAULT '',
                         writer_prompt_override TEXT DEFAULT '',
                         orchestrator_personality_id TEXT DEFAULT 'strategist',
@@ -1710,6 +2940,11 @@ class PostgresStore(StoreBase):
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS brand_name TEXT",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS brand_url TEXT",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS workspace_name TEXT DEFAULT ''",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS workspace_type TEXT DEFAULT 'agency'",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS workspace_role TEXT DEFAULT 'admin'",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS allow_power_user_workspace_skill_updates BOOLEAN DEFAULT FALSE",
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS model_routing_mode TEXT DEFAULT 'balanced'",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS brief_prompt_override TEXT DEFAULT ''",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS writer_prompt_override TEXT DEFAULT ''",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS orchestrator_personality_id TEXT DEFAULT 'strategist'",
@@ -1721,14 +2956,37 @@ class PostgresStore(StoreBase):
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_docs_connected BOOLEAN DEFAULT FALSE",
                     "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sheets_connected BOOLEAN DEFAULT FALSE",
                     "ALTER TABLE visibility_competitors ADD COLUMN IF NOT EXISTS project_id TEXT",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS default_target_country TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS target_audience_notes TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS brand_positioning TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS editorial_voice TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS editorial_quality_bar TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS sitemap_url TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS approved_domains TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS approved_internal_urls TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS product_page_urls TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS visual_guidelines TEXT DEFAULT ''",
+                    "ALTER TABLE visibility_projects ADD COLUMN IF NOT EXISTS allow_standard_skill_updates BOOLEAN DEFAULT FALSE",
                     "ALTER TABLE visibility_topics ADD COLUMN IF NOT EXISTS project_id TEXT",
                     "ALTER TABLE visibility_subtopics ADD COLUMN IF NOT EXISTS project_id TEXT",
                     "ALTER TABLE visibility_prompt_lists ADD COLUMN IF NOT EXISTS project_id TEXT",
                     "ALTER TABLE visibility_prompts ADD COLUMN IF NOT EXISTS project_id TEXT",
                     "ALTER TABLE visibility_jobs ADD COLUMN IF NOT EXISTS project_id TEXT",
                     "ALTER TABLE visibility_prompt_runs ADD COLUMN IF NOT EXISTS project_id TEXT",
+                    "ALTER TABLE content_studio_chats ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ",
+                    "ALTER TABLE content_agent_runs ADD COLUMN IF NOT EXISTS title TEXT",
+                    "ALTER TABLE content_agent_runs ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ",
                 ]:
                     cur.execute(statement)
+                cur.execute(
+                    """
+                    UPDATE users
+                    SET workspace_name = COALESCE(NULLIF(workspace_name, ''), COALESCE(NULLIF(brand_name, ''), name, 'My Workspace'))
+                    """
+                )
+                cur.execute(
+                    "UPDATE content_agent_runs SET title = LEFT(goal, 160) WHERE title IS NULL OR BTRIM(title) = ''"
+                )
                 cur.execute(
                     """
                     CREATE TABLE IF NOT EXISTS sessions (
@@ -1790,6 +3048,126 @@ class PostgresStore(StoreBase):
                 )
                 cur.execute(
                     """
+                    CREATE TABLE IF NOT EXISTS content_studio_chats (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        project_id TEXT NOT NULL REFERENCES visibility_projects(id),
+                        title TEXT NOT NULL,
+                        last_message_preview TEXT DEFAULT '',
+                        message_count INTEGER NOT NULL DEFAULT 0,
+                        active_skill_ids_json TEXT NOT NULL DEFAULT '[]',
+                        workflow_id TEXT,
+                        archived_at TIMESTAMPTZ,
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS content_studio_messages (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        project_id TEXT NOT NULL REFERENCES visibility_projects(id),
+                        chat_id TEXT NOT NULL REFERENCES content_studio_chats(id),
+                        role TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        active_skill_ids_json TEXT NOT NULL DEFAULT '[]',
+                        workflow_id TEXT,
+                        created_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS content_studio_artifacts (
+                        id TEXT PRIMARY KEY,
+                        chat_id TEXT NOT NULL REFERENCES content_studio_chats(id),
+                        message_id TEXT NOT NULL REFERENCES content_studio_messages(id),
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        project_id TEXT NOT NULL REFERENCES visibility_projects(id),
+                        artifact_type TEXT NOT NULL,
+                        title TEXT NOT NULL,
+                        content_markdown TEXT DEFAULT '',
+                        metadata_json TEXT NOT NULL DEFAULT '{}',
+                        created_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS content_agent_runs (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        project_id TEXT NOT NULL REFERENCES visibility_projects(id),
+                        chat_id TEXT,
+                        title TEXT NOT NULL,
+                        goal TEXT NOT NULL,
+                        selected_workflow_id TEXT,
+                        status TEXT NOT NULL,
+                        stage TEXT NOT NULL,
+                        progress_percent INTEGER NOT NULL DEFAULT 0,
+                        current_step_title TEXT DEFAULT '',
+                        error TEXT,
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL,
+                        archived_at TIMESTAMPTZ
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS content_agent_steps (
+                        id TEXT PRIMARY KEY,
+                        run_id TEXT NOT NULL REFERENCES content_agent_runs(id),
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        project_id TEXT NOT NULL REFERENCES visibility_projects(id),
+                        step_type TEXT NOT NULL,
+                        skill_id TEXT,
+                        status TEXT NOT NULL,
+                        title TEXT DEFAULT '',
+                        input_json TEXT NOT NULL DEFAULT '{}',
+                        output_json TEXT NOT NULL DEFAULT '{}',
+                        started_at TIMESTAMPTZ,
+                        completed_at TIMESTAMPTZ,
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS content_agent_artifacts (
+                        id TEXT PRIMARY KEY,
+                        run_id TEXT NOT NULL REFERENCES content_agent_runs(id),
+                        chat_id TEXT,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        project_id TEXT NOT NULL REFERENCES visibility_projects(id),
+                        artifact_type TEXT NOT NULL,
+                        title TEXT NOT NULL,
+                        content_markdown TEXT DEFAULT '',
+                        metadata_json TEXT NOT NULL DEFAULT '{}',
+                        created_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS content_skill_overrides (
+                        id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        project_id TEXT REFERENCES visibility_projects(id),
+                        scope TEXT NOT NULL,
+                        skill_id TEXT NOT NULL,
+                        instruction TEXT NOT NULL,
+                        source TEXT NOT NULL DEFAULT 'chat_feedback',
+                        created_at TIMESTAMPTZ NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS visibility_profiles (
                         id TEXT PRIMARY KEY,
                         user_id TEXT UNIQUE NOT NULL REFERENCES users(id),
@@ -1809,6 +3187,17 @@ class PostgresStore(StoreBase):
                         name TEXT NOT NULL,
                         brand_name TEXT DEFAULT '',
                         brand_url TEXT DEFAULT '',
+                        default_target_country TEXT DEFAULT '',
+                        target_audience_notes TEXT DEFAULT '',
+                        brand_positioning TEXT DEFAULT '',
+                        editorial_voice TEXT DEFAULT '',
+                        editorial_quality_bar TEXT DEFAULT '',
+                        sitemap_url TEXT DEFAULT '',
+                        approved_domains TEXT DEFAULT '',
+                        approved_internal_urls TEXT DEFAULT '',
+                        product_page_urls TEXT DEFAULT '',
+                        visual_guidelines TEXT DEFAULT '',
+                        allow_standard_skill_updates BOOLEAN DEFAULT FALSE,
                         default_schedule_frequency TEXT DEFAULT 'disabled',
                         created_at TIMESTAMPTZ NOT NULL,
                         updated_at TIMESTAMPTZ NOT NULL
@@ -1934,10 +3323,61 @@ class PostgresStore(StoreBase):
                     )
                     """
                 )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS provider_usage_events (
+                        id TEXT PRIMARY KEY,
+                        workspace_id TEXT NOT NULL,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        project_id TEXT REFERENCES visibility_projects(id),
+                        feature TEXT NOT NULL,
+                        provider TEXT NOT NULL,
+                        provider_surface TEXT DEFAULT '',
+                        provider_model TEXT DEFAULT '',
+                        provider_request_id TEXT,
+                        status TEXT NOT NULL DEFAULT 'completed',
+                        input_tokens INTEGER NOT NULL DEFAULT 0,
+                        output_tokens INTEGER NOT NULL DEFAULT 0,
+                        cached_tokens INTEGER NOT NULL DEFAULT 0,
+                        reasoning_tokens INTEGER NOT NULL DEFAULT 0,
+                        total_tokens INTEGER NOT NULL DEFAULT 0,
+                        provider_cost_usd DOUBLE PRECISION NOT NULL DEFAULT 0,
+                        metadata_json TEXT NOT NULL DEFAULT '{}',
+                        created_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS customer_billing_events (
+                        id TEXT PRIMARY KEY,
+                        workspace_id TEXT NOT NULL,
+                        user_id TEXT NOT NULL REFERENCES users(id),
+                        project_id TEXT REFERENCES visibility_projects(id),
+                        feature TEXT NOT NULL,
+                        billing_unit_type TEXT NOT NULL,
+                        quantity INTEGER NOT NULL DEFAULT 1,
+                        credits_charged INTEGER NOT NULL DEFAULT 0,
+                        pricing_version TEXT NOT NULL DEFAULT 'v1',
+                        reference_type TEXT,
+                        reference_id TEXT,
+                        metadata_json TEXT NOT NULL DEFAULT '{}',
+                        created_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_runs_user_created ON runs(user_id, created_at DESC)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_briefs_user_created ON briefs(user_id, created_at DESC)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_articles_user_created ON articles(user_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_content_studio_chats_project ON content_studio_chats(user_id, project_id, updated_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_content_studio_messages_chat ON content_studio_messages(chat_id, created_at ASC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_content_studio_artifacts_chat ON content_studio_artifacts(chat_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_content_studio_artifacts_message ON content_studio_artifacts(message_id, created_at ASC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_content_agent_runs_project ON content_agent_runs(user_id, project_id, updated_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_content_agent_steps_run ON content_agent_steps(run_id, created_at ASC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_content_agent_artifacts_run ON content_agent_artifacts(run_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_content_skill_overrides_scope ON content_skill_overrides(user_id, scope, project_id, skill_id, updated_at DESC)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_projects_user ON visibility_projects(user_id, created_at DESC)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_competitors_user ON visibility_competitors(user_id, created_at DESC)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_topics_user ON visibility_topics(user_id, created_at DESC)")
@@ -1947,6 +3387,10 @@ class PostgresStore(StoreBase):
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_jobs_user ON visibility_jobs(user_id, created_at DESC)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_runs_user ON visibility_prompt_runs(user_id, created_at DESC)")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_visibility_lists_next_run ON visibility_prompt_lists(next_run_at)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_provider_usage_events_workspace ON provider_usage_events(workspace_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_provider_usage_events_user ON provider_usage_events(user_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_customer_billing_events_workspace ON customer_billing_events(workspace_id, created_at DESC)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_customer_billing_events_user ON customer_billing_events(user_id, created_at DESC)")
             conn.commit()
 
     def create_user(self, email: str, password: str) -> UserPublic:
@@ -2046,6 +3490,8 @@ class PostgresStore(StoreBase):
                 cur.execute(
                     """
                     SELECT id, email, name, brand_name, brand_url,
+                           workspace_name, workspace_type, workspace_role,
+                           allow_power_user_workspace_skill_updates, model_routing_mode,
                            brief_prompt_override, writer_prompt_override,
                            orchestrator_personality_id, brief_personality_id, writer_personality_id,
                            custom_orchestrator_personality, custom_brief_personality, custom_writer_personality,
@@ -2062,6 +3508,11 @@ class PostgresStore(StoreBase):
             "name",
             "brand_name",
             "brand_url",
+            "workspace_name",
+            "workspace_type",
+            "workspace_role",
+            "allow_power_user_workspace_skill_updates",
+            "model_routing_mode",
             "brief_prompt_override",
             "writer_prompt_override",
             "orchestrator_personality_id",
@@ -2087,6 +3538,800 @@ class PostgresStore(StoreBase):
                 cur.execute("UPDATE users SET {} WHERE id = %s".format(", ".join(columns)), values)
             conn.commit()
         return self.get_user_settings(user_id)
+
+    def create_provider_usage_event(
+        self,
+        *,
+        user_id: str,
+        workspace_id: str,
+        project_id: Optional[str],
+        feature: str,
+        provider: str,
+        provider_surface: str,
+        provider_model: str,
+        provider_request_id: Optional[str],
+        status: str,
+        input_tokens: int,
+        output_tokens: int,
+        cached_tokens: int,
+        reasoning_tokens: int,
+        total_tokens: int,
+        provider_cost_usd: float,
+        metadata_json: Optional[dict[str, Any]] = None,
+    ) -> ProviderUsageEventRecord:
+        record_id = str(uuid4())
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO provider_usage_events (
+                        id, workspace_id, user_id, project_id, feature, provider, provider_surface,
+                        provider_model, provider_request_id, status, input_tokens, output_tokens,
+                        cached_tokens, reasoning_tokens, total_tokens, provider_cost_usd, metadata_json, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        record_id,
+                        workspace_id,
+                        user_id,
+                        project_id,
+                        feature,
+                        provider,
+                        provider_surface,
+                        provider_model,
+                        provider_request_id,
+                        status,
+                        input_tokens,
+                        output_tokens,
+                        cached_tokens,
+                        reasoning_tokens,
+                        total_tokens,
+                        provider_cost_usd,
+                        json.dumps(metadata_json or {}),
+                        now,
+                    ),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM provider_usage_events WHERE id = %s", (record_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Provider usage event creation failed unexpectedly")
+        return self._row_to_provider_usage_event(row)
+
+    def list_provider_usage_events(
+        self,
+        *,
+        user_id: str,
+        workspace_id: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
+        limit: int = 200,
+    ) -> List[ProviderUsageEventRecord]:
+        clauses = ["user_id = %s", "workspace_id = %s"]
+        values: list[Any] = [user_id, workspace_id]
+        if start_date:
+            clauses.append("created_at >= %s")
+            values.append(start_date)
+        if end_date:
+            clauses.append("created_at < %s")
+            values.append(end_date)
+        values.append(limit)
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    f"""
+                    SELECT * FROM provider_usage_events
+                    WHERE {' AND '.join(clauses)}
+                    ORDER BY created_at DESC
+                    LIMIT %s
+                    """,
+                    values,
+                )
+                rows = cur.fetchall()
+        return [self._row_to_provider_usage_event(row) for row in rows]
+
+    def create_customer_billing_event(
+        self,
+        *,
+        user_id: str,
+        workspace_id: str,
+        project_id: Optional[str],
+        feature: str,
+        billing_unit_type: str,
+        quantity: int,
+        credits_charged: int,
+        pricing_version: str,
+        reference_type: Optional[str],
+        reference_id: Optional[str],
+        metadata_json: Optional[dict[str, Any]] = None,
+    ) -> CustomerBillingEventRecord:
+        record_id = str(uuid4())
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO customer_billing_events (
+                        id, workspace_id, user_id, project_id, feature, billing_unit_type,
+                        quantity, credits_charged, pricing_version, reference_type, reference_id,
+                        metadata_json, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        record_id,
+                        workspace_id,
+                        user_id,
+                        project_id,
+                        feature,
+                        billing_unit_type,
+                        quantity,
+                        credits_charged,
+                        pricing_version,
+                        reference_type,
+                        reference_id,
+                        json.dumps(metadata_json or {}),
+                        now,
+                    ),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM customer_billing_events WHERE id = %s", (record_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Customer billing event creation failed unexpectedly")
+        return self._row_to_customer_billing_event(row)
+
+    def list_customer_billing_events(
+        self,
+        *,
+        user_id: str,
+        workspace_id: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
+        limit: int = 200,
+    ) -> List[CustomerBillingEventRecord]:
+        clauses = ["user_id = %s", "workspace_id = %s"]
+        values: list[Any] = [user_id, workspace_id]
+        if start_date:
+            clauses.append("created_at >= %s")
+            values.append(start_date)
+        if end_date:
+            clauses.append("created_at < %s")
+            values.append(end_date)
+        values.append(limit)
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    f"""
+                    SELECT * FROM customer_billing_events
+                    WHERE {' AND '.join(clauses)}
+                    ORDER BY created_at DESC
+                    LIMIT %s
+                    """,
+                    values,
+                )
+                rows = cur.fetchall()
+        return [self._row_to_customer_billing_event(row) for row in rows]
+
+    def create_content_studio_chat(self, user_id: str, *, project_id: str, title: str) -> ContentStudioChatRecord:
+        chat_id = str(uuid4())
+        now = self._utcnow()
+        clean_title = title.strip() or "New chat"
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO content_studio_chats (
+                        id, user_id, project_id, title, last_message_preview, message_count,
+                        active_skill_ids_json, workflow_id, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (chat_id, user_id, project_id, clean_title, "", 0, "[]", None, now, now),
+                )
+            conn.commit()
+        created = self.get_content_studio_chat(user_id, chat_id)
+        if not created:
+            raise RuntimeError("Content Studio chat creation failed unexpectedly")
+        return created
+
+    def list_content_studio_chats(self, user_id: str, project_id: str, limit: int = 100) -> List[ContentStudioChatSummary]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT * FROM content_studio_chats
+                    WHERE user_id = %s AND project_id = %s AND archived_at IS NULL
+                    ORDER BY updated_at DESC, created_at DESC
+                    LIMIT %s
+                    """,
+                    (user_id, project_id, limit),
+                )
+                rows = cur.fetchall()
+        return [self._row_to_content_studio_chat_summary(row) for row in rows]
+
+    def get_content_studio_chat(self, user_id: str, chat_id: str) -> Optional[ContentStudioChatRecord]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM content_studio_chats WHERE id = %s AND user_id = %s AND archived_at IS NULL", (chat_id, user_id))
+                row = cur.fetchone()
+                if not row:
+                    return None
+                cur.execute(
+                    """
+                    SELECT * FROM content_studio_messages
+                    WHERE chat_id = %s AND user_id = %s
+                    ORDER BY created_at ASC
+                    """,
+                    (chat_id, user_id),
+                )
+                message_rows = cur.fetchall()
+                cur.execute(
+                    """
+                    SELECT * FROM content_studio_artifacts
+                    WHERE chat_id = %s AND user_id = %s
+                    ORDER BY created_at ASC
+                    """,
+                    (chat_id, user_id),
+                )
+                artifact_rows = cur.fetchall()
+        summary = self._row_to_content_studio_chat_summary(row)
+        artifacts_by_message: dict[str, list[ContentStudioArtifactRecord]] = {}
+        for artifact_row in artifact_rows:
+            artifact = self._row_to_content_studio_artifact(artifact_row)
+            artifacts_by_message.setdefault(artifact.message_id, []).append(artifact)
+        messages: list[ContentStudioChatMessageRecord] = []
+        for item in message_rows:
+            message = self._row_to_content_studio_message(item)
+            messages.append(
+                message.model_copy(update={"artifacts": artifacts_by_message.get(message.id, [])})
+            )
+        return ContentStudioChatRecord(**summary.model_dump(), messages=messages)
+
+    def append_content_studio_message(
+        self,
+        user_id: str,
+        *,
+        project_id: str,
+        chat_id: str,
+        role: str,
+        content: str,
+        active_skill_ids: Optional[List[str]] = None,
+        workflow_id: Optional[str] = None,
+        update_title_from_content: bool = False,
+    ) -> Optional[ContentStudioChatRecord]:
+        now = self._utcnow()
+        message_id = str(uuid4())
+        preview = content.strip()[:220]
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT title, message_count FROM content_studio_chats
+                    WHERE id = %s AND user_id = %s AND project_id = %s AND archived_at IS NULL
+                    """,
+                    (chat_id, user_id, project_id),
+                )
+                chat_row = cur.fetchone()
+                if not chat_row:
+                    return None
+                next_title = str(chat_row["title"] or "New chat")
+                if update_title_from_content and (not next_title.strip() or next_title.strip().lower() == "new chat"):
+                    next_title = content.strip()[:80] or "New chat"
+                next_count = int(chat_row["message_count"] or 0) + 1
+                cur.execute(
+                    """
+                    INSERT INTO content_studio_messages (
+                        id, user_id, project_id, chat_id, role, content, active_skill_ids_json, workflow_id, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        message_id,
+                        user_id,
+                        project_id,
+                        chat_id,
+                        role,
+                        content,
+                        json.dumps(active_skill_ids or []),
+                        workflow_id,
+                        now,
+                    ),
+                )
+                cur.execute(
+                    """
+                    UPDATE content_studio_chats
+                    SET title = %s, last_message_preview = %s, message_count = %s, active_skill_ids_json = %s, workflow_id = %s, updated_at = %s
+                    WHERE id = %s AND user_id = %s
+                    """,
+                    (
+                        next_title,
+                        preview,
+                        next_count,
+                        json.dumps(active_skill_ids or []),
+                        workflow_id,
+                        now,
+                        chat_id,
+                        user_id,
+                    ),
+                )
+            conn.commit()
+        return self.get_content_studio_chat(user_id, chat_id)
+
+    def rename_content_studio_chat(
+        self,
+        user_id: str,
+        chat_id: str,
+        *,
+        title: str,
+    ) -> Optional[ContentStudioChatSummary]:
+        clean_title = title.strip()[:160] or "Untitled chat"
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    UPDATE content_studio_chats
+                    SET title = %s, updated_at = %s
+                    WHERE id = %s AND user_id = %s AND archived_at IS NULL
+                    RETURNING *
+                    """,
+                    (clean_title, now, chat_id, user_id),
+                )
+                row = cur.fetchone()
+            conn.commit()
+        return self._row_to_content_studio_chat_summary(row) if row else None
+
+    def archive_content_studio_chat(self, user_id: str, chat_id: str) -> bool:
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE content_studio_chats
+                    SET archived_at = %s, updated_at = %s
+                    WHERE id = %s AND user_id = %s AND archived_at IS NULL
+                    """,
+                    (now, now, chat_id, user_id),
+                )
+                archived = cur.rowcount > 0
+            conn.commit()
+        return archived
+
+    def create_content_studio_artifact(
+        self,
+        user_id: str,
+        *,
+        project_id: str,
+        chat_id: str,
+        message_id: str,
+        artifact_type: str,
+        title: str,
+        content_markdown: str = "",
+        metadata_json: Optional[dict[str, Any]] = None,
+    ) -> ContentStudioArtifactRecord:
+        artifact_id = str(uuid4())
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    INSERT INTO content_studio_artifacts (
+                        id, chat_id, message_id, user_id, project_id, artifact_type, title, content_markdown, metadata_json, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        artifact_id,
+                        chat_id,
+                        message_id,
+                        user_id,
+                        project_id,
+                        artifact_type,
+                        title,
+                        content_markdown,
+                        json.dumps(metadata_json or {}),
+                        now,
+                    ),
+                )
+                conn.commit()
+                cur.execute("SELECT * FROM content_studio_artifacts WHERE id = %s", (artifact_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Content Studio artifact creation failed unexpectedly")
+        return self._row_to_content_studio_artifact(row)
+
+    def delete_content_studio_chats_for_project(self, user_id: str, project_id: str) -> None:
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM content_studio_artifacts WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM content_studio_messages WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM content_studio_chats WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+            conn.commit()
+
+    def create_content_agent_run(
+        self,
+        user_id: str,
+        *,
+        project_id: str,
+        goal: str,
+        chat_id: Optional[str] = None,
+        selected_workflow_id: Optional[str] = None,
+    ) -> ContentAgentRunRecord:
+        run_id = str(uuid4())
+        now = self._utcnow()
+        title = goal.strip()[:160] or "Untitled run"
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO content_agent_runs (
+                        id, user_id, project_id, chat_id, title, goal, selected_workflow_id, status, stage,
+                        progress_percent, current_step_title, error, created_at, updated_at, archived_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (run_id, user_id, project_id, chat_id, title, goal, selected_workflow_id, "queued", "queued", 0, "", None, now, now, None),
+                )
+            conn.commit()
+        created = self.get_content_agent_run(user_id, run_id)
+        if not created:
+            raise RuntimeError("Content Agent run creation failed unexpectedly")
+        return created
+
+    def list_content_agent_runs(self, user_id: str, project_id: str, limit: int = 100) -> List[ContentAgentRunSummary]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT r.*,
+                           (
+                             SELECT artifact_type FROM content_agent_artifacts a
+                             WHERE a.run_id = r.id AND a.user_id = r.user_id
+                             ORDER BY a.created_at DESC LIMIT 1
+                           ) AS latest_artifact_type,
+                           (
+                             SELECT title FROM content_agent_artifacts a
+                             WHERE a.run_id = r.id AND a.user_id = r.user_id
+                             ORDER BY a.created_at DESC LIMIT 1
+                           ) AS latest_artifact_title
+                    FROM content_agent_runs r
+                    WHERE r.user_id = %s AND r.project_id = %s AND r.archived_at IS NULL
+                    ORDER BY r.updated_at DESC, r.created_at DESC
+                    LIMIT %s
+                    """,
+                    (user_id, project_id, limit),
+                )
+                rows = cur.fetchall()
+        return [self._row_to_content_agent_run_summary(row) for row in rows]
+
+    def get_content_agent_run(self, user_id: str, run_id: str) -> Optional[ContentAgentRunRecord]:
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT r.*,
+                           (
+                             SELECT artifact_type FROM content_agent_artifacts a
+                             WHERE a.run_id = r.id AND a.user_id = r.user_id
+                             ORDER BY a.created_at DESC LIMIT 1
+                           ) AS latest_artifact_type,
+                           (
+                             SELECT title FROM content_agent_artifacts a
+                             WHERE a.run_id = r.id AND a.user_id = r.user_id
+                             ORDER BY a.created_at DESC LIMIT 1
+                           ) AS latest_artifact_title
+                    FROM content_agent_runs r
+                    WHERE r.id = %s AND r.user_id = %s AND r.archived_at IS NULL
+                    """,
+                    (run_id, user_id),
+                )
+                row = cur.fetchone()
+                if not row:
+                    return None
+                cur.execute("SELECT * FROM content_agent_steps WHERE run_id = %s AND user_id = %s ORDER BY created_at ASC", (run_id, user_id))
+                step_rows = cur.fetchall()
+                cur.execute("SELECT * FROM content_agent_artifacts WHERE run_id = %s AND user_id = %s ORDER BY created_at DESC", (run_id, user_id))
+                artifact_rows = cur.fetchall()
+        summary = self._row_to_content_agent_run_summary(row)
+        return ContentAgentRunRecord(
+            **summary.model_dump(),
+            steps=[self._row_to_content_agent_step(item) for item in step_rows],
+            artifacts=[self._row_to_content_agent_artifact(item) for item in artifact_rows],
+        )
+
+    def create_content_agent_step(
+        self,
+        user_id: str,
+        *,
+        run_id: str,
+        project_id: str,
+        step_type: str,
+        title: str,
+        skill_id: Optional[str] = None,
+        status: str = "queued",
+        input_json: Optional[dict[str, Any]] = None,
+        output_json: Optional[dict[str, Any]] = None,
+        started_at: Optional[datetime] = None,
+        completed_at: Optional[datetime] = None,
+    ) -> ContentAgentStepRecord:
+        step_id = str(uuid4())
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO content_agent_steps (
+                        id, run_id, user_id, project_id, step_type, skill_id, status, title,
+                        input_json, output_json, started_at, completed_at, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        step_id,
+                        run_id,
+                        user_id,
+                        project_id,
+                        step_type,
+                        skill_id,
+                        status,
+                        title,
+                        json.dumps(input_json or {}),
+                        json.dumps(output_json or {}),
+                        started_at,
+                        completed_at,
+                        now,
+                        now,
+                    ),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM content_agent_steps WHERE id = %s", (step_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Content Agent step creation failed unexpectedly")
+        return self._row_to_content_agent_step(row)
+
+    def update_content_agent_step(self, user_id: str, step_id: str, **kwargs: Any) -> Optional[ContentAgentStepRecord]:
+        allowed = {"status", "title", "input_json", "output_json", "started_at", "completed_at"}
+        updates = {k: v for k, v in kwargs.items() if k in allowed}
+        if not updates:
+            with self._connect() as conn:
+                with conn.cursor(row_factory=dict_row) as cur:
+                    cur.execute("SELECT * FROM content_agent_steps WHERE id = %s AND user_id = %s", (step_id, user_id))
+                    row = cur.fetchone()
+            return self._row_to_content_agent_step(row) if row else None
+        columns = []
+        values: List[Any] = []
+        for key, value in updates.items():
+            columns.append(f"{key} = %s")
+            if key in {"input_json", "output_json"}:
+                values.append(json.dumps(value or {}))
+            else:
+                values.append(value)
+        columns.append("updated_at = %s")
+        values.append(self._utcnow())
+        values.extend([step_id, user_id])
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    f"UPDATE content_agent_steps SET {', '.join(columns)} WHERE id = %s AND user_id = %s",
+                    values,
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM content_agent_steps WHERE id = %s AND user_id = %s", (step_id, user_id))
+                row = cur.fetchone()
+        return self._row_to_content_agent_step(row) if row else None
+
+    def create_content_agent_artifact(
+        self,
+        user_id: str,
+        *,
+        run_id: str,
+        project_id: str,
+        artifact_type: str,
+        title: str,
+        content_markdown: str,
+        chat_id: Optional[str] = None,
+        metadata_json: Optional[dict[str, Any]] = None,
+    ) -> ContentAgentArtifactRecord:
+        artifact_id = str(uuid4())
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO content_agent_artifacts (
+                        id, run_id, chat_id, user_id, project_id, artifact_type, title, content_markdown, metadata_json, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (artifact_id, run_id, chat_id, user_id, project_id, artifact_type, title, content_markdown, json.dumps(metadata_json or {}), now),
+                )
+            conn.commit()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute("SELECT * FROM content_agent_artifacts WHERE id = %s", (artifact_id,))
+                row = cur.fetchone()
+        if not row:
+            raise RuntimeError("Content Agent artifact creation failed unexpectedly")
+        return self._row_to_content_agent_artifact(row)
+
+    def update_content_agent_run(self, user_id: str, run_id: str, **kwargs: Any) -> Optional[ContentAgentRunRecord]:
+        allowed = {"status", "stage", "progress_percent", "current_step_title", "error", "selected_workflow_id", "chat_id", "title", "archived_at"}
+        updates = {k: v for k, v in kwargs.items() if k in allowed}
+        if not updates:
+            return self.get_content_agent_run(user_id, run_id)
+        columns = []
+        values: List[Any] = []
+        for key, value in updates.items():
+            columns.append(f"{key} = %s")
+            values.append(value)
+        columns.append("updated_at = %s")
+        values.append(self._utcnow())
+        values.extend([run_id, user_id])
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(f"UPDATE content_agent_runs SET {', '.join(columns)} WHERE id = %s AND user_id = %s", values)
+            conn.commit()
+        return self.get_content_agent_run(user_id, run_id)
+
+    def rename_content_agent_run(
+        self,
+        user_id: str,
+        run_id: str,
+        *,
+        title: str,
+    ) -> Optional[ContentAgentRunSummary]:
+        clean_title = title.strip()[:160] or "Untitled run"
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    UPDATE content_agent_runs
+                    SET title = %s, updated_at = %s
+                    WHERE id = %s AND user_id = %s AND archived_at IS NULL
+                    """,
+                    (clean_title, now, run_id, user_id),
+                )
+                cur.execute(
+                    """
+                    SELECT r.*,
+                           (
+                             SELECT artifact_type FROM content_agent_artifacts a
+                             WHERE a.run_id = r.id AND a.user_id = r.user_id
+                             ORDER BY a.created_at DESC LIMIT 1
+                           ) AS latest_artifact_type,
+                           (
+                             SELECT title FROM content_agent_artifacts a
+                             WHERE a.run_id = r.id AND a.user_id = r.user_id
+                             ORDER BY a.created_at DESC LIMIT 1
+                           ) AS latest_artifact_title
+                    FROM content_agent_runs r
+                    WHERE r.id = %s AND r.user_id = %s AND r.archived_at IS NULL
+                    """,
+                    (run_id, user_id),
+                )
+                row = cur.fetchone()
+            conn.commit()
+        return self._row_to_content_agent_run_summary(row) if row else None
+
+    def archive_content_agent_run(self, user_id: str, run_id: str) -> bool:
+        now = self._utcnow()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE content_agent_runs
+                    SET archived_at = %s, updated_at = %s
+                    WHERE id = %s AND user_id = %s AND archived_at IS NULL
+                    """,
+                    (now, now, run_id, user_id),
+                )
+                archived = cur.rowcount > 0
+            conn.commit()
+        return archived
+
+    def create_content_skill_override(
+        self,
+        user_id: str,
+        *,
+        skill_id: str,
+        instruction: str,
+        scope: str,
+        project_id: Optional[str] = None,
+        source: str = "chat_feedback",
+    ) -> ContentSkillOverrideRecord:
+        override_id = str(uuid4())
+        now = self._utcnow()
+        resolved_project_id = project_id if scope == "project" else None
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO content_skill_overrides (
+                        id, user_id, project_id, scope, skill_id, instruction, source, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (override_id, user_id, resolved_project_id, scope, skill_id, instruction, source, now, now),
+                )
+            conn.commit()
+        rows = self.list_content_skill_overrides(user_id, project_id=resolved_project_id, scope=scope, skill_id=skill_id, limit=1)
+        if not rows:
+            raise RuntimeError("Content skill override creation failed unexpectedly")
+        return rows[0]
+
+    def list_content_skill_overrides(
+        self,
+        user_id: str,
+        *,
+        project_id: Optional[str] = None,
+        scope: Optional[str] = None,
+        skill_id: Optional[str] = None,
+        limit: int = 200,
+    ) -> List[ContentSkillOverrideRecord]:
+        clauses = ["user_id = %s"]
+        params: List[Any] = [user_id]
+        if scope:
+            clauses.append("scope = %s")
+            params.append(scope)
+        if skill_id:
+            clauses.append("skill_id = %s")
+            params.append(skill_id)
+        if project_id is not None:
+            clauses.append("project_id = %s")
+            params.append(project_id)
+        params.append(limit)
+        query = f"""
+            SELECT * FROM content_skill_overrides
+            WHERE {' AND '.join(clauses)}
+            ORDER BY updated_at DESC, created_at DESC
+            LIMIT %s
+        """
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(query, params)
+                rows = cur.fetchall()
+        return [self._row_to_content_skill_override(row) for row in rows]
+
+    def get_effective_content_skill_overrides(
+        self,
+        user_id: str,
+        *,
+        project_id: str,
+        skill_id: Optional[str] = None,
+    ) -> List[ContentSkillOverrideRecord]:
+        clauses = [
+            "user_id = %s",
+            "(scope = 'workspace' OR (scope = 'project' AND project_id = %s))",
+        ]
+        params: List[Any] = [user_id, project_id]
+        if skill_id:
+            clauses.append("skill_id = %s")
+            params.append(skill_id)
+        query = f"""
+            SELECT * FROM content_skill_overrides
+            WHERE {' AND '.join(clauses)}
+            ORDER BY
+              CASE WHEN scope = 'workspace' THEN 0 ELSE 1 END ASC,
+              updated_at ASC,
+              created_at ASC
+        """
+        with self._connect() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(query, params)
+                rows = cur.fetchall()
+        return [self._row_to_content_skill_override(row) for row in rows]
+
+    def delete_content_agent_data_for_project(self, user_id: str, project_id: str) -> None:
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM content_agent_artifacts WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM content_agent_steps WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+                cur.execute("DELETE FROM content_agent_runs WHERE project_id = %s AND user_id = %s", (project_id, user_id))
+            conn.commit()
 
     def _ensure_visibility_project_migration(self, user_id: str) -> None:
         with self._connect() as conn:
@@ -2207,7 +4452,26 @@ class PostgresStore(StoreBase):
         competitors = self.list_visibility_competitors(user_id, project_id)
         return self._row_to_visibility_project(row, competitors)
 
-    def create_visibility_project(self, user_id: str, *, name: str, brand_name: str, brand_url: str, default_schedule_frequency: str) -> VisibilityProjectRecord:
+    def create_visibility_project(
+        self,
+        user_id: str,
+        *,
+        name: str,
+        brand_name: str,
+        brand_url: str,
+        default_target_country: str,
+        target_audience_notes: str,
+        brand_positioning: str,
+        editorial_voice: str,
+        editorial_quality_bar: str,
+        sitemap_url: str,
+        approved_domains: str,
+        approved_internal_urls: str,
+        product_page_urls: str,
+        visual_guidelines: str,
+        allow_standard_skill_updates: bool,
+        default_schedule_frequency: str,
+    ) -> VisibilityProjectRecord:
         self._ensure_visibility_project_migration(user_id)
         project_id = str(uuid4())
         now = self._utcnow()
@@ -2216,24 +4480,89 @@ class PostgresStore(StoreBase):
                 cur.execute(
                     """
                     INSERT INTO visibility_projects (
-                        id, user_id, name, brand_name, brand_url, default_schedule_frequency, created_at, updated_at
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        id, user_id, name, brand_name, brand_url, default_target_country,
+                        target_audience_notes, brand_positioning, editorial_voice, editorial_quality_bar,
+                        sitemap_url, approved_domains, approved_internal_urls, product_page_urls,
+                        visual_guidelines, allow_standard_skill_updates, default_schedule_frequency, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
-                    (project_id, user_id, name, brand_name, brand_url, self._normalize_schedule_frequency(default_schedule_frequency), now, now),
+                    (
+                        project_id,
+                        user_id,
+                        name,
+                        brand_name,
+                        brand_url,
+                        default_target_country,
+                        target_audience_notes,
+                        brand_positioning,
+                        editorial_voice,
+                        editorial_quality_bar,
+                        sitemap_url,
+                        approved_domains,
+                        approved_internal_urls,
+                        product_page_urls,
+                        visual_guidelines,
+                        allow_standard_skill_updates,
+                        self._normalize_schedule_frequency(default_schedule_frequency),
+                        now,
+                        now,
+                    ),
                 )
             conn.commit()
         return self.get_visibility_project(user_id, project_id)  # type: ignore[return-value]
 
-    def update_visibility_project(self, user_id: str, project_id: str, *, name: str, brand_name: str, brand_url: str, default_schedule_frequency: str) -> Optional[VisibilityProjectRecord]:
+    def update_visibility_project(
+        self,
+        user_id: str,
+        project_id: str,
+        *,
+        name: str,
+        brand_name: str,
+        brand_url: str,
+        default_target_country: str,
+        target_audience_notes: str,
+        brand_positioning: str,
+        editorial_voice: str,
+        editorial_quality_bar: str,
+        sitemap_url: str,
+        approved_domains: str,
+        approved_internal_urls: str,
+        product_page_urls: str,
+        visual_guidelines: str,
+        allow_standard_skill_updates: bool,
+        default_schedule_frequency: str,
+    ) -> Optional[VisibilityProjectRecord]:
         with self._connect() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     """
                     UPDATE visibility_projects
-                    SET name = %s, brand_name = %s, brand_url = %s, default_schedule_frequency = %s, updated_at = %s
+                    SET name = %s, brand_name = %s, brand_url = %s, default_target_country = %s, target_audience_notes = %s,
+                        brand_positioning = %s, editorial_voice = %s, editorial_quality_bar = %s, sitemap_url = %s,
+                        approved_domains = %s, approved_internal_urls = %s, product_page_urls = %s, visual_guidelines = %s,
+                        allow_standard_skill_updates = %s, default_schedule_frequency = %s, updated_at = %s
                     WHERE id = %s AND user_id = %s
                     """,
-                    (name, brand_name, brand_url, self._normalize_schedule_frequency(default_schedule_frequency), self._utcnow(), project_id, user_id),
+                    (
+                        name,
+                        brand_name,
+                        brand_url,
+                        default_target_country,
+                        target_audience_notes,
+                        brand_positioning,
+                        editorial_voice,
+                        editorial_quality_bar,
+                        sitemap_url,
+                        approved_domains,
+                        approved_internal_urls,
+                        product_page_urls,
+                        visual_guidelines,
+                        allow_standard_skill_updates,
+                        self._normalize_schedule_frequency(default_schedule_frequency),
+                        self._utcnow(),
+                        project_id,
+                        user_id,
+                    ),
                 )
             conn.commit()
         return self.get_visibility_project(user_id, project_id)
@@ -2246,6 +4575,8 @@ class PostgresStore(StoreBase):
         deleted_any = False
         for row in topic_rows:
             deleted_any = self.delete_visibility_topic(user_id, str(row["id"])) or deleted_any
+        self.delete_content_studio_chats_for_project(user_id, project_id)
+        self.delete_content_agent_data_for_project(user_id, project_id)
         with self._connect() as conn:
             with conn.cursor() as cur:
                 cur.execute("DELETE FROM visibility_prompt_runs WHERE project_id = %s AND user_id = %s", (project_id, user_id))
