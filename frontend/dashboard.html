@@ -707,40 +707,269 @@
 
       .project-dashboard {
         display: grid;
-        gap: 18px;
+        gap: 22px;
       }
 
-      .project-dashboard-topbar {
-        padding: 22px 24px;
-      }
-
-      .project-dashboard-grid {
+      .project-dashboard-shell {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+        min-height: calc(100vh - 40px);
+      }
+
+      .project-dashboard-main {
+        min-width: 0;
+        display: grid;
+        gap: 16px;
+        align-content: start;
+      }
+
+      .project-dashboard-rail {
+        position: sticky;
+        top: 20px;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 40px);
+        padding: 24px 18px 22px;
+        color: var(--sidebar-ink);
+        border: 0;
+        border-radius: 0;
+        background: linear-gradient(180deg, var(--sidebar-gradient-start) 0%, var(--sidebar-gradient-end) 100%);
+        overflow: hidden;
+      }
+
+      .project-dashboard-rail-shell {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 22px;
+        min-height: calc(100vh - 86px);
+      }
+
+      .project-dashboard-rail-section {
+        display: grid;
+        gap: 10px;
+      }
+
+      .project-dashboard-rail-kicker {
+        margin: 0;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(225, 233, 255, 0.68);
+      }
+
+      .project-dashboard-rail-title {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        font-size: 20px;
+        line-height: 1.2;
+        color: var(--sidebar-ink);
+        word-break: break-word;
+      }
+
+      .project-dashboard-rail-copy {
+        margin: 0;
+        color: rgba(237, 243, 255, 0.78);
+        font-size: 12px;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+
+      .project-dashboard-rail-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+      }
+
+      .project-dashboard-rail-nav {
+        gap: 2px;
+        display: grid;
+        margin-inline: -18px;
+      }
+
+      .project-dashboard-rail-nav-secondary {
+        margin-top: auto;
+      }
+
+      .project-dashboard-rail-nav .nav-btn {
+        padding-right: 18px;
+      }
+
+      .project-dashboard-rail-nav .nav-copy span {
+        max-width: 170px;
+      }
+
+      .project-settings-shell {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+        min-height: calc(100vh - 40px);
+      }
+
+      .project-settings-main {
+        min-width: 0;
+        display: grid;
+        gap: 16px;
+        align-content: start;
+      }
+
+      .project-settings-content,
+      .project-settings-skills {
+        display: grid;
+        gap: 16px;
+      }
+
+      .project-settings-content .tracker-split {
+        grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
         gap: 18px;
       }
 
-      .project-dashboard-shell,
-      .project-dashboard-shell .project-module-main {
-        min-height: 0;
+      .project-settings-content .section.card,
+      .project-settings-skills.section.card {
+        border-radius: 24px;
+        box-shadow: var(--shadow-soft);
       }
 
-      .project-dashboard-sidebar {
-        align-content: start;
-        grid-auto-rows: max-content;
+      .project-dashboard-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1;
       }
 
-      .project-dashboard-card {
-        min-height: 0;
+      .project-dashboard-pill.success {
+        background: var(--status-success-bg);
+        color: var(--status-success-text);
       }
 
-      .project-dashboard-card h2 {
-        margin: 0 0 6px;
+      .project-dashboard-pill.warning {
+        background: var(--status-warning-bg);
+        color: var(--status-warning-text);
+      }
+
+      .project-dashboard-pill.info {
+        background: var(--status-info-bg);
+        color: var(--status-info-text);
+      }
+
+      .project-dashboard-pill.neutral {
+        background: rgba(255, 255, 255, 0.14);
+        color: #eef2ff;
+      }
+
+      .project-dashboard-intro {
+        display: grid;
+        gap: 8px;
+      }
+
+      .project-dashboard-intro-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .project-dashboard-intro-copy {
+        min-width: 0;
+        display: grid;
+        gap: 6px;
+      }
+
+      .project-dashboard-kicker {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .project-dashboard-intro h1 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(30px, 4vw, 44px);
+        line-height: 1.04;
+        letter-spacing: -0.06em;
+      }
+
+      .project-dashboard-intro p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+        max-width: 760px;
+      }
+
+      .project-dashboard-intro-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .project-dashboard-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .project-dashboard-stat-card {
+        display: grid;
+        gap: 8px;
+        padding: 22px;
+        border-radius: 24px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .project-dashboard-stat-card.signal {
+        background: linear-gradient(180deg, var(--sidebar-soft), var(--sidebar));
+        border-color: transparent;
+        color: var(--surface-contrast-ink);
+      }
+
+      .project-dashboard-stat-card.signal .project-dashboard-kicker,
+      .project-dashboard-stat-card.signal p {
+        color: rgba(237, 243, 255, 0.76);
+      }
+
+      .project-dashboard-stat-card strong {
+        font-family: "Sora", sans-serif;
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      .project-dashboard-stat-card .project-dashboard-stat-value {
+        font-family: "Sora", sans-serif;
+        font-size: 24px;
+        letter-spacing: -0.05em;
+      }
+
+      .project-dashboard-stat-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
       }
 
       .project-dashboard-panel {
         display: none;
-        gap: 12px;
+        gap: 14px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
       }
 
       .project-dashboard-panel.active {
@@ -761,6 +990,19 @@
         min-width: 0;
       }
 
+      .project-dashboard-panel-copy h2 {
+        margin: 0 0 6px;
+        font-family: "Sora", sans-serif;
+        font-size: 16px;
+      }
+
+      .project-dashboard-panel-copy p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
       .project-dashboard-panel-actions {
         display: flex;
         align-items: flex-start;
@@ -771,42 +1013,28 @@
 
       .project-dashboard-list {
         display: grid;
-        gap: 8px;
+        gap: 10px;
         margin-top: 0;
         align-content: start;
         grid-auto-rows: max-content;
       }
 
       .project-dashboard-summary {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       }
 
       .project-dashboard-scroll-list {
-        max-height: 320px;
-        overflow: auto;
-        padding-right: 4px;
-      }
-
-      .project-dashboard-scroll-list::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      .project-dashboard-scroll-list::-webkit-scrollbar-thumb {
-        background: #d7dfec;
-        border-radius: 999px;
-      }
-
-      .project-dashboard-scroll-list::-webkit-scrollbar-track {
-        background: transparent;
+        max-height: none;
+        overflow: visible;
       }
 
       .project-dashboard-item {
         border: 1px solid var(--line);
-        border-radius: 14px;
+        border-radius: 16px;
         background: linear-gradient(180deg, var(--surface), var(--surface-2));
-        padding: 11px 13px;
+        padding: 13px 14px;
         display: grid;
-        gap: 3px;
+        gap: 5px;
         text-align: left;
         align-content: start;
         justify-items: start;
@@ -814,19 +1042,19 @@
 
       .project-dashboard-item strong {
         display: block;
-        font-size: var(--text-body);
-        line-height: 1.35;
-        text-align: left;
         width: 100%;
+        font-size: 13px;
+        line-height: 1.4;
+        text-align: left;
       }
 
       .project-dashboard-item span {
         display: block;
-        color: var(--muted);
-        font-size: var(--text-meta);
-        line-height: 1.4;
-        text-align: left;
         width: 100%;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+        text-align: left;
       }
 
       .project-dashboard-item-button {
@@ -847,8 +1075,8 @@
         display: -webkit-box;
         overflow: hidden;
         color: var(--muted);
-        font-size: var(--text-meta);
-        line-height: 1.45;
+        font-size: 12px;
+        line-height: 1.5;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         text-align: left;
@@ -857,7 +1085,7 @@
       .project-dashboard-item-meta {
         color: var(--muted);
         font-size: 11px;
-        line-height: 1.35;
+        line-height: 1.45;
         text-align: left;
       }
 
@@ -4287,10 +4515,19 @@
           min-height: auto;
         }
 
-        .project-dashboard-grid,
-        .project-module-shell {
+        .project-module-shell,
+        .project-dashboard-shell,
+        .project-settings-shell {
           grid-template-columns: 1fr;
           min-height: auto;
+        }
+
+        .project-dashboard-stat-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .project-settings-content .tracker-split {
+          grid-template-columns: 1fr;
         }
 
         .workspace-side-rail {
@@ -4394,6 +4631,11 @@
           min-height: auto;
         }
 
+        .project-dashboard-rail {
+          position: static;
+          min-height: auto;
+        }
+
         .sidebar {
           position: relative;
           top: 0;
@@ -4444,12 +4686,19 @@
           flex-direction: column;
         }
 
+        .project-dashboard-intro-head,
+        .project-dashboard-panel-head {
+          flex-direction: column;
+        }
+
         .workspace-overview-head h2 {
           font-size: 27px;
         }
 
         .workspace-overview-actions,
-        .home-project-actions {
+        .home-project-actions,
+        .project-dashboard-intro-actions,
+        .project-dashboard-panel-actions {
           width: 100%;
         }
 
@@ -4460,11 +4709,17 @@
 
         .workspace-overview-actions .btn,
         .home-project-actions .btn,
-        .home-project-toolbar .btn {
+        .home-project-toolbar .btn,
+        .project-dashboard-intro-actions .btn,
+        .project-dashboard-panel-actions .btn {
           width: 100%;
         }
 
         .home-project-toolbar {
+          grid-template-columns: 1fr;
+        }
+
+        .project-dashboard-stat-grid {
           grid-template-columns: 1fr;
         }
 
@@ -4738,54 +4993,147 @@
 
         <section id="projectDashboardView" class="view">
           <div class="project-dashboard">
-            <section class="project-dashboard-topbar card">
-              <div class="topbar-head">
-                <div>
-                  <div class="row-actions" style="margin: 0 0 10px;">
-                    <button id="projectDashboardBackBtn" class="btn" type="button">Back to Projects</button>
+            <div class="project-dashboard-shell">
+              <aside class="project-dashboard-rail">
+                <div class="project-dashboard-rail-shell">
+                  <div class="row-actions" style="margin: 0;">
+                    <button id="projectDashboardBackBtn" class="btn" type="button">Back to Workspace</button>
                   </div>
-                  <h1 id="projectDashboardTitle">Project Dashboard</h1>
-                  <p id="projectDashboardSubtitle">Open Content Studio, review recent chats, check AI visibility activity, or manage this project’s shared settings.</p>
-                </div>
-                <div class="row-actions" style="margin-top: 0;">
-                  <button id="openProjectSettingsBtn" class="btn" type="button">Project Settings</button>
-                </div>
-              </div>
-            </section>
 
-            <div class="project-module-shell project-dashboard-shell">
-              <aside class="project-module-sidebar project-dashboard-sidebar card">
-                <div class="project-sidebar-section">
-                  <h3>Project Modules</h3>
-                  <div class="project-sidebar-nav">
-                    <button id="projectDashboardNavStudio" class="project-sidebar-nav-btn active" type="button" data-project-dashboard-panel-btn="studio">Content Studio</button>
-                    <button id="projectDashboardNavAgent" class="project-sidebar-nav-btn" type="button" data-project-dashboard-panel-btn="agent">Content Agent</button>
-                    <button id="projectDashboardNavVisibility" class="project-sidebar-nav-btn" type="button" data-project-dashboard-panel-btn="visibility">AI Visibility Tracker</button>
+                  <div class="project-dashboard-rail-section">
+                    <p class="project-dashboard-rail-kicker">Active Project</p>
+                    <h2 id="projectDashboardRailTitle" class="project-dashboard-rail-title">Project Dashboard</h2>
+                    <p id="projectDashboardRailUrl" class="project-dashboard-rail-copy">Project details load here.</p>
+                    <div class="project-dashboard-rail-meta">
+                      <span id="projectDashboardStatusChip" class="project-dashboard-pill neutral">Not configured</span>
+                      <span id="projectDashboardSetupChip" class="project-dashboard-pill neutral">0% setup</span>
+                    </div>
+                  </div>
+
+                  <div class="project-dashboard-rail-section">
+                    <p class="project-dashboard-rail-kicker">Project Navigation</p>
+                    <div class="project-dashboard-rail-nav">
+                      <button id="projectDashboardNavStudio" class="nav-btn active" type="button" data-project-dashboard-panel-btn="studio">
+                        <span class="nav-mark">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H11l-4 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z"></path>
+                            <path d="M8 8.5h8"></path>
+                            <path d="M8 11.5h5"></path>
+                          </svg>
+                        </span>
+                        <span class="nav-copy">
+                          <strong>Content Studio</strong>
+                          <span>Chats, drafts, and context</span>
+                        </span>
+                      </button>
+                      <button id="projectDashboardNavAgent" class="nav-btn" type="button" data-project-dashboard-panel-btn="agent">
+                        <span class="nav-mark">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 3v4"></path>
+                            <path d="M7 7.5 4.5 10"></path>
+                            <path d="M17 7.5 19.5 10"></path>
+                            <rect x="6" y="8" width="12" height="9" rx="3"></rect>
+                            <path d="M9.5 12h5"></path>
+                            <path d="M10 15h4"></path>
+                            <path d="M9 21h6"></path>
+                          </svg>
+                        </span>
+                        <span class="nav-copy">
+                          <strong>Content Agent</strong>
+                          <span>Runs, comparisons, and flow</span>
+                        </span>
+                      </button>
+                      <button id="projectDashboardNavVisibility" class="nav-btn" type="button" data-project-dashboard-panel-btn="visibility">
+                        <span class="nav-mark">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 19V9"></path>
+                            <path d="M10 19V5"></path>
+                            <path d="M16 19v-8"></path>
+                            <path d="M22 19v-4"></path>
+                          </svg>
+                        </span>
+                        <span class="nav-copy">
+                          <strong>AI Visibility Tracker</strong>
+                          <span>Signals, runs, and reports</span>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="project-dashboard-rail-nav project-dashboard-rail-nav-secondary">
+                    <button id="openProjectSettingsBtn" class="nav-btn" type="button">
+                      <span class="nav-mark">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12 8.5A3.5 3.5 0 1 0 12 15.5A3.5 3.5 0 1 0 12 8.5z"></path>
+                          <path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1.3 1.3 0 0 1 0 1.8l-1.2 1.2a1.3 1.3 0 0 1-1.8 0l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a1.3 1.3 0 0 1-1.3 1.3h-1.7A1.3 1.3 0 0 1 10.6 20v-.2a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.1.1a1.3 1.3 0 0 1-1.8 0l-1.2-1.2a1.3 1.3 0 0 1 0-1.8l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4A1.3 1.3 0 0 1 2.7 13v-1.7A1.3 1.3 0 0 1 4 10h.2a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.1-.1a1.3 1.3 0 0 1 0-1.8l1.2-1.2a1.3 1.3 0 0 1 1.8 0l.1.1a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4A1.3 1.3 0 0 1 12 2.7h1.7A1.3 1.3 0 0 1 15 4v.2a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a1.3 1.3 0 0 1 1.8 0l1.2 1.2a1.3 1.3 0 0 1 0 1.8l-.1.1a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6h.2a1.3 1.3 0 0 1 1.3 1.3V13a1.3 1.3 0 0 1-1.3 1.3h-.2a1 1 0 0 0-.9.7z"></path>
+                        </svg>
+                      </span>
+                      <span class="nav-copy">
+                        <strong>Project Settings</strong>
+                        <span>Brand, market, and sitemap</span>
+                      </span>
+                    </button>
                   </div>
                 </div>
               </aside>
 
-              <div class="project-module-main">
-                <section id="projectDashboardStudioPanel" class="section card project-dashboard-card project-dashboard-panel active">
+              <div class="project-dashboard-main">
+                <section class="project-dashboard-intro">
+                  <div class="project-dashboard-intro-head">
+                    <div class="project-dashboard-intro-copy">
+                      <p class="project-dashboard-kicker">Project Dashboard</p>
+                      <h1 id="projectDashboardTitle">Project Dashboard</h1>
+                      <p id="projectDashboardSubtitle">Open a module, continue recent work, and manage shared project context from one view.</p>
+                    </div>
+                    <div class="project-dashboard-intro-actions">
+                      <button id="projectDashboardOpenWebsiteBtn" class="btn" type="button">Open Website</button>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="project-dashboard-stat-grid">
+                  <article class="project-dashboard-stat-card">
+                    <p class="project-dashboard-kicker">Setup Score</p>
+                    <strong id="projectDashboardSetupScore" class="project-dashboard-stat-value">0%</strong>
+                    <p id="projectDashboardSetupSummary">Shared project settings incomplete</p>
+                  </article>
+                  <article class="project-dashboard-stat-card">
+                    <p class="project-dashboard-kicker">Content Studio</p>
+                    <strong id="projectDashboardStudioCount" class="project-dashboard-stat-value">0</strong>
+                    <p id="projectDashboardStudioSummary">No chats yet</p>
+                  </article>
+                  <article class="project-dashboard-stat-card">
+                    <p class="project-dashboard-kicker">Content Agent</p>
+                    <strong id="projectDashboardAgentCount" class="project-dashboard-stat-value">0</strong>
+                    <p id="projectDashboardAgentSummary">No runs yet</p>
+                  </article>
+                  <article class="project-dashboard-stat-card signal">
+                    <p class="project-dashboard-kicker">Latest Signal</p>
+                    <strong id="projectDashboardVisibilitySignal" class="project-dashboard-stat-value">0</strong>
+                    <p id="projectDashboardVisibilitySignalSummary">Visibility tracking has not started yet</p>
+                  </article>
+                </section>
+
+                <section id="projectDashboardStudioPanel" class="project-dashboard-panel active">
                   <div class="project-dashboard-panel-head">
                     <div class="project-dashboard-panel-copy">
                       <h2>Content Studio</h2>
-                      <p class="desc">Saved chats for this project live here. Start a new conversation or continue a previous one.</p>
+                      <p>Saved chats for this project live here. Continue the latest conversation or start a new one.</p>
                     </div>
                     <div class="project-dashboard-panel-actions">
-                      <button id="projectDashboardOpenStudioBtn" class="btn" type="button">Open Studio</button>
-                      <button id="projectDashboardNewChatBtn" class="btn primary" type="button">New Chat</button>
+                      <button id="projectDashboardOpenStudioBtn" class="btn primary" type="button">Open Studio</button>
+                      <button id="projectDashboardNewChatBtn" class="btn" type="button">New Chat</button>
                     </div>
                   </div>
                   <div id="projectDashboardStudioMeta" class="project-dashboard-list project-dashboard-summary"></div>
                   <div id="projectDashboardChatsList" class="project-dashboard-list project-dashboard-scroll-list"></div>
                 </section>
 
-                <section id="projectDashboardAgentPanel" class="section card project-dashboard-card project-dashboard-panel">
+                <section id="projectDashboardAgentPanel" class="project-dashboard-panel">
                   <div class="project-dashboard-panel-head">
                     <div class="project-dashboard-panel-copy">
                       <h2>Content Agent</h2>
-                      <p class="desc">Compare an agent-led content workflow against Content Studio before rolling it out broadly.</p>
+                      <p>Use a run-led workflow to compare agent output and execution stages against the current studio flow.</p>
                     </div>
                     <div class="project-dashboard-panel-actions">
                       <button id="projectDashboardOpenAgentBtn" class="btn primary" type="button">Open Agent</button>
@@ -4795,11 +5143,11 @@
                   <div id="projectDashboardAgentRunsList" class="project-dashboard-list project-dashboard-scroll-list"></div>
                 </section>
 
-                <section id="projectDashboardVisibilityPanel" class="section card project-dashboard-card project-dashboard-panel">
+                <section id="projectDashboardVisibilityPanel" class="project-dashboard-panel">
                   <div class="project-dashboard-panel-head">
                     <div class="project-dashboard-panel-copy">
                       <h2>AI Visibility Tracker</h2>
-                      <p class="desc">Review the current prompt coverage, recent run activity, and latest tracker signals for this project.</p>
+                      <p>Review tracked topics, prompt-list coverage, and recent snapshot runs from the same project workspace.</p>
                     </div>
                     <div class="project-dashboard-panel-actions">
                       <button id="projectDashboardOpenVisibilityBtn" class="btn" type="button">Open Tracker</button>
@@ -5874,22 +6222,104 @@ What AI visibility tracking tools are cited most often?"></textarea>
         </section>
 
         <section id="projectSettingsView" class="view">
-          <div class="project-module-shell">
-            <aside class="project-module-sidebar card">
-              <div class="project-sidebar-section">
-                <div class="row-actions" style="margin-top: 0;">
-                  <button id="projectSettingsBackBtn" class="btn" type="button">Back to Project Dashboard</button>
+          <div class="project-settings-shell">
+            <aside class="project-dashboard-rail">
+              <div class="project-dashboard-rail-shell">
+                <div class="row-actions" style="margin: 0;">
+                  <button id="projectSettingsBackBtn" class="btn" type="button">Back to Workspace</button>
                 </div>
-              </div>
-              <div class="project-sidebar-section">
-                <h3>Project Settings</h3>
-                <p class="desc">These settings are shared by Content Studio, Content Agent, and AI Visibility Tracker for this specific project.</p>
+
+                <div class="project-dashboard-rail-section">
+                  <p class="project-dashboard-rail-kicker">Active Project</p>
+                  <h2 id="projectSettingsRailTitle" class="project-dashboard-rail-title">Project Settings</h2>
+                  <p id="projectSettingsRailUrl" class="project-dashboard-rail-copy">Project details load here.</p>
+                  <div class="project-dashboard-rail-meta">
+                    <span id="projectSettingsStatusChip" class="project-dashboard-pill neutral">Not configured</span>
+                    <span id="projectSettingsSetupChip" class="project-dashboard-pill neutral">0% setup</span>
+                  </div>
+                </div>
+
+                <div class="project-dashboard-rail-section">
+                  <p class="project-dashboard-rail-kicker">Project Navigation</p>
+                  <div class="project-dashboard-rail-nav">
+                    <button id="projectSettingsNavStudio" class="nav-btn" type="button" data-project-dashboard-panel-btn="studio">
+                      <span class="nav-mark">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H11l-4 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z"></path>
+                          <path d="M8 8.5h8"></path>
+                          <path d="M8 11.5h5"></path>
+                        </svg>
+                      </span>
+                      <span class="nav-copy">
+                        <strong>Content Studio</strong>
+                        <span>Chats, drafts, and context</span>
+                      </span>
+                    </button>
+                    <button id="projectSettingsNavAgent" class="nav-btn" type="button" data-project-dashboard-panel-btn="agent">
+                      <span class="nav-mark">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12 3v4"></path>
+                          <path d="M7 7.5 4.5 10"></path>
+                          <path d="M17 7.5 19.5 10"></path>
+                          <rect x="6" y="8" width="12" height="9" rx="3"></rect>
+                          <path d="M9.5 12h5"></path>
+                          <path d="M10 15h4"></path>
+                          <path d="M9 21h6"></path>
+                        </svg>
+                      </span>
+                      <span class="nav-copy">
+                        <strong>Content Agent</strong>
+                        <span>Runs, comparisons, and flow</span>
+                      </span>
+                    </button>
+                    <button id="projectSettingsNavVisibility" class="nav-btn" type="button" data-project-dashboard-panel-btn="visibility">
+                      <span class="nav-mark">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M4 19V9"></path>
+                          <path d="M10 19V5"></path>
+                          <path d="M16 19v-8"></path>
+                          <path d="M22 19v-4"></path>
+                        </svg>
+                      </span>
+                      <span class="nav-copy">
+                        <strong>AI Visibility Tracker</strong>
+                        <span>Signals, runs, and reports</span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="project-dashboard-rail-nav project-dashboard-rail-nav-secondary">
+                  <button id="projectSettingsNavSettings" class="nav-btn active" type="button">
+                    <span class="nav-mark">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 8.5A3.5 3.5 0 1 0 12 15.5A3.5 3.5 0 1 0 12 8.5z"></path>
+                        <path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1.3 1.3 0 0 1 0 1.8l-1.2 1.2a1.3 1.3 0 0 1-1.8 0l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a1.3 1.3 0 0 1-1.3 1.3h-1.7A1.3 1.3 0 0 1 10.6 20v-.2a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.1.1a1.3 1.3 0 0 1-1.8 0l-1.2-1.2a1.3 1.3 0 0 1 0-1.8l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4A1.3 1.3 0 0 1 2.7 13v-1.7A1.3 1.3 0 0 1 4 10h.2a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.1-.1a1.3 1.3 0 0 1 0-1.8l1.2-1.2a1.3 1.3 0 0 1 1.8 0l.1.1a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4A1.3 1.3 0 0 1 12 2.7h1.7A1.3 1.3 0 0 1 15 4v.2a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a1.3 1.3 0 0 1 1.8 0l1.2 1.2a1.3 1.3 0 0 1 0 1.8l-.1.1a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6h.2a1.3 1.3 0 0 1 1.3 1.3V13a1.3 1.3 0 0 1-1.3 1.3h-.2a1 1 0 0 0-.9.7z"></path>
+                      </svg>
+                    </span>
+                    <span class="nav-copy">
+                      <strong>Project Settings</strong>
+                      <span>Brand, market, and sitemap</span>
+                    </span>
+                  </button>
+                </div>
               </div>
             </aside>
 
-            <div class="project-module-main">
-              <div id="projectSettingsContentSlot" class="stack"></div>
-              <section class="section card">
+            <div class="project-settings-main">
+              <section class="project-dashboard-intro">
+                <div class="project-dashboard-intro-head">
+                  <div class="project-dashboard-intro-copy">
+                    <p class="project-dashboard-kicker">Project Settings</p>
+                    <h1 id="projectSettingsTitle">Project Settings</h1>
+                    <p id="projectSettingsSubtitle">Manage the shared project configuration used by Content Studio, Content Agent, and AI Visibility Tracker.</p>
+                  </div>
+                </div>
+              </section>
+
+              <div id="projectSettingsContentSlot" class="project-settings-content"></div>
+
+              <section class="section card project-settings-skills">
                 <h2>Project Skills</h2>
                 <p class="desc">This project inherits the shared skill catalog, then layers workspace-level and project-level skill updates on top.</p>
                 <div id="projectSkillsCatalogList" class="mini-list"></div>
@@ -6221,6 +6651,19 @@ What AI visibility tracking tools are cited most often?"></textarea>
         projectDashboardBackBtn: document.getElementById("projectDashboardBackBtn"),
         projectDashboardTitle: document.getElementById("projectDashboardTitle"),
         projectDashboardSubtitle: document.getElementById("projectDashboardSubtitle"),
+        projectDashboardOpenWebsiteBtn: document.getElementById("projectDashboardOpenWebsiteBtn"),
+        projectDashboardRailTitle: document.getElementById("projectDashboardRailTitle"),
+        projectDashboardRailUrl: document.getElementById("projectDashboardRailUrl"),
+        projectDashboardStatusChip: document.getElementById("projectDashboardStatusChip"),
+        projectDashboardSetupChip: document.getElementById("projectDashboardSetupChip"),
+        projectDashboardSetupScore: document.getElementById("projectDashboardSetupScore"),
+        projectDashboardSetupSummary: document.getElementById("projectDashboardSetupSummary"),
+        projectDashboardStudioCount: document.getElementById("projectDashboardStudioCount"),
+        projectDashboardStudioSummary: document.getElementById("projectDashboardStudioSummary"),
+        projectDashboardAgentCount: document.getElementById("projectDashboardAgentCount"),
+        projectDashboardAgentSummary: document.getElementById("projectDashboardAgentSummary"),
+        projectDashboardVisibilitySignal: document.getElementById("projectDashboardVisibilitySignal"),
+        projectDashboardVisibilitySignalSummary: document.getElementById("projectDashboardVisibilitySignalSummary"),
         projectDashboardNavStudio: document.getElementById("projectDashboardNavStudio"),
         projectDashboardNavAgent: document.getElementById("projectDashboardNavAgent"),
         projectDashboardNavVisibility: document.getElementById("projectDashboardNavVisibility"),
@@ -6391,7 +6834,17 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityReportsPanel: document.getElementById("visibilityReportsPanel"),
         visibilitySettingsPanel: document.getElementById("visibilitySettingsPanel"),
         projectSettingsBackBtn: document.getElementById("projectSettingsBackBtn"),
+        projectSettingsRailTitle: document.getElementById("projectSettingsRailTitle"),
+        projectSettingsRailUrl: document.getElementById("projectSettingsRailUrl"),
+        projectSettingsStatusChip: document.getElementById("projectSettingsStatusChip"),
+        projectSettingsSetupChip: document.getElementById("projectSettingsSetupChip"),
+        projectSettingsTitle: document.getElementById("projectSettingsTitle"),
+        projectSettingsSubtitle: document.getElementById("projectSettingsSubtitle"),
         projectSettingsContentSlot: document.getElementById("projectSettingsContentSlot"),
+        projectSettingsNavStudio: document.getElementById("projectSettingsNavStudio"),
+        projectSettingsNavAgent: document.getElementById("projectSettingsNavAgent"),
+        projectSettingsNavVisibility: document.getElementById("projectSettingsNavVisibility"),
+        projectSettingsNavSettings: document.getElementById("projectSettingsNavSettings"),
         billingCreditsUsed: document.getElementById("billingCreditsUsed"),
         billingBillableActions: document.getElementById("billingBillableActions"),
         billingProviderRequests: document.getElementById("billingProviderRequests"),
@@ -7201,6 +7654,9 @@ What AI visibility tracking tools are cited most often?"></textarea>
         }
         if (kind === "project_dashboard") {
           renderProjectDashboard();
+        }
+        if (kind === "project_settings") {
+          renderProjectSettingsShell();
         }
         persistUiState();
       }
@@ -10340,6 +10796,40 @@ What AI visibility tracking tools are cited most often?"></textarea>
         });
       }
 
+      function calculateProjectSetup(project) {
+        const checks = [
+          { label: "Brand URL", ok: Boolean((project && project.brand_url || "").trim()) },
+          { label: "Target country", ok: Boolean((project && project.default_target_country || "").trim()) },
+          { label: "Sitemap", ok: Boolean((project && project.sitemap_url || "").trim()) },
+          { label: "Brand positioning", ok: Boolean((project && project.brand_positioning || "").trim()) },
+          { label: "Editorial voice", ok: Boolean((project && project.editorial_voice || "").trim()) },
+          { label: "Competitors", ok: Boolean(project && Array.isArray(project.competitors) && project.competitors.length) },
+        ];
+        const completed = checks.filter((item) => item.ok).length;
+        const total = checks.length;
+        return {
+          score: total ? Math.round((completed / total) * 100) : 0,
+          completed,
+          total,
+          missing: checks.filter((item) => !item.ok).map((item) => item.label),
+        };
+      }
+
+      function scheduleLabel(value) {
+        return ({
+          weekly: "Weekly schedule",
+          twice_monthly: "Twice monthly schedule",
+          monthly: "Monthly schedule",
+          disabled: "Manual only",
+        }[value]) || "Manual only";
+      }
+
+      function setProjectDashboardPill(el, label, tone = "neutral") {
+        if (!el) return;
+        el.className = `project-dashboard-pill ${tone}`;
+        el.textContent = label;
+      }
+
       function renderProjectDashboard() {
         const activeProject = activeVisibilityProject();
         const activePanel = ["studio", "agent", "visibility"].includes(state.projectDashboardPanel)
@@ -10347,37 +10837,86 @@ What AI visibility tracking tools are cited most often?"></textarea>
           : "studio";
         state.projectDashboardPanel = activePanel;
 
+        const workspace = state.visibilityWorkspace;
+        const project = workspace ? (workspace.project || activeProject) : activeProject;
+        const report = workspace && workspace.reports ? workspace.reports.all : null;
+        const runItems = workspace && Array.isArray(workspace.recent_jobs) ? workspace.recent_jobs.slice(0, 6) : [];
+        const latestChat = state.contentStudioChats[0] || null;
+        const latestAgentRun = state.contentAgentRuns[0] || null;
+        const latestVisibilityRun = runItems[0] || null;
+        const setup = calculateProjectSetup(project || {});
+        const status = project ? describeHomeProjectStatus(project) : { label: "Not configured", tone: "neutral" };
+        const topicCounts = collectVisibilityCounts(workspace && workspace.topics ? workspace.topics : []);
+        const projectName = project ? (project.name || project.brand_name || "Project") : "Project Dashboard";
+        const brandUrl = project && project.brand_url ? formatUrlLabel(project.brand_url) : "";
+        const targetCountry = project && project.default_target_country ? project.default_target_country : "";
+        const subtitleParts = project ? [brandUrl || null, targetCountry || null].filter(Boolean) : [];
+
         [
           ["studio", els.projectDashboardNavStudio, els.projectDashboardStudioPanel],
           ["agent", els.projectDashboardNavAgent, els.projectDashboardAgentPanel],
           ["visibility", els.projectDashboardNavVisibility, els.projectDashboardVisibilityPanel],
         ].forEach(([panel, button, content]) => {
-          if (button) {
-            button.classList.toggle("active", activePanel === panel);
-          }
-          if (content) {
-            content.classList.toggle("active", activePanel === panel);
-          }
+          if (button) button.classList.toggle("active", activePanel === panel);
+          if (content) content.classList.toggle("active", activePanel === panel);
         });
 
         if (els.projectDashboardTitle) {
-          els.projectDashboardTitle.textContent = activeProject
-            ? `${activeProject.name || activeProject.brand_name || "Project"}`
-            : "Project Dashboard";
+          els.projectDashboardTitle.textContent = projectName;
         }
         if (els.projectDashboardSubtitle) {
-          els.projectDashboardSubtitle.textContent = activeProject
-            ? `${activeProject.brand_name || "Brand not set"}${activeProject.brand_url ? ` · ${activeProject.brand_url}` : ""}${activeProject.default_target_country ? ` · ${activeProject.default_target_country}` : ""}`
-            : "Open Content Studio, review recent chats, check AI visibility activity, or manage this project’s shared settings.";
+          els.projectDashboardSubtitle.textContent = project
+            ? (subtitleParts.join(" · ") || "Project dashboard")
+            : "Open a module, continue recent work, and manage shared project context from one view.";
         }
+        if (els.projectDashboardOpenWebsiteBtn) {
+          els.projectDashboardOpenWebsiteBtn.disabled = !(project && project.brand_url);
+        }
+        if (els.projectDashboardRailTitle) {
+          els.projectDashboardRailTitle.textContent = projectName;
+        }
+        if (els.projectDashboardRailUrl) {
+          els.projectDashboardRailUrl.textContent = brandUrl || "Add the tracked brand URL in project settings.";
+        }
+        setProjectDashboardPill(els.projectDashboardStatusChip, status.label, status.tone || "neutral");
+        setProjectDashboardPill(els.projectDashboardSetupChip, `${setup.score}% setup`, setup.score >= 80 ? "success" : (setup.score >= 50 ? "info" : "warning"));
 
+        if (els.projectDashboardSetupScore) els.projectDashboardSetupScore.textContent = `${setup.score}%`;
+        if (els.projectDashboardSetupSummary) {
+          els.projectDashboardSetupSummary.textContent = setup.missing.length
+            ? `Next setup items: ${setup.missing.slice(0, 2).join(" and ")}`
+            : "Shared project settings are complete";
+        }
+        if (els.projectDashboardStudioCount) els.projectDashboardStudioCount.textContent = formatNumber(state.contentStudioChats.length);
+        if (els.projectDashboardStudioSummary) {
+          els.projectDashboardStudioSummary.textContent = latestChat
+            ? `Latest chat updated ${formatRelativeTime(latestChat.updated_at) || formatDate(latestChat.updated_at)}`
+            : "No chats started yet";
+        }
+        if (els.projectDashboardAgentCount) els.projectDashboardAgentCount.textContent = formatNumber(state.contentAgentRuns.length);
+        if (els.projectDashboardAgentSummary) {
+          els.projectDashboardAgentSummary.textContent = latestAgentRun
+            ? `Latest stage: ${(latestAgentRun.stage || latestAgentRun.status || "run").replace(/_/g, " ")}`
+            : "No workflow comparisons yet";
+        }
+        if (els.projectDashboardVisibilitySignal) {
+          els.projectDashboardVisibilitySignal.textContent = formatNumber(report ? report.total_runs : (project ? project.run_count || 0 : 0));
+        }
+        if (els.projectDashboardVisibilitySignalSummary) {
+          els.projectDashboardVisibilitySignalSummary.textContent = latestVisibilityRun
+            ? `${latestVisibilityRun.completed_prompts} of ${latestVisibilityRun.total_prompts} prompts in the latest run`
+            : "Visibility tracking has not started yet";
+        }
         if (els.projectDashboardStudioMeta) {
           const totalChats = state.contentStudioChats.length;
-          const latestChat = state.contentStudioChats[0];
           els.projectDashboardStudioMeta.innerHTML = `
             <div class="project-dashboard-item">
               <strong>${totalChats} saved chat${totalChats === 1 ? "" : "s"}</strong>
               <span>${latestChat ? `Latest activity: ${formatDate(latestChat.updated_at)}` : "No chats started for this project yet."}</span>
+            </div>
+            <div class="project-dashboard-item">
+              <strong>${setup.score >= 80 ? "Shared context ready" : "Shared context still growing"}</strong>
+              <span>${setup.missing.length ? `Still missing ${setup.missing.slice(0, 2).join(" and ")}.` : "Brand, voice, and sitemap inputs are in place."}</span>
             </div>
           `;
         }
@@ -10406,12 +10945,15 @@ What AI visibility tracking tools are cited most often?"></textarea>
 
         if (els.projectDashboardAgentMeta) {
           const totalAgentRuns = state.contentAgentRuns.length;
-          const latestAgentRun = state.contentAgentRuns[0] || null;
           const latestStage = latestAgentRun ? (latestAgentRun.stage || latestAgentRun.status) : "No runs yet";
           els.projectDashboardAgentMeta.innerHTML = `
             <div class="project-dashboard-item">
               <strong>${totalAgentRuns} saved run${totalAgentRuns === 1 ? "" : "s"}</strong>
               <span>${latestAgentRun ? `Latest stage: ${latestStage} · ${formatDate(latestAgentRun.updated_at)}` : "Start the first staged run for this project."}</span>
+            </div>
+            <div class="project-dashboard-item">
+              <strong>${latestAgentRun && latestAgentRun.latest_artifact_title ? "Latest artifact available" : "No artifacts yet"}</strong>
+              <span>${latestAgentRun && latestAgentRun.latest_artifact_title ? latestAgentRun.latest_artifact_title : "Launch a run to capture steps, approvals, and artifacts."}</span>
             </div>
           `;
         }
@@ -10439,14 +10981,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
           }
         }
 
-        const workspace = state.visibilityWorkspace;
-        const project = workspace ? workspace.project : activeProject;
-        const report = workspace && workspace.reports ? workspace.reports.all : null;
-        const runItems = workspace && Array.isArray(workspace.recent_jobs) ? workspace.recent_jobs.slice(0, 6) : [];
         const visibilityMeta = [
           {
             label: "Tracked topics",
-            value: collectVisibilityCounts(workspace && workspace.topics ? workspace.topics : []).topics,
+            value: topicCounts.topics,
           },
           {
             label: "Prompt snapshots",
@@ -10454,7 +10992,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
           },
           {
             label: "Prompt lists",
-            value: collectVisibilityCounts(workspace && workspace.topics ? workspace.topics : []).lists,
+            value: topicCounts.lists,
           },
         ];
         if (els.projectDashboardVisibilityMeta) {
@@ -10474,13 +11012,56 @@ What AI visibility tracking tools are cited most often?"></textarea>
               const item = document.createElement("div");
               item.className = "project-dashboard-item";
               item.innerHTML = `
-                <strong>${escapeHtml(job.status.toUpperCase())} · ${job.completed_prompts} / ${job.total_prompts} prompts</strong>
-                <span class="project-dashboard-item-preview">${escapeHtml(job.model)} · ${escapeHtml(job.run_source)}</span>
+                <strong>${escapeHtml(String(job.status || "queued").toUpperCase())} · ${job.completed_prompts} / ${job.total_prompts} prompts</strong>
+                <span class="project-dashboard-item-preview">${escapeHtml(job.model || "Model not set")} · ${escapeHtml(job.run_source || "manual")}</span>
                 <span class="project-dashboard-item-meta">${escapeHtml(formatDate(job.created_at))}</span>
               `;
               els.projectDashboardRunsList.appendChild(item);
             });
           }
+        }
+      }
+
+      function renderProjectSettingsShell() {
+        const activeProject = activeVisibilityProject();
+        const project = state.visibilityWorkspace && state.visibilityWorkspace.project
+          ? state.visibilityWorkspace.project
+          : activeProject;
+        const setup = calculateProjectSetup(project || {});
+        const status = project ? describeHomeProjectStatus(project) : { label: "Not configured", tone: "neutral" };
+        const projectName = project ? (project.name || project.brand_name || "Project") : "Project Settings";
+        const brandUrl = project && project.brand_url ? formatUrlLabel(project.brand_url) : "";
+        const targetCountry = project && project.default_target_country ? project.default_target_country : "";
+
+        [
+          [els.projectSettingsNavStudio, false],
+          [els.projectSettingsNavAgent, false],
+          [els.projectSettingsNavVisibility, false],
+          [els.projectSettingsNavSettings, true],
+        ].forEach(([button, isActive]) => {
+          if (button) button.classList.toggle("active", isActive);
+        });
+
+        if (els.projectSettingsRailTitle) {
+          els.projectSettingsRailTitle.textContent = projectName;
+        }
+        if (els.projectSettingsRailUrl) {
+          els.projectSettingsRailUrl.textContent = brandUrl || "Add the tracked brand URL in project settings.";
+        }
+        setProjectDashboardPill(els.projectSettingsStatusChip, status.label, status.tone || "neutral");
+        setProjectDashboardPill(els.projectSettingsSetupChip, `${setup.score}% setup`, setup.score >= 80 ? "success" : (setup.score >= 50 ? "info" : "warning"));
+
+        if (els.projectSettingsTitle) {
+          els.projectSettingsTitle.textContent = projectName;
+        }
+        if (els.projectSettingsSubtitle) {
+          els.projectSettingsSubtitle.textContent = project
+            ? [
+              brandUrl || null,
+              targetCountry || null,
+              `${setup.completed} of ${setup.total} setup inputs ready`,
+            ].filter(Boolean).join(" · ")
+            : "Manage the shared project configuration used by Content Studio, Content Agent, and AI Visibility Tracker.";
         }
       }
 
@@ -12308,13 +12889,62 @@ What AI visibility tracking tools are cited most often?"></textarea>
         });
       }
 
-      [els.projectDashboardNavStudio, els.projectDashboardNavAgent, els.projectDashboardNavVisibility].forEach((button) => {
+      if (els.projectDashboardOpenWebsiteBtn) {
+        els.projectDashboardOpenWebsiteBtn.addEventListener("click", () => {
+          const activeProject = activeVisibilityProject();
+          const rawUrl = activeProject && activeProject.brand_url ? String(activeProject.brand_url).trim() : "";
+          const url = rawUrl && /^https?:\/\//i.test(rawUrl) ? rawUrl : (rawUrl ? `https://${rawUrl}` : "");
+          if (!url) {
+            alert("Add the tracked brand URL in project settings first.");
+            return;
+          }
+          window.open(url, "_blank", "noopener,noreferrer");
+        });
+      }
+
+      [
+        els.projectDashboardNavStudio,
+        els.projectDashboardNavAgent,
+        els.projectDashboardNavVisibility,
+      ].forEach((button) => {
         if (!button) return;
-        button.addEventListener("click", () => {
+        const activatePanel = () => {
           state.projectDashboardPanel = button.dataset.projectDashboardPanelBtn || "studio";
           renderProjectDashboard();
+        };
+        button.addEventListener("click", activatePanel);
+        button.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            activatePanel();
+          }
         });
       });
+
+      [
+        els.projectSettingsNavStudio,
+        els.projectSettingsNavAgent,
+        els.projectSettingsNavVisibility,
+      ].forEach((button) => {
+        if (!button) return;
+        const openProjectPanel = () => {
+          state.projectDashboardPanel = button.dataset.projectDashboardPanelBtn || "studio";
+          setActiveTab("project_dashboard");
+        };
+        button.addEventListener("click", openProjectPanel);
+        button.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openProjectPanel();
+          }
+        });
+      });
+
+      if (els.projectSettingsNavSettings) {
+        els.projectSettingsNavSettings.addEventListener("click", () => {
+          setActiveTab("project_settings");
+        });
+      }
 
       if (els.projectDashboardOpenStudioBtn) {
         els.projectDashboardOpenStudioBtn.addEventListener("click", async () => {
@@ -12361,8 +12991,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
       }
 
       if (els.projectSettingsBackBtn) {
-        els.projectSettingsBackBtn.addEventListener("click", () => {
-          setActiveTab("project_dashboard");
+        els.projectSettingsBackBtn.addEventListener("click", async () => {
+          await closeActiveProject();
         });
       }
 
