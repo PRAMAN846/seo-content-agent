@@ -2985,7 +2985,21 @@ class PostgresStore(StoreBase):
                     """
                 )
                 cur.execute(
-                    "UPDATE content_agent_runs SET title = LEFT(goal, 160) WHERE title IS NULL OR BTRIM(title) = ''"
+                    """
+                    DO $$
+                    BEGIN
+                        IF EXISTS (
+                            SELECT 1
+                            FROM information_schema.tables
+                            WHERE table_schema = 'public' AND table_name = 'content_agent_runs'
+                        ) THEN
+                            UPDATE content_agent_runs
+                            SET title = LEFT(goal, 160)
+                            WHERE title IS NULL OR BTRIM(title) = '';
+                        END IF;
+                    END
+                    $$;
+                    """
                 )
                 cur.execute(
                     """
