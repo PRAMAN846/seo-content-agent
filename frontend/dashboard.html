@@ -818,6 +818,10 @@
         align-content: start;
       }
 
+      .visibility-rail {
+        min-height: calc(100vh - 40px);
+      }
+
       .project-settings-content,
       .project-settings-skills {
         display: grid;
@@ -2156,10 +2160,127 @@
 
       .workspace-shell {
         display: grid;
-        grid-template-columns: minmax(0, 7fr) minmax(320px, 3fr);
-        gap: 18px;
-        align-items: stretch;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
         min-height: calc(100vh - 40px);
+      }
+
+      .workspace-main {
+        min-width: 0;
+        display: grid;
+        gap: 16px;
+        align-content: start;
+      }
+
+      .workspace-rail {
+        height: calc(100vh - 40px);
+        max-height: calc(100vh - 40px);
+        min-height: calc(100vh - 40px);
+      }
+
+      .workspace-rail .project-dashboard-rail-shell {
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .workspace-rail .project-dashboard-rail-section {
+        min-height: 0;
+      }
+
+      .workspace-rail .project-dashboard-rail-section:last-child {
+        flex: 1;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        overflow: hidden;
+      }
+
+      .workspace-rail .project-sidebar-nav {
+        align-content: start;
+        min-height: 0;
+        overflow-y: auto;
+        gap: 2px;
+        margin-inline: -18px;
+        padding-right: 6px;
+      }
+
+      .workspace-rail-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .workspace-rail-header h3 {
+        margin: 4px 0 0;
+        font-family: "Sora", sans-serif;
+        font-size: 18px;
+        color: var(--sidebar-ink);
+      }
+
+      .workspace-rail .project-sidebar-chat-row {
+        position: relative;
+      }
+
+      .workspace-rail .project-sidebar-chat-item {
+        border: 0;
+        border-left: 3px solid transparent;
+        border-radius: 0;
+        background: transparent;
+        color: var(--sidebar-ink);
+        padding: 12px 48px 12px 14px;
+        box-shadow: none;
+        transform: none;
+      }
+
+      .workspace-rail .project-sidebar-chat-item:hover {
+        border-color: transparent;
+        border-left-color: var(--sidebar-line);
+        background: transparent;
+        box-shadow: none;
+        transform: none;
+      }
+
+      .workspace-rail .project-sidebar-chat-item.active {
+        border-color: transparent;
+        border-left-color: var(--sidebar-active-line);
+        background: transparent;
+      }
+
+      .workspace-rail .project-sidebar-chat-item strong {
+        color: var(--sidebar-ink);
+        font-size: 13px;
+      }
+
+      .workspace-rail .project-sidebar-chat-item.active strong {
+        color: var(--sidebar-active-text);
+      }
+
+      .workspace-rail .project-sidebar-chat-time {
+        color: rgba(225, 233, 255, 0.68);
+      }
+
+      .workspace-rail .project-sidebar-chat-item.active .project-sidebar-chat-time {
+        color: var(--sidebar-active-subtext);
+      }
+
+      .workspace-rail .project-sidebar-chat-more {
+        border-color: rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(239, 244, 255, 0.9);
+      }
+
+      .workspace-rail .project-sidebar-chat-more:hover {
+        border-color: rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.16);
+      }
+
+      .workspace-rail-empty {
+        margin: 0;
+        color: rgba(225, 233, 255, 0.68);
+        font-size: 12px;
+        line-height: 1.5;
       }
 
       .workspace-chat-card {
@@ -2175,14 +2296,113 @@
           radial-gradient(520px 220px at 10% 0%, var(--body-orb-a), transparent 72%);
       }
 
-      .workspace-side-rail {
-        display: grid;
-        gap: 16px;
-        align-content: start;
-        height: calc(100vh - 40px);
-        min-height: 0;
-        max-height: calc(100vh - 40px);
-        overflow: auto;
+      .workspace-chat-card.compact {
+        background:
+          linear-gradient(180deg, var(--surface), var(--surface-2)),
+          radial-gradient(560px 260px at 0% 0%, var(--body-orb-a), transparent 72%);
+      }
+
+      .workspace-chat-card.compact .workspace-chat-topbar {
+        padding: 12px 16px 8px;
+      }
+
+      .workspace-chat-card.compact .workspace-chat-header {
+        gap: 3px;
+      }
+
+      .workspace-chat-card.compact .workspace-chat-header h2 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      .workspace-chat-card.compact .workspace-project-meta {
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .workspace-chat-card.compact .workspace-chat-status {
+        min-height: 32px;
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+
+      .workspace-chat-card.compact .chat-thread {
+        padding: 18px 18px 10px;
+      }
+
+      .workspace-chat-card.compact .workspace-composer {
+        gap: 8px;
+        margin: 0 12px 12px;
+        padding: 12px;
+        border-radius: 20px;
+        box-shadow:
+          0 12px 24px rgba(18, 24, 39, 0.06),
+          inset 0 1px 0 rgba(255, 255, 255, 0.88);
+      }
+
+      .workspace-chat-card.compact #workspaceInput {
+        min-height: 84px;
+        padding: 16px 72px 16px 16px;
+      }
+
+      .workspace-chat-card.compact .workspace-composer-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: nowrap;
+      }
+
+      .workspace-composer-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+        min-width: 0;
+      }
+
+      .workspace-composer-hint.compact {
+        margin-left: auto;
+        white-space: nowrap;
+      }
+
+      .studio-compact-select {
+        min-width: 0;
+        min-height: 34px;
+        padding: 0 38px 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background-color: var(--surface);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-primary);
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23627298' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 12px 12px;
+      }
+
+      #workspaceExecutionSelect {
+        width: 158px;
+        flex: 0 0 158px;
+      }
+
+      #workspaceTaskSelect {
+        width: 178px;
+        flex: 0 0 178px;
+      }
+
+      .studio-compact-select:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .workspace-inline-hidden {
+        display: none;
       }
 
       .workspace-chat-topbar {
@@ -2483,26 +2703,6 @@
         fill: none;
       }
 
-      .action-card {
-        border: 1px solid var(--line);
-        border-radius: 20px;
-        padding: 18px;
-        background: linear-gradient(180deg, var(--surface), var(--surface-2));
-      }
-
-      .action-card h3 {
-        margin: 0 0 10px;
-        font-family: "Sora", sans-serif;
-        font-size: 16px;
-      }
-
-      .action-card p {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.5;
-        font-size: 14px;
-      }
-
       .content-agent-shell {
         display: grid;
         grid-template-columns: minmax(0, 1fr);
@@ -2512,7 +2712,7 @@
       }
 
       .content-agent-layout {
-        grid-template-columns: 232px minmax(0, 1fr);
+        grid-template-columns: 280px minmax(0, 1fr);
       }
 
       .content-agent-canvas {
@@ -4510,6 +4710,12 @@
           min-height: auto;
         }
 
+        .workspace-rail {
+          height: auto;
+          min-height: auto;
+          max-height: none;
+        }
+
         .content-agent-shell {
           grid-template-columns: 1fr;
           min-height: auto;
@@ -4529,14 +4735,6 @@
         .project-settings-content .tracker-split {
           grid-template-columns: 1fr;
         }
-
-        .workspace-side-rail {
-          height: auto;
-          min-height: auto;
-          max-height: none;
-          overflow: visible;
-        }
-
         .content-agent-rail {
           height: auto;
           min-height: auto;
@@ -5163,29 +5361,31 @@
         </section>
 
         <section id="workspaceView" class="view">
-          <div class="project-module-shell">
-            <aside class="project-module-sidebar card">
-                <div class="project-sidebar-section">
-                  <div class="row-actions" style="margin-top: 0;">
-                    <button id="workspaceBackToDashboardBtn" class="btn" type="button">Back to Project Dashboard</button>
-                  </div>
+          <div class="workspace-shell">
+            <aside class="project-dashboard-rail workspace-rail">
+              <div class="project-dashboard-rail-shell">
+                <div class="row-actions" style="margin: 0;">
+                  <button id="workspaceBackToDashboardBtn" class="btn" type="button">Back to Project Dashboard</button>
                 </div>
-                <div class="project-sidebar-section">
-                  <div class="project-sidebar-section-header">
-                    <h3>Chats</h3>
+
+                <div class="project-dashboard-rail-section">
+                  <div class="workspace-rail-header">
+                    <div>
+                      <p class="project-dashboard-rail-kicker">Content Studio</p>
+                      <h3>Chats</h3>
+                    </div>
                     <button id="workspaceNewChatSidebarBtn" class="btn" type="button">New Chat</button>
                   </div>
                   <div id="workspaceChatList" class="project-sidebar-nav"></div>
                 </div>
-              </aside>
+              </div>
+            </aside>
 
-            <div class="project-module-main">
-              <div class="workspace-shell">
-                <section class="section card workspace-chat-card">
+            <div class="workspace-main">
+                <section class="workspace-chat-card compact">
                   <div class="workspace-chat-topbar">
                     <div class="workspace-chat-header">
-                      <p class="workspace-kicker">Content Studio</p>
-                      <h2>Project Chat</h2>
+                      <h2 id="workspaceChatHeading">Content Studio</h2>
                       <p id="workspaceProjectMetaText" class="workspace-project-meta">Open a project, then use chat to run a skill, a workflow, or a custom sequence.</p>
                     </div>
                     <div id="workspaceChatStatus" class="workspace-chat-status">Ready</div>
@@ -5204,52 +5404,33 @@
                       </button>
                     </div>
                     <div class="workspace-composer-footer">
-                      <div class="workspace-composer-hint">Use natural language. Mention a specific skill, the full workflow, or your own custom order. Press Cmd/Ctrl + Enter to send.</div>
+                      <div class="workspace-composer-controls">
+                        <select id="workspaceExecutionSelect" class="studio-compact-select" aria-label="Select execution mode">
+                          <option value="full_workflow">Run Full Workflow</option>
+                          <option value="single_task">Do One Task</option>
+                        </select>
+                        <select id="workspaceTaskSelect" class="studio-compact-select" aria-label="Select studio task">
+                          <option value="content_brief">Create Brief</option>
+                          <option value="content_writer">Write Content</option>
+                          <option value="image_generation">Create Images</option>
+                          <option value="internal_linking">Internal Linking</option>
+                          <option value="content_editor">Editorial Review</option>
+                          <option value="publish_qa">Final Publish QA</option>
+                        </select>
+                      </div>
+                      <div class="workspace-composer-hint compact">Cmd/Ctrl + Enter to send</div>
                     </div>
-                  </div>
-                </section>
-
-                <section class="section card workspace-side-rail">
-                  <div class="action-card">
-                    <h3>Project Context</h3>
-                    <p id="workspaceProjectContextText">Choose a project to load shared settings for Content Studio and AI Visibility Tracker.</p>
-                  </div>
-                  <div class="action-card">
-                    <h3>Workflow</h3>
-                    <p id="workspaceIntentText">No workflow selected yet.</p>
-                    <div id="contentStudioWorkflowChips" class="quick-prompts rail-chips"></div>
-                  </div>
-                  <div class="action-card">
-                    <h3>Skills</h3>
-                    <p id="workspaceNextStepText">No skills selected yet. You can choose them above or let the studio infer them from your message.</p>
-                    <div id="contentStudioSkillChips" class="quick-prompts rail-chips"></div>
-                  </div>
-                  <div class="action-card">
-                    <h3>Quick Starts</h3>
-                    <div class="workspace-starters">
-                      <button class="workspace-starter-btn" type="button" data-workspace-prompt="Run the full editorial workflow for an informational blog article on onboarding remote employees in the United States.">
-                        <strong>Run Full Workflow</strong>
-                        <span>Create the brief, draft, editing, internal links, image review, and final QA in one flow.</span>
-                      </button>
-                      <button class="workspace-starter-btn" type="button" data-workspace-prompt="Use the content brief skill to create a strong informational brief for employee onboarding software.">
-                        <strong>Create A Brief</strong>
-                        <span>Generate just the brief when you want to approve strategy before drafting.</span>
-                      </button>
-                      <button class="workspace-starter-btn" type="button" data-workspace-prompt="Review and improve this draft with the content editor skill, then flag anything that should update the skill for future runs.">
-                        <strong>Edit A Draft</strong>
-                        <span>Run editorial feedback and capture a skill update if the same issue should not repeat.</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="action-card">
-                    <h3>Exports</h3>
-                    <p id="workspaceArtifactText">Exports: Markdown, DOCX, HTML, and plain text. Recommended settings: brand, country, positioning, sitemap, approved domains, and visual guidance.</p>
-                    <div class="row-actions">
+                    <div class="workspace-inline-hidden">
+                      <p id="workspaceProjectContextText">Choose a project to load shared settings for Content Studio and AI Visibility Tracker.</p>
+                      <div id="contentStudioWorkflowChips" class="quick-prompts rail-chips workspace-inline-hidden"></div>
+                      <div id="contentStudioSkillChips" class="quick-prompts rail-chips workspace-inline-hidden"></div>
+                      <p id="workspaceIntentText"></p>
+                      <p id="workspaceNextStepText"></p>
+                      <p id="workspaceArtifactText"></p>
                       <button id="workspaceOpenArtifactBtn" class="btn hidden-mode" type="button" disabled>Open Asset</button>
                     </div>
                   </div>
                 </section>
-              </div>
             </div>
           </div>
         </section>
@@ -5474,16 +5655,22 @@
 
         <section id="contentAgentView" class="view">
           <div class="project-module-shell content-agent-layout">
-            <aside class="project-module-sidebar card">
-              <div class="project-sidebar-section content-agent-runs-card">
-                <div class="content-agent-runs-header">
-                  <h3>Recent Runs</h3>
-                  <div class="content-agent-runs-actions">
-                    <button id="contentAgentBackToDashboardBtn" class="btn" type="button">Back</button>
-                    <button id="contentAgentNewRunSidebarBtn" class="btn primary" type="button">+ New Run</button>
-                  </div>
+            <aside class="project-dashboard-rail workspace-rail">
+              <div class="project-dashboard-rail-shell">
+                <div class="row-actions" style="margin: 0;">
+                  <button id="contentAgentBackToDashboardBtn" class="btn" type="button">Back to Project Dashboard</button>
                 </div>
-                <div id="contentAgentSidebarRuns" class="project-sidebar-nav"></div>
+
+                <div class="project-dashboard-rail-section">
+                  <div class="workspace-rail-header">
+                    <div>
+                      <p class="project-dashboard-rail-kicker">Content Agent</p>
+                      <h3>Runs</h3>
+                    </div>
+                    <button id="contentAgentNewRunSidebarBtn" class="btn" type="button">New Run</button>
+                  </div>
+                  <div id="contentAgentSidebarRuns" class="project-sidebar-nav"></div>
+                </div>
               </div>
             </aside>
 
@@ -5572,19 +5759,95 @@
           </div>
 
           <div class="project-module-shell">
-            <aside class="project-module-sidebar visibility-module-sidebar card">
-              <div class="project-sidebar-section visibility-sidebar-card">
-                <div class="row-actions" style="margin-top: 0;">
+            <aside class="project-dashboard-rail visibility-rail">
+              <div class="project-dashboard-rail-shell">
+                <div class="row-actions" style="margin: 0;">
                   <button id="visibilityProjectBackBtn" class="btn" type="button">Back to Project Dashboard</button>
                 </div>
-                <div class="visibility-sidebar-stack">
-                  <h3>Tracker</h3>
-                  <div class="project-sidebar-nav">
-                    <button id="visibilityNavOverview" class="project-sidebar-nav-btn active" type="button" data-visibility-panel-btn="overview">Overview</button>
-                    <button id="visibilityNavLibrary" class="project-sidebar-nav-btn" type="button" data-visibility-panel-btn="library">Prompt Library</button>
-                    <button id="visibilityNavGenerator" class="project-sidebar-nav-btn" type="button" data-visibility-panel-btn="generator">Prompt Generator</button>
-                    <button id="visibilityNavRuns" class="project-sidebar-nav-btn" type="button" data-visibility-panel-btn="runs">Runs</button>
-                    <button id="visibilityNavReports" class="project-sidebar-nav-btn" type="button" data-visibility-panel-btn="reports">Reports</button>
+
+                <div class="project-dashboard-rail-section">
+                  <p class="project-dashboard-rail-kicker">Active Project</p>
+                  <h2 id="visibilityRailProjectTitle" class="project-dashboard-rail-title">AI Visibility Tracker</h2>
+                  <p id="visibilityRailProjectMeta" class="project-dashboard-rail-copy">Open a project to review prompt runs and reports.</p>
+                  <div class="project-dashboard-rail-meta">
+                    <span id="visibilityRailStatusChip" class="project-dashboard-pill neutral">Not configured</span>
+                    <span id="visibilityRailSnapshotsChip" class="project-dashboard-pill neutral">0 snapshots</span>
+                  </div>
+                </div>
+
+                <div class="project-dashboard-rail-section">
+                  <p class="project-dashboard-rail-kicker">Tracker Navigation</p>
+                  <div class="project-dashboard-rail-nav">
+                    <button id="visibilityNavOverview" class="nav-btn active" type="button" data-visibility-panel-btn="overview">
+                      <span class="nav-mark">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M4 12h6"></path>
+                          <path d="M14 7h6"></path>
+                          <path d="M14 17h6"></path>
+                          <path d="M10 5v14"></path>
+                        </svg>
+                      </span>
+                      <span class="nav-copy">
+                        <strong>Overview</strong>
+                        <span>Signals, trends, and share at a glance</span>
+                      </span>
+                    </button>
+                    <button id="visibilityNavLibrary" class="nav-btn" type="button" data-visibility-panel-btn="library">
+                      <span class="nav-mark">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M6 4h10"></path>
+                          <path d="M6 9h12"></path>
+                          <path d="M6 14h9"></path>
+                          <path d="M6 19h12"></path>
+                        </svg>
+                      </span>
+                      <span class="nav-copy">
+                        <strong>Prompt Library</strong>
+                        <span>Topics, lists, and prompt coverage</span>
+                      </span>
+                    </button>
+                    <button id="visibilityNavGenerator" class="nav-btn" type="button" data-visibility-panel-btn="generator">
+                      <span class="nav-mark">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12 3v6"></path>
+                          <path d="M12 15v6"></path>
+                          <path d="M3 12h6"></path>
+                          <path d="M15 12h6"></path>
+                        </svg>
+                      </span>
+                      <span class="nav-copy">
+                        <strong>Prompt Generator</strong>
+                        <span>Create new prompts from topic intent</span>
+                      </span>
+                    </button>
+                    <button id="visibilityNavRuns" class="nav-btn" type="button" data-visibility-panel-btn="runs">
+                      <span class="nav-mark">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M4 19V9"></path>
+                          <path d="M10 19V5"></path>
+                          <path d="M16 19v-8"></path>
+                          <path d="M22 19v-4"></path>
+                        </svg>
+                      </span>
+                      <span class="nav-copy">
+                        <strong>Runs</strong>
+                        <span>Queued jobs, snapshots, and history</span>
+                      </span>
+                    </button>
+                    <button id="visibilityNavReports" class="nav-btn" type="button" data-visibility-panel-btn="reports">
+                      <span class="nav-mark">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M7 3h7l5 5v13H7z"></path>
+                          <path d="M14 3v5h5"></path>
+                          <path d="M10 13h6"></path>
+                          <path d="M10 17h6"></path>
+                        </svg>
+                      </span>
+                      <span class="nav-copy">
+                        <strong>Reports</strong>
+                        <span>Brand mentions, citations, and summaries</span>
+                      </span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -6545,6 +6808,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         workspaceChatMenuChatId: null,
         workspaceChatMenuMode: "actions",
         workspaceChatRenameDraft: "",
+        studioExecutionMode: "full_workflow",
+        studioTaskType: "content_brief",
         selectedStudioSkillIds: [],
         selectedStudioWorkflowId: null,
         personalities: {
@@ -6702,6 +6967,11 @@ What AI visibility tracking tools are cited most often?"></textarea>
         deleteSelectedTopicsBtn: document.getElementById("deleteSelectedTopicsBtn"),
         workspaceBackToDashboardBtn: document.getElementById("workspaceBackToDashboardBtn"),
         workspaceNewChatSidebarBtn: document.getElementById("workspaceNewChatSidebarBtn"),
+        workspaceChatHeading: document.getElementById("workspaceChatHeading"),
+        workspaceRailProjectTitle: document.getElementById("workspaceRailProjectTitle"),
+        workspaceRailProjectMeta: document.getElementById("workspaceRailProjectMeta"),
+        workspaceRailStatusChip: document.getElementById("workspaceRailStatusChip"),
+        workspaceRailSetupChip: document.getElementById("workspaceRailSetupChip"),
         workspaceChatList: document.getElementById("workspaceChatList"),
         workspaceThread: document.getElementById("workspaceThread"),
         contentStudioWorkflowChips: document.getElementById("contentStudioWorkflowChips"),
@@ -6709,6 +6979,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         workspaceProjectMetaText: document.getElementById("workspaceProjectMetaText"),
         workspaceChatStatus: document.getElementById("workspaceChatStatus"),
         workspaceInput: document.getElementById("workspaceInput"),
+        workspaceExecutionSelect: document.getElementById("workspaceExecutionSelect"),
+        workspaceTaskSelect: document.getElementById("workspaceTaskSelect"),
         sendWorkspaceBtn: document.getElementById("sendWorkspaceBtn"),
         workspaceProjectContextText: document.getElementById("workspaceProjectContextText"),
         workspaceIntentText: document.getElementById("workspaceIntentText"),
@@ -6818,6 +7090,10 @@ What AI visibility tracking tools are cited most often?"></textarea>
         visibilityDateEnd: document.getElementById("visibilityDateEnd"),
         applyVisibilityDateBtn: document.getElementById("applyVisibilityDateBtn"),
         clearVisibilityDateBtn: document.getElementById("clearVisibilityDateBtn"),
+        visibilityRailProjectTitle: document.getElementById("visibilityRailProjectTitle"),
+        visibilityRailProjectMeta: document.getElementById("visibilityRailProjectMeta"),
+        visibilityRailStatusChip: document.getElementById("visibilityRailStatusChip"),
+        visibilityRailSnapshotsChip: document.getElementById("visibilityRailSnapshotsChip"),
         visibilityNavOverview: document.getElementById("visibilityNavOverview"),
         visibilityNavLibrary: document.getElementById("visibilityNavLibrary"),
         visibilityNavGenerator: document.getElementById("visibilityNavGenerator"),
@@ -10035,6 +10311,26 @@ What AI visibility tracking tools are cited most often?"></textarea>
       }
 
       function renderVisibility() {
+        const fallbackProject = activeVisibilityProject();
+        const fallbackStatus = fallbackProject ? describeHomeProjectStatus(fallbackProject) : { label: "Not configured", tone: "neutral" };
+        if (els.visibilityRailProjectTitle) {
+          els.visibilityRailProjectTitle.textContent = fallbackProject
+            ? (fallbackProject.name || fallbackProject.brand_name || "AI Visibility Tracker")
+            : "AI Visibility Tracker";
+        }
+        if (els.visibilityRailProjectMeta) {
+          els.visibilityRailProjectMeta.textContent = fallbackProject
+            ? [formatUrlLabel(fallbackProject.brand_url || ""), fallbackProject.default_target_country || ""].filter(Boolean).join(" · ")
+              || "Review prompt runs, mentions, and report coverage."
+            : "Open a project to review prompt runs and reports.";
+        }
+        setProjectDashboardPill(els.visibilityRailStatusChip, fallbackStatus.label, fallbackStatus.tone || "neutral");
+        setProjectDashboardPill(
+          els.visibilityRailSnapshotsChip,
+          `${formatNumber(fallbackProject ? (fallbackProject.run_count || 0) : 0)} snapshots`,
+          fallbackProject && (fallbackProject.run_count || 0) ? "info" : "neutral",
+        );
+
         const workspaceVisible = Boolean(state.selectedVisibilityProjectId && state.visibilityWorkspace);
         if (!workspaceVisible) {
           setVisibilityActiveJobs([]);
@@ -10057,6 +10353,21 @@ What AI visibility tracking tools are cited most often?"></textarea>
         const latestProjectRun = visibilityWorkspaceLastRun(workspace.topics || [])
           || latestVisibilityTimestamp((workspace.recent_runs || []).map((run) => run.created_at))
           || project.last_run_at;
+
+        const projectStatus = describeHomeProjectStatus(project);
+        if (els.visibilityRailProjectTitle) {
+          els.visibilityRailProjectTitle.textContent = project.name || project.brand_name || "AI Visibility Tracker";
+        }
+        if (els.visibilityRailProjectMeta) {
+          els.visibilityRailProjectMeta.textContent = [formatUrlLabel(project.brand_url || ""), project.default_target_country || ""].filter(Boolean).join(" · ")
+            || "Review prompt runs, mentions, and report coverage.";
+        }
+        setProjectDashboardPill(els.visibilityRailStatusChip, projectStatus.label, projectStatus.tone || "neutral");
+        setProjectDashboardPill(
+          els.visibilityRailSnapshotsChip,
+          `${formatNumber(allReport ? allReport.total_runs : 0)} snapshots`,
+          allReport && allReport.total_runs ? "info" : "neutral",
+        );
 
         els.visibilityDateStart.value = state.visibilityDateStart;
         els.visibilityDateEnd.value = state.visibilityDateEnd;
@@ -10537,6 +10848,92 @@ What AI visibility tracking tools are cited most often?"></textarea>
         renderWorkspace();
       }
 
+      function studioTaskCatalogMatchers() {
+        return {
+          content_brief: ["content_brief", "brief", "briefing"],
+          content_writer: ["content_writer", "writer", "draft", "writing"],
+          image_generation: ["image_generation", "image", "visual"],
+          internal_linking: ["internal_linking", "internal linking", "links"],
+          content_editor: ["content_editor", "editor", "editorial", "review"],
+          publish_qa: ["publish_qa", "publish", "qa", "final"],
+        };
+      }
+
+      function studioFindSkillId(taskType) {
+        const skills = state.contentStudioCatalog && Array.isArray(state.contentStudioCatalog.skills)
+          ? state.contentStudioCatalog.skills
+          : [];
+        const keywords = studioTaskCatalogMatchers()[taskType] || [taskType];
+        const normalize = (value) => String(value || "").trim().toLowerCase();
+        const exact = skills.find((skill) => normalize(skill.id) === normalize(taskType));
+        if (exact) return exact.id;
+        const match = skills.find((skill) => {
+          const haystack = `${normalize(skill.id)} ${normalize(skill.name)} ${normalize(skill.when_to_use)}`;
+          return keywords.some((keyword) => haystack.includes(normalize(keyword)));
+        });
+        return match ? match.id : null;
+      }
+
+      function studioFindFullWorkflowId() {
+        const workflows = state.contentStudioCatalog && Array.isArray(state.contentStudioCatalog.workflows)
+          ? state.contentStudioCatalog.workflows
+          : [];
+        if (!workflows.length) return null;
+        const preferredSkillIds = ["content_brief", "content_writer", "content_editor", "internal_linking", "image_generation", "publish_qa"];
+        const normalize = (value) => String(value || "").trim().toLowerCase();
+        const preferredByName = workflows.find((workflow) => {
+          const haystack = `${normalize(workflow.id)} ${normalize(workflow.name)} ${normalize(workflow.description)}`;
+          return ["full workflow", "editorial workflow", "draft to publish", "end to end", "full"].some((keyword) => haystack.includes(keyword));
+        });
+        if (preferredByName) return preferredByName.id;
+        const preferredByCoverage = workflows.find((workflow) => {
+          const ids = Array.isArray(workflow.skill_ids) ? workflow.skill_ids.map(normalize) : [];
+          return preferredSkillIds.filter((skillId) => ids.includes(normalize(skillId))).length >= 3;
+        });
+        return preferredByCoverage ? preferredByCoverage.id : workflows[0].id;
+      }
+
+      function inferStudioControls() {
+        const activeSkillIds = studioActiveSkillIds();
+        if (state.selectedStudioWorkflowId) {
+          state.studioExecutionMode = "full_workflow";
+        } else if (activeSkillIds.length) {
+          state.studioExecutionMode = "single_task";
+        } else if (!state.studioExecutionMode) {
+          state.studioExecutionMode = "full_workflow";
+        }
+        if (state.studioExecutionMode === "single_task") {
+          const taskEntries = Object.entries(studioTaskCatalogMatchers());
+          const matchedEntry = taskEntries.find(([, keywords]) => activeSkillIds.some((skillId) => {
+            const haystack = String(skillId || "").toLowerCase();
+            return keywords.some((keyword) => haystack.includes(String(keyword).toLowerCase()));
+          }));
+          state.studioTaskType = matchedEntry ? matchedEntry[0] : (state.studioTaskType || "content_brief");
+          if (!activeSkillIds.length) {
+            const skillId = studioFindSkillId(state.studioTaskType);
+            state.selectedStudioSkillIds = skillId ? [skillId] : [];
+          }
+        } else if (!state.studioTaskType) {
+          state.studioTaskType = "content_brief";
+        }
+        if (state.studioExecutionMode === "full_workflow" && !state.selectedStudioWorkflowId) {
+          state.selectedStudioWorkflowId = studioFindFullWorkflowId();
+        }
+      }
+
+      function applyStudioExecutionSelection(mode = state.studioExecutionMode, taskType = state.studioTaskType) {
+        state.studioExecutionMode = mode || "full_workflow";
+        state.studioTaskType = taskType || "content_brief";
+        if (state.studioExecutionMode === "single_task") {
+          state.selectedStudioWorkflowId = null;
+          const skillId = studioFindSkillId(state.studioTaskType);
+          state.selectedStudioSkillIds = skillId ? [skillId] : [];
+        } else {
+          state.selectedStudioWorkflowId = studioFindFullWorkflowId();
+          state.selectedStudioSkillIds = [];
+        }
+      }
+
       function renderStudioChips() {
         const workflows = state.contentStudioCatalog && state.contentStudioCatalog.workflows
           ? state.contentStudioCatalog.workflows
@@ -10545,34 +10942,42 @@ What AI visibility tracking tools are cited most often?"></textarea>
           ? state.contentStudioCatalog.skills
           : [];
 
-        els.contentStudioWorkflowChips.innerHTML = workflows.length
-          ? workflows.map((workflow) => `
+        if (els.contentStudioWorkflowChips) {
+          els.contentStudioWorkflowChips.innerHTML = workflows.length
+            ? workflows.map((workflow) => `
               <button
                 class="prompt-chip ${workflow.id === state.selectedStudioWorkflowId ? "active" : ""}"
                 type="button"
                 data-studio-workflow="${workflow.id}"
                 title="${workflow.description}"
               >${workflow.name}</button>
-            `).join("")
-          : '<span class="helper">Workflow presets are loading.</span>';
+              `).join("")
+            : '<span class="helper">Workflow presets are loading.</span>';
+        }
 
-        els.contentStudioSkillChips.innerHTML = skills.length
-          ? skills.map((skill) => `
+        if (els.contentStudioSkillChips) {
+          els.contentStudioSkillChips.innerHTML = skills.length
+            ? skills.map((skill) => `
               <button
                 class="prompt-chip ${studioActiveSkillIds().includes(skill.id) ? "active" : ""}"
                 type="button"
                 data-studio-skill="${skill.id}"
                 title="${skill.when_to_use}"
               >${skill.name}</button>
-            `).join("")
-          : '<span class="helper">Skill presets are loading.</span>';
+              `).join("")
+            : '<span class="helper">Skill presets are loading.</span>';
+        }
 
-        els.contentStudioWorkflowChips.querySelectorAll("[data-studio-workflow]").forEach((button) => {
-          button.addEventListener("click", () => setStudioWorkflow(button.dataset.studioWorkflow));
-        });
-        els.contentStudioSkillChips.querySelectorAll("[data-studio-skill]").forEach((button) => {
-          button.addEventListener("click", () => toggleStudioSkill(button.dataset.studioSkill));
-        });
+        if (els.contentStudioWorkflowChips) {
+          els.contentStudioWorkflowChips.querySelectorAll("[data-studio-workflow]").forEach((button) => {
+            button.addEventListener("click", () => setStudioWorkflow(button.dataset.studioWorkflow));
+          });
+        }
+        if (els.contentStudioSkillChips) {
+          els.contentStudioSkillChips.querySelectorAll("[data-studio-skill]").forEach((button) => {
+            button.addEventListener("click", () => toggleStudioSkill(button.dataset.studioSkill));
+          });
+        }
       }
 
       function closeWorkspaceChatMenu() {
@@ -10672,7 +11077,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
         if (!els.workspaceChatList) return;
         els.workspaceChatList.innerHTML = "";
         if (!state.contentStudioChats.length) {
-          els.workspaceChatList.innerHTML = '<div class="helper">No chats yet. Start a new one for this project.</div>';
+          els.workspaceChatList.innerHTML = '<p class="workspace-rail-empty">No chats yet. Start a new one for this project.</p>';
           return;
         }
         state.contentStudioChats.forEach((chat) => {
@@ -11421,7 +11826,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
         if (els.contentAgentSidebarRuns) {
           els.contentAgentSidebarRuns.innerHTML = "";
           if (!state.contentAgentRuns.length) {
-            els.contentAgentSidebarRuns.innerHTML = '<div class="project-sidebar-chat-item active"><strong>No runs yet</strong><span>Start the first Content Agent run for this project.</span></div>';
+            els.contentAgentSidebarRuns.innerHTML = '<p class="workspace-rail-empty">No runs yet. Start the first Content Agent run for this project.</p>';
           } else {
             state.contentAgentRuns.slice(0, 8).forEach((run) => {
               const canArchiveRun = !contentAgentRunIsActive(run) && run.status !== "awaiting_approval";
@@ -12050,18 +12455,21 @@ What AI visibility tracking tools are cited most often?"></textarea>
       }
 
       function renderWorkspace() {
+        inferStudioControls();
         renderStudioChips();
         renderContentStudioChatList();
         els.workspaceThread.innerHTML = "";
         const activeProject = activeVisibilityProject();
         const activeChat = activeContentStudioChat();
+        const setup = calculateProjectSetup(activeProject || {});
+        const status = activeProject ? describeHomeProjectStatus(activeProject) : { label: "Not configured", tone: "neutral" };
         if (!state.workspaceMessages.length && !state.workspaceSending) {
           const empty = document.createElement("div");
           empty.className = "chat-empty-state";
           empty.innerHTML = activeProject
             ? `
                 <h3>${activeChat ? activeChat.title : (activeProject.name || activeProject.brand_name || "Project")} is ready.</h3>
-                <p>${activeChat ? "Continue this saved chat or send the next instruction." : "Use this chat like Cursor or Codex: describe the job in plain language, mention a skill if you want one explicitly, or ask for the full workflow in your own order."}</p>
+                <p>${activeChat ? "Continue this saved chat or send the next instruction." : "Describe the job in plain language, mention a skill if you want one explicitly, or ask for the full workflow in your own order."}</p>
               `
             : `
                 <h3>Choose a project to begin.</h3>
@@ -12091,8 +12499,31 @@ What AI visibility tracking tools are cited most often?"></textarea>
           ? state.contentStudioCatalog.recommended_settings.slice(0, 5).map((item) => item.label).join(", ")
           : "brand, country, sitemap, approved domains, visual guidance";
 
+        if (els.workspaceChatHeading) {
+          els.workspaceChatHeading.textContent = activeChat
+            ? (activeChat.title || "Untitled chat")
+            : (activeProject ? (activeProject.name || activeProject.brand_name || "Content Studio") : "Content Studio");
+        }
+        if (els.workspaceRailProjectTitle) {
+          els.workspaceRailProjectTitle.textContent = activeProject
+            ? (activeProject.name || activeProject.brand_name || "Project")
+            : "Content Studio";
+        }
+        if (els.workspaceRailProjectMeta) {
+          els.workspaceRailProjectMeta.textContent = activeProject
+            ? [formatUrlLabel(activeProject.brand_url || ""), activeProject.default_target_country || ""].filter(Boolean).join(" · ")
+              || "Open chat history and continue the project thread."
+            : "Open a project to start a studio conversation.";
+        }
+        setProjectDashboardPill(els.workspaceRailStatusChip, status.label, status.tone || "neutral");
+        setProjectDashboardPill(
+          els.workspaceRailSetupChip,
+          `${setup.score}% setup`,
+          setup.score >= 80 ? "success" : (setup.score >= 50 ? "info" : "warning"),
+        );
+
         els.workspaceProjectMetaText.textContent = activeProject
-          ? `${activeChat ? activeChat.title : (activeProject.brand_name || activeProject.name || "Project")}${activeProject.default_target_country ? ` · ${activeProject.default_target_country}` : ""}${activeChat && activeChat.updated_at ? ` · ${formatDate(activeChat.updated_at)}` : ""}`
+          ? `${activeProject.brand_name || activeProject.name || "Project"}${activeProject.default_target_country ? ` · ${activeProject.default_target_country}` : ""}${activeChat && activeChat.updated_at ? ` · ${formatDate(activeChat.updated_at)}` : ""}`
           : "Open a project, then use chat to run a skill, a workflow, or a custom sequence.";
         els.workspaceChatStatus.textContent = state.workspaceSending
           ? "Thinking"
@@ -12102,18 +12533,30 @@ What AI visibility tracking tools are cited most often?"></textarea>
               ? `${activeSkillNames.length} skill${activeSkillNames.length === 1 ? "" : "s"} active`
               : "Ready";
         els.workspaceProjectContextText.textContent = activeProject
-          ? `${activeProject.name || activeProject.brand_name || "Selected project"} uses one shared settings layer for Content Studio and AI Visibility Tracker.${activeProject.sitemap_url ? ` Sitemap: ${activeProject.sitemap_url}.` : ""}${activeProject.brand_positioning ? " Brand positioning rules are configured in project settings." : ""}`
+          ? `${activeProject.name || activeProject.brand_name || "Selected project"} uses one shared settings layer for Content Studio and AI Visibility Tracker.${activeProject.sitemap_url ? ` Sitemap: ${activeProject.sitemap_url}.` : ""}`
           : "No project selected yet. Open a project from the workspace screen to load its shared brand and content settings.";
+        if (els.workspaceExecutionSelect) {
+          els.workspaceExecutionSelect.value = state.studioExecutionMode || "full_workflow";
+          els.workspaceExecutionSelect.disabled = !activeProject;
+        }
+        if (els.workspaceTaskSelect) {
+          els.workspaceTaskSelect.value = state.studioTaskType || "content_brief";
+          els.workspaceTaskSelect.disabled = !activeProject || (state.studioExecutionMode || "full_workflow") !== "single_task";
+        }
         els.workspaceIntentText.textContent = workflow
           ? `${workflow.name}: ${workflow.description}`
           : "No workflow pinned. The studio can infer the right path from your message, or you can lock one here.";
         els.workspaceNextStepText.textContent = activeSkillNames.length
           ? `${activeSkillNames.length} selected: ${activeSkillNames.join(", ")}`
           : "No skills pinned. Select only the ones you want forced; otherwise the studio will infer likely skills from your message.";
-        els.workspaceArtifactText.textContent = panel.notes && panel.notes.length
-          ? `${panel.notes.join(" ")} Exports available: ${exports}. Recommended project settings: ${settingsHint}.`
-          : `Exports available: ${exports}. Recommended settings: ${settingsHint}.`;
-        els.workspaceOpenArtifactBtn.disabled = true;
+        if (els.workspaceArtifactText) {
+          els.workspaceArtifactText.textContent = panel.notes && panel.notes.length
+            ? `${panel.notes.join(" ")} Exports available: ${exports}. Recommended project settings: ${settingsHint}.`
+            : `Exports available: ${exports}. Recommended settings: ${settingsHint}.`;
+        }
+        if (els.workspaceOpenArtifactBtn) {
+          els.workspaceOpenArtifactBtn.disabled = true;
+        }
         els.workspaceInput.disabled = !activeProject;
         els.workspaceInput.placeholder = activeProject
           ? "Message Content Studio. Example: Run the workflow in a custom order: brief, writer, internal linking, then publish QA."
@@ -12233,6 +12676,7 @@ What AI visibility tracking tools are cited most often?"></textarea>
           workflow_id: chat.workflow_id || null,
           notes: [],
         };
+        state.studioExecutionMode = chat.workflow_id ? "full_workflow" : "single_task";
         state.selectedStudioSkillIds = [];
         state.selectedStudioWorkflowId = chat.workflow_id || null;
         renderWorkspace();
@@ -12278,6 +12722,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.workspaceMessages = [];
         state.workspaceArtifact = null;
         state.workspacePanel = null;
+        state.studioExecutionMode = "full_workflow";
+        state.studioTaskType = "content_brief";
         state.selectedStudioSkillIds = [];
         state.selectedStudioWorkflowId = null;
         renderWorkspace();
@@ -12504,6 +12950,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.contentAgentRuns = [];
         state.selectedContentAgentRunId = null;
         state.selectedContentStudioChatId = null;
+        state.studioExecutionMode = "full_workflow";
+        state.studioTaskType = "content_brief";
         state.selectedStudioSkillIds = [];
         state.selectedStudioWorkflowId = null;
         resetVisibilityPromptGeneratorInputs();
@@ -12735,6 +13183,8 @@ What AI visibility tracking tools are cited most often?"></textarea>
         state.contentAgentRuns = [];
         state.selectedContentAgentRunId = null;
         state.selectedContentStudioChatId = null;
+        state.studioExecutionMode = "full_workflow";
+        state.studioTaskType = "content_brief";
         state.selectedStudioSkillIds = [];
         state.selectedStudioWorkflowId = null;
         resetVisibilityPromptGeneratorInputs();
@@ -13072,6 +13522,25 @@ What AI visibility tracking tools are cited most often?"></textarea>
           setActiveTab("workspace");
         });
       });
+
+      if (els.workspaceExecutionSelect) {
+        els.workspaceExecutionSelect.addEventListener("change", () => {
+          applyStudioExecutionSelection(
+            els.workspaceExecutionSelect.value,
+            els.workspaceTaskSelect ? els.workspaceTaskSelect.value : state.studioTaskType,
+          );
+          renderWorkspace();
+          persistUiState();
+        });
+      }
+
+      if (els.workspaceTaskSelect) {
+        els.workspaceTaskSelect.addEventListener("change", () => {
+          applyStudioExecutionSelection("single_task", els.workspaceTaskSelect.value);
+          renderWorkspace();
+          persistUiState();
+        });
+      }
 
       els.sendWorkspaceBtn.addEventListener("click", async () => {
         await sendWorkspaceMessage(els.workspaceInput.value);
